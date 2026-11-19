@@ -40,7 +40,14 @@ jobs:
               page.on('pageerror',error=>errors.push(error.message));
               await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
               await page.locator('img[loading="lazy"]').evaluateAll(imgs=>imgs.forEach(img=>img.loading='eager'));
-              await page.waitForTimeout(750);
+              const imageStates = await page.evaluate(async()=>{
+                const images=[...document.querySelectorAll('.ambiente-card img, .hero-media img, .sobre-foto img')];
+                await Promise.all(images.map(img=>img.decode().catch(()=>{})));
+                return images.map(img=>({src:img.getAttribute('src'),width:img.naturalWidth,complete:img.complete}));
+              });
+              const broken=imageStates.filter(img=>!img.width||!img.complete);
+              if(broken.length)throw Error(cfg.name+' broken or undecoded gallery images: '+JSON.stringify(broken));
+              await page.waitForTimeout(200);
               const dims=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,inner:innerWidth}));
               if(dims.scroll>dims.inner+2)throw Error(cfg.name+' horizontal overflow '+JSON.stringify(dims));
               if(errors.length)throw Error(cfg.name+' runtime errors: '+errors.join('; '));
