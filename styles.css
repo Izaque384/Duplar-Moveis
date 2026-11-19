@@ -848,7 +848,7 @@ section[id]{scroll-margin-top:90px}
     box-shadow:0 8px 32px rgba(36,24,17,.25);
     border:1px solid var(--brass-light);border-radius:2px
   }
-  .mobile-contact[hidden]{display:none}
+  .mobile-contact[hidden],.mobile-contact[data-at-contact]{display:none}
   .footer-bottom{padding-bottom:5rem}
 }
 @media (max-width:370px){
