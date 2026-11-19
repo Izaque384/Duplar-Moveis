@@ -1,0 +1,76 @@
+name: Visual review of Duplar landing
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - .github/workflows/visual-review.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  screenshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install browser automation
+        run: |
+          npm install --no-save --silent playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Render and test responsive pages
+        run: |
+          python3 -m http.server 4173 > /tmp/duplar-site.log 2>&1 &
+          mkdir -p review
+          node <<'NODE'
+          const {chromium} = require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const cases=[
+              {name:'desktop',width:1440,height:900},
+              {name:'tablet',width:900,height:900},
+              {name:'mobile',width:390,height:844},
+              {name:'mobile-small',width:360,height:780}
+            ];
+            for(const cfg of cases){
+              const page=await browser.newPage({viewport:{width:cfg.width,height:cfg.height},deviceScaleFactor:1});
+              const errors=[];
+              page.on('pageerror',error=>errors.push(error.message));
+              await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
+              await page.locator('img[loading="lazy"]').evaluateAll(imgs=>imgs.forEach(img=>img.loading='eager'));
+              await page.waitForTimeout(750);
+              const dims=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,inner:innerWidth}));
+              if(dims.scroll>dims.inner+2)throw Error(cfg.name+' horizontal overflow '+JSON.stringify(dims));
+              if(errors.length)throw Error(cfg.name+' runtime errors: '+errors.join('; '));
+              await page.screenshot({path:'review/'+cfg.name+'.png',fullPage:true,animations:'disabled'});
+              if(cfg.name==='mobile'){
+                const toggle=page.locator('#navToggle');
+                await toggle.click();
+                if(await toggle.getAttribute('aria-expanded')!=='true')throw Error('mobile menu did not open');
+                await page.keyboard.press('Escape');
+                if(await toggle.getAttribute('aria-expanded')!=='false')throw Error('mobile menu did not close');
+                await page.locator('.ambiente-card').first().click();
+                if(!(await page.locator('#lightbox').isVisible()))throw Error('lightbox did not open');
+                await page.keyboard.press('Escape');
+                await page.waitForTimeout(350);
+                if(await page.locator('#lightbox').isVisible())throw Error('lightbox did not close');
+              }
+              console.log('PASS '+cfg.name+' '+JSON.stringify(dims));
+              await page.close();
+            }
+            await browser.close();
+          })().catch(err=>{console.error(err);process.exit(1)});
+          NODE
+      - name: Bundle browser previews and site source
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: duplar-visual-review
+          path: |
+            review/
+            index.html
+            styles.css
+            script.js
+            assets/img/
+          retention-days: 14
