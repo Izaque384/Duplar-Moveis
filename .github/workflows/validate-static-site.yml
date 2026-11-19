@@ -1,0 +1,62 @@
+name: Validate Duplar static site
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate JavaScript syntax
+        run: node --check script.js
+      - name: Validate links, media and placeholder safety
+        run: |
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          from urllib.parse import urlparse
+          import re
+
+          class SiteParser(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.ids=set()
+                  self.links=[]
+                  self.assets=[]
+                  self.images=0
+              def handle_starttag(self,tag,attrs):
+                  a=dict(attrs)
+                  if a.get('id'): self.ids.add(a['id'])
+                  if tag=='img': self.images += 1
+                  for key in ('src','data-full','data-webp','srcset'):
+                      if a.get(key): self.assets.extend(a[key].split(','))
+                  if tag=='a' and a.get('href','').startswith('#'): self.links.append(a['href'][1:])
+
+          html=Path('index.html').read_text(encoding='utf-8')
+          css=Path('styles.css').read_text(encoding='utf-8')
+          js=Path('script.js').read_text(encoding='utf-8')
+          p=SiteParser()
+          p.feed(html)
+          missing=[]
+          for entry in p.assets:
+              name=entry.strip().split(' ')[0]
+              if name.startswith('assets/') and not Path(name).is_file(): missing.append(name)
+          assert not missing, f'Missing images: {missing}'
+          bad=[a for a in p.links if a and a not in p.ids]
+          assert not bad, f'Broken section anchors: {bad}'
+          assert p.images >= 8, f'Unexpected image count: {p.images}'
+          assert '<!-- DEPOIMENTOS -->' not in html, 'Placeholder testimonials may not be published'
+          assert 'https://wa.me/55"' not in html, 'Incomplete WhatsApp link'
+          assert html.count('data-contact-cta') >= 4, 'Missing CTA entry points'
+          assert p.ids.issuperset({'topo','ambientes','sobre','diferenciais','processo','contato'}), 'Missing essential sections'
+          assert 'DUPLAR 2026 - PRIMEIRA REVISAO' in css, 'Visual revision CSS missing'
+          assert 'whatsappReady' in js, 'WhatsApp activation script missing'
+          print('OK: all images, page sections, CTA links and revisions are present')
+          PY
