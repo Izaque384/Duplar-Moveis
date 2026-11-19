@@ -17,15 +17,25 @@ const nav = document.getElementById('nav');
 if (navToggle && nav) {
   navToggle.addEventListener('click', () => {
     const isOpen = nav.classList.toggle('open');
-    navToggle.setAttribute('aria-expanded', isOpen);
+    navToggle.setAttribute('aria-expanded', String(isOpen));
     navToggle.setAttribute('aria-label', isOpen ? 'Fechar menu' : 'Abrir menu');
+    document.getElementById('mobileContact')?.toggleAttribute('hidden', isOpen);
   });
-  nav.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', () => {
-      nav.classList.remove('open');
-      navToggle.setAttribute('aria-expanded', 'false');
-      navToggle.setAttribute('aria-label', 'Abrir menu');
-    });
+  const closeNav = () => {
+    nav.classList.remove('open');
+    navToggle.setAttribute('aria-expanded', 'false');
+    navToggle.setAttribute('aria-label', 'Abrir menu');
+    document.getElementById('mobileContact')?.removeAttribute('hidden');
+  };
+  nav.querySelectorAll('a').forEach(link => link.addEventListener('click', closeNav));
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && nav.classList.contains('open')) {
+      closeNav();
+      navToggle.focus();
+    }
+  });
+  document.addEventListener('click', (event) => {
+    if (nav.classList.contains('open') && !nav.contains(event.target) && !navToggle.contains(event.target)) closeNav();
   });
 }
 
@@ -35,18 +45,19 @@ if (navToggle && nav) {
 const revealTargets = document.querySelectorAll(
   '.sobre-grid, .dif-card, .step, .ambiente-card, blockquote, .cta-inner'
 );
-revealTargets.forEach(el => el.classList.add('reveal'));
-
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.classList.add('is-visible');
-      observer.unobserve(entry.target);
-    }
-  });
-}, { threshold: 0.15 });
-
-revealTargets.forEach(el => observer.observe(el));
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if ('IntersectionObserver' in window && !prefersReducedMotion) {
+  revealTargets.forEach(el => el.classList.add('reveal'));
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  revealTargets.forEach(el => observer.observe(el));
+}
 
 // ============================================
 // Lightbox da galeria de ambientes
@@ -108,9 +119,21 @@ if (lightbox && cards.length) {
   // teclado
   document.addEventListener('keydown', (e) => {
     if (lightbox.hidden) return;
-    if (e.key === 'Escape') fechar();
+    if (e.key === 'Escape') { fechar(); return; }
     if (e.key === 'ArrowLeft') mostrar(atual - 1);
     if (e.key === 'ArrowRight') mostrar(atual + 1);
+    if (e.key === 'Tab') {
+      const focusables = [lbFechar, lbPrev, lbNext].filter(Boolean);
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
   });
 
   // arrastar no celular
@@ -122,4 +145,44 @@ if (lightbox && cards.length) {
     if (Math.abs(delta) > 50) mostrar(delta > 0 ? atual - 1 : atual + 1);
     toqueX = null;
   }, { passive: true });
+}
+
+
+// ============================================
+// Conversão: WhatsApp oficial configurável
+// Preencher data-whatsapp-number no <body> com 55 + DDD + numero.
+// Sem numero confirmado, nenhum link falso é disponibilizado.
+// ============================================
+const whatsappNumber = (document.body.dataset.whatsappNumber || '').replace(/\D/g, '');
+const whatsappReady = /^55\d{10,11}$/.test(whatsappNumber);
+const contactCtas = document.querySelectorAll('[data-contact-cta]');
+const contactNote = document.getElementById('contactNote');
+const whatsBtn = document.getElementById('whatsBtn');
+if (whatsappReady) {
+  const message = encodeURIComponent('Olá! Visitei o site da Duplar Móveis e gostaria de conversar sobre um projeto de móveis sob medida.');
+  const whatsappUrl = 'https://wa.me/' + whatsappNumber + '?text=' + message;
+  contactCtas.forEach(link => {
+    link.href = whatsappUrl;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.removeAttribute('aria-disabled');
+  });
+  if (whatsBtn) {
+    whatsBtn.classList.remove('is-pending');
+    whatsBtn.textContent = 'Conversar no WhatsApp ↗';
+  }
+  if (contactNote) contactNote.hidden = true;
+} else if (whatsBtn) {
+  whatsBtn.addEventListener('click', event => event.preventDefault());
+}
+
+// Oculta o atalho movel enquanto a secao final de contato esta visivel.
+const mobileContact = document.getElementById('mobileContact');
+const contactSection = document.getElementById('contato');
+if (mobileContact && contactSection && 'IntersectionObserver' in window) {
+  const mobileObserver = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) mobileContact.setAttribute('data-at-contact', 'true');
+    else mobileContact.removeAttribute('data-at-contact');
+  }, {threshold: 0.15});
+  mobileObserver.observe(contactSection);
 }
