@@ -88,10 +88,25 @@ jobs:
               const page=await browser.newPage({viewport:{width:cfg.width,height:cfg.height},deviceScaleFactor:1});
               await page.emulateMedia({reducedMotion:'no-preference'});
               await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
+              await page.waitForTimeout(2200);
+              const initial=await page.locator('#heroVideo').evaluate(v=>({
+                src:v.currentSrc, configuredSrc:v.src, paused:v.paused, muted:v.muted,
+                ready:v.readyState, network:v.networkState, error:v.error?.code || null,
+                codec:v.canPlayType('video/mp4; codecs="avc1.42E01E"'),
+                className:document.querySelector('.hero-media')?.className
+              }));
+              console.log('Video diagnostic '+cfg.name+' '+JSON.stringify(initial));
+              if(!initial.codec) {
+                if(initial.className.includes('is-video-ready'))
+                  throw Error('Unsupported codec may not mark video ready');
+                console.log('SKIP autoplay in browser without H264 decoder, fallback preserved');
+                await page.close();
+                continue;
+              }
               await page.waitForFunction(() => {
                 const v=document.getElementById('heroVideo');
                 return !!v && v.readyState >= 2 && document.querySelector('.hero-media')?.classList.contains('is-video-ready');
-              },{timeout:20000});
+              },null,{timeout:13000});
               const info=await page.locator('#heroVideo').evaluate(v=>({
                 src:v.currentSrc, paused:v.paused, muted:v.muted,
                 size:[v.videoWidth,v.videoHeight], duration:v.duration
