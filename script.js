@@ -186,3 +186,12 @@ if (mobileContact && contactSection && 'IntersectionObserver' in window) {
   }, {threshold: 0.15});
   mobileObserver.observe(contactSection);
 }
+
+// O atalho flutuante aparece somente depois que o visitante deixa o hero.
+const heroSection = document.getElementById('topo');
+if (mobileContact && heroSection && 'IntersectionObserver' in window) {
+  const heroObserver = new IntersectionObserver(entries => {
+    mobileContact.toggleAttribute('data-hero-passed', !entries[0].isIntersecting);
+  }, { threshold: 0.08 });
+  heroObserver.observe(heroSection);
+}
