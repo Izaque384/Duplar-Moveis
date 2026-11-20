@@ -562,3 +562,39 @@ h3 { font-size: clamp(1.2rem, 1.8vw, 1.5rem); }
       linear-gradient(0deg, rgba(10,11,13,.96) 0%, rgba(10,11,13,.65) 47%, rgba(10,11,13,.08) 100%);
   }
 }
+
+/* Hero cinematografico: imagem de fundo permanece como fallback.
+   A camada de video so aparece apos o primeiro frame decodificado. */
+.hero-media { isolation: isolate; }
+.hero-media picture { position: absolute; inset: 0; display: block; z-index: 0; }
+.hero-media picture img { width: 100%; height: 100%; object-fit: cover; }
+.hero-media .hero-video {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 58% 50%;
+  opacity: 0;
+  transition: opacity .65s ease;
+  pointer-events: none;
+  filter: saturate(.9) brightness(.96);
+}
+.hero-media.is-video-ready .hero-video { opacity: 1; }
+.hero-media::after { z-index: 2; }
+.hero-stock-note {
+  margin-top: .9rem;
+  font-family: var(--font-body);
+  font-size: .7rem;
+  letter-spacing: .015em;
+  color: rgba(244,242,238,.72);
+}
+@media (max-width: 600px) {
+  .hero-media .hero-video { object-position: 53% center; }
+  .hero-stock-note { font-size: .62rem; line-height: 1.5; max-width: 27rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-media .hero-video { display: none; }
+}
