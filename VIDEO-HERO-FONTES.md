@@ -29,6 +29,18 @@ Revisão: 20/11/2026.
 - A montagem editável original também está disponível no Descript:
   https://web.descript.com/29e216d1-5c1e-4b47-9c80-6c6a5d2fe78e/d99ef
 
+## Versão V2 — master remasterizado em 20/11/2026
+- **Em uso na branch develop:** `assets/video/hero-duplar-wide-v2.mp4`, `hero-duplar-mobile-v2.mp4`, `hero-duplar-poster-v2.jpg`.
+- Compilação direta dos arquivos originais 4K baixados do Pexels, sem encodes intermediários.
+- Cenas em ordem: (1) cozinha, (2) ambiente integrado e (3) quarto; a sala de estar mais genérica foi retirada.
+- Cortes: cozinha 2,3–7,1 s; integrado 3,6–8,4 s; quarto 0,9–5,7 s; dissolvências de 0,35 s; duração final aprox. 13,71 s.
+- Desktop: 1920×1080, H.264 high, 24 fps, CRF 18, preset slow, sem áudio, ~9,85 MB.
+- Mobile: 720×1280, H.264 high, 24 fps, CRF 19, preset slow, sem áudio, ~3,97 MB; recorte lateral pensado para formato vertical.
+- Contraste ajustado levemente, sem desaturação que prejudique madeira e iluminação. O overlay do hero foi suavizado.
+- Renderização reproduzível: `.github/workflows/hero-video-render.yml`.
+- Limite de conteúdo: os originais têm pouca movimentação e não correspondem a projetos da Duplar. A melhora de codificação não substitui a necessidade de filmagens arquitetônicas próprias no futuro.
+- **V1 foi preservada como backup**, não utilizada no hero em develop.
+
 ## Cuidados de publicação
 - Não substituir vídeos por versões originais 4K pesadas sem teste de desempenho.
 - Exigir foto de fallback, `muted`, `playsinline`, respeitar preferência por movimento reduzido e economia de dados.
