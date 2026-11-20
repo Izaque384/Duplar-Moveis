@@ -521,6 +521,10 @@ h3 { font-size: clamp(1.2rem, 1.8vw, 1.5rem); }
     box-shadow: 0 14px 32px rgba(0,0,0,.22);
     font-size: .64rem;
     padding: .9rem 1.2rem;
+    display: none;
+  }
+  .mobile-contact[data-hero-passed="true"]:not([hidden]):not([data-at-contact]) {
+    display: inline-flex;
   }
 }
 @media (max-width: 370px) {
