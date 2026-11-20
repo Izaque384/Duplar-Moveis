@@ -55,7 +55,10 @@ jobs:
           assert '<!-- DEPOIMENTOS -->' not in html, 'Placeholder testimonials may not be published'
           assert 'https://wa.me/55"' not in html, 'Incomplete WhatsApp link'
           assert html.count('data-contact-cta') >= 4, 'Missing CTA entry points'
-          assert p.ids.issuperset({'topo','ambientes','sobre','diferenciais','processo','contato'}), 'Missing essential sections'
+          assert p.ids.issuperset({'topo','ambientes','depoimentos','diferenciais','processo','contato'}), 'Missing essential sections'
+          assert '02 / DEPOIMENTOS' in html and '@fernando_prado31' in html, 'Instagram testimonial missing'
+          assert html.count('class="depoimento-citacao"') == 1, 'Expected one fixed testimonial only'
+          assert 'id="sobre"' not in html and 'href="#sobre"' not in html, 'Old about section reference'
           assert 'DUPLAR 2026 - PRIMEIRA REVISAO' in css, 'Visual revision CSS missing'
           assert 'whatsappReady' in js, 'WhatsApp activation script missing'
           print('OK: all images, page sections, CTA links and revisions are present')
