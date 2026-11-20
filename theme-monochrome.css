@@ -580,7 +580,7 @@ h3 { font-size: clamp(1.2rem, 1.8vw, 1.5rem); }
   opacity: 0;
   transition: opacity .65s ease;
   pointer-events: none;
-  filter: saturate(.9) brightness(.96);
+  filter: none;
 }
 .hero-media.is-video-ready .hero-video { opacity: 1; }
 .hero-media::after { z-index: 2; }
@@ -597,4 +597,23 @@ h3 { font-size: clamp(1.2rem, 1.8vw, 1.5rem); }
 }
 @media (prefers-reduced-motion: reduce) {
   .hero-media .hero-video { display: none; }
+}
+
+/* V2: preserve original-detail contrast without hiding the new HD master. */
+.hero-media::after {
+  background:
+    linear-gradient(90deg, rgba(12,13,15,.83) 0%, rgba(12,13,15,.65) 30%, rgba(12,13,15,.21) 62%, rgba(12,13,15,.07) 100%),
+    linear-gradient(0deg, rgba(12,13,15,.58) 0%, transparent 40%);
+}
+@media (max-width: 860px) {
+  .hero-media::after {
+    background:
+      linear-gradient(90deg, rgba(12,13,15,.84), rgba(12,13,15,.34)),
+      linear-gradient(0deg, rgba(12,13,15,.53), transparent 68%);
+  }
+}
+@media (max-width: 600px) {
+  .hero-media::after {
+    background: linear-gradient(0deg, rgba(10,11,13,.93) 0%, rgba(10,11,13,.62) 48%, rgba(10,11,13,.08) 100%);
+  }
 }
