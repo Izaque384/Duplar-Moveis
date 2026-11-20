@@ -10,6 +10,7 @@ on:
       - theme-monochrome.css
       - script.js
       - assets/img/**
+      - assets/video/**
   workflow_dispatch:
 
 permissions:
@@ -79,6 +80,29 @@ jobs:
               console.log('PASS '+cfg.name+' '+JSON.stringify(dims));
               await page.close();
             }
+            // Real motion checks complement the reduced-motion image fallback screenshots.
+            for (const cfg of [
+              {name:'desktop',width:1440,height:900,file:'hero-duplar-wide.mp4'},
+              {name:'mobile',width:390,height:844,file:'hero-duplar-mobile.mp4'}
+            ]) {
+              const page=await browser.newPage({viewport:{width:cfg.width,height:cfg.height},deviceScaleFactor:1});
+              await page.emulateMedia({reducedMotion:'no-preference'});
+              await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
+              await page.waitForFunction(() => {
+                const v=document.getElementById('heroVideo');
+                return !!v && v.readyState >= 2 && document.querySelector('.hero-media')?.classList.contains('is-video-ready');
+              },{timeout:20000});
+              const info=await page.locator('#heroVideo').evaluate(v=>({
+                src:v.currentSrc, paused:v.paused, muted:v.muted,
+                size:[v.videoWidth,v.videoHeight], duration:v.duration
+              }));
+              if(!info.src.includes(cfg.file)||info.paused||!info.muted)
+                throw Error(cfg.name+' video mismatch: '+JSON.stringify(info));
+              if(info.duration<13 || info.duration>15) throw Error(cfg.name+' unexpected duration '+info.duration);
+              await page.screenshot({path:'review/hero-video-'+cfg.name+'.png',animations:'disabled'});
+              console.log('PASS '+cfg.name+' autoplay '+JSON.stringify(info));
+              await page.close();
+            }
             await browser.close();
           })().catch(err=>{console.error(err);process.exit(1)});
           NODE
@@ -94,4 +118,5 @@ jobs:
             theme-monochrome.css
             script.js
             assets/img/
+            assets/video/
           retention-days: 14
