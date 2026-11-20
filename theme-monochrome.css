@@ -61,7 +61,7 @@ h3 { font-size: clamp(1.2rem, 1.8vw, 1.5rem); }
 }
 .site-header.scrolled {
   background: rgba(16,17,19,.96);
-  border-color: var(--hairline);
+  border-color: transparent;
   backdrop-filter: blur(18px);
   box-shadow: 0 14px 40px rgba(0,0,0,.13);
 }
@@ -714,3 +714,7 @@ h3 { font-size: clamp(1.2rem, 1.8vw, 1.5rem); }
   .hero .btn { min-height: 42px; padding: .65rem 1rem; }
   .hero-footnote, .hero-stock-note, .scroll-cue { display: none; }
 }
+
+/* Header sem linhas divisórias: preservar marca, menu e botões. */
+.site-header, .site-header.scrolled { border-bottom: none; }
+.site-header .logo-texto { border-left: 0; padding-left: 0; }
