@@ -717,4 +717,4 @@ h3 { font-size: clamp(1.2rem, 1.8vw, 1.5rem); }
 
 /* Header sem linhas divisórias: preservar marca, menu e botões. */
 .site-header, .site-header.scrolled { border-bottom: none; }
-.site-header .logo-texto { border-left: 0; padding-left: 0; }
+.site-header .logo-texto { border-left: 1px solid var(--hairline-bright); padding-left: .7rem; }
