@@ -35,9 +35,13 @@ jobs:
             const browser=await chromium.launch({headless:true});
             const cases=[
               {name:'desktop',width:1440,height:900},
+              {name:'laptop',width:1366,height:768},
               {name:'tablet',width:900,height:900},
               {name:'mobile',width:390,height:844},
-              {name:'mobile-small',width:360,height:780}
+              {name:'mobile-small',width:360,height:780},
+              {name:'mobile-compact',width:375,height:667},
+              {name:'mobile-tiny',width:320,height:568},
+              {name:'mobile-landscape',width:844,height:390}
             ];
             for(const cfg of cases){
               const page=await browser.newPage({viewport:{width:cfg.width,height:cfg.height},deviceScaleFactor:1});
@@ -56,6 +60,29 @@ jobs:
               await page.waitForTimeout(200);
               const dims=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,inner:innerWidth}));
               if(dims.scroll>dims.inner+2)throw Error(cfg.name+' horizontal overflow '+JSON.stringify(dims));
+              const viewportCheck=await page.evaluate(()=>{
+                const hero=document.querySelector('.hero').getBoundingClientRect();
+                const media=document.querySelector('.hero-media').getBoundingClientRect();
+                const content=document.querySelector('.hero-content').getBoundingClientRect();
+                const header=document.querySelector('.site-header').getBoundingClientRect();
+                const next=document.querySelector('#ambientes').getBoundingClientRect();
+                const mediaVideo=document.querySelector('.hero-video').getBoundingClientRect();
+                const buttons=[...document.querySelectorAll('.hero-actions .btn')].map(x=>x.getBoundingClientRect().bottom);
+                return {
+                  viewport:innerHeight,heroTop:hero.top,heroBottom:hero.bottom,heroHeight:hero.height,
+                  mediaHeight:media.height,videoHeight:mediaVideo.height,nextTop:next.top,
+                  contentTop:content.top,contentBottom:content.bottom,headerBottom:header.bottom,
+                  buttonBottom:Math.max(...buttons)
+                };
+              });
+              if(Math.abs(viewportCheck.heroHeight-viewportCheck.viewport)>2
+                || Math.abs(viewportCheck.nextTop-viewportCheck.viewport)>2
+                || Math.abs(viewportCheck.videoHeight-viewportCheck.viewport)>2
+                || viewportCheck.contentBottom>viewportCheck.viewport+1
+                || viewportCheck.buttonBottom>viewportCheck.viewport+1
+                || viewportCheck.contentTop<viewportCheck.headerBottom-3)
+                throw Error(cfg.name+' hero must fit one full screen with visible content: '+JSON.stringify(viewportCheck));
+              console.log('PASS single-screen hero '+cfg.name+' '+JSON.stringify(viewportCheck));
               const theme = await page.evaluate(()=>({
                 cssLoaded:[...document.styleSheets].some(s=>(s.href||'').includes('theme-monochrome.css')),
                 surface:getComputedStyle(document.querySelector('.ambientes')).backgroundColor,
