@@ -91,7 +91,30 @@ jobs:
               if(!theme.cssLoaded || theme.surface!=='rgb(16, 17, 19)')
                 throw Error(cfg.name+' new theme missing: '+JSON.stringify(theme));
               if(errors.length)throw Error(cfg.name+' runtime errors: '+errors.join('; '));
+              const testimonial=await page.evaluate(()=>{
+                const section=document.querySelector('#depoimentos');
+                const intro=section?.querySelector('.depoimento-intro');
+                const card=section?.querySelector('.depoimento-card');
+                const title=section?.querySelector('#depoimento-titulo');
+                const quote=section?.querySelector('.depoimento-citacao');
+                if(!section||!intro||!card||!quote||!title)return {missing:true};
+                const a=intro.getBoundingClientRect(),b=card.getBoundingClientRect();
+                return {
+                  missing:false,
+                  count:document.querySelectorAll('.depoimento-citacao').length,
+                  author:card.textContent.includes('@fernando_prado31'),
+                  quoteComplete:quote.textContent.includes('Super recomendo!'),
+                  position: b.left>=a.right-2?'right':b.top>=a.bottom-2?'below':'overlap',
+                  sectionOverflow:section.scrollWidth>section.clientWidth+2
+                };
+              });
+              if(testimonial.missing||testimonial.count!==1||!testimonial.author
+                ||!testimonial.quoteComplete||testimonial.sectionOverflow
+                ||testimonial.position!==(cfg.width>760?'right':'below'))
+                throw Error(cfg.name+' testimonial layout issue: '+JSON.stringify(testimonial));
+              console.log('PASS testimonial '+cfg.name+' '+JSON.stringify(testimonial));
               await page.screenshot({path:'review/'+cfg.name+'.png',fullPage:true,animations:'disabled'});
+              await page.locator('#depoimentos').screenshot({path:'review/depoimento-'+cfg.name+'.png',animations:'disabled'});
               if(cfg.name==='mobile'){
                 const toggle=page.locator('#navToggle');
                 await toggle.click();
