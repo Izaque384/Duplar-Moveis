@@ -195,3 +195,47 @@ if (mobileContact && heroSection && 'IntersectionObserver' in window) {
   }, { threshold: 0.08 });
   heroObserver.observe(heroSection);
 }
+
+
+// ============================================
+// Hero cinematografico — reproducao com fallback
+// ============================================
+const duplarHeroVideo = document.getElementById('heroVideo');
+if (duplarHeroVideo) {
+  const heroMedia = duplarHeroVideo.closest('.hero-media');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const saveData = Boolean(navigator.connection && navigator.connection.saveData);
+
+  if (!reduceMotion && !saveData) {
+    duplarHeroVideo.muted = true;
+    duplarHeroVideo.defaultMuted = true;
+    duplarHeroVideo.playsInline = true;
+    duplarHeroVideo.preload = 'auto';
+
+    duplarHeroVideo.addEventListener('playing', () => {
+      heroMedia?.classList.add('is-video-ready');
+    });
+    duplarHeroVideo.addEventListener('error', () => {
+      heroMedia?.classList.remove('is-video-ready');
+    });
+
+    const tryPlayHero = () => {
+      const attempt = duplarHeroVideo.play();
+      if (attempt && typeof attempt.catch === 'function') {
+        attempt.catch(() => {
+          // Autoplay bloqueado: a fotografia continua visivel.
+          heroMedia?.classList.remove('is-video-ready');
+        });
+      }
+    };
+    tryPlayHero();
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) duplarHeroVideo.pause();
+      else tryPlayHero();
+    });
+  } else {
+    duplarHeroVideo.pause();
+    // Nao carrega video se o visitante pediu movimento reduzido ou economia de dados.
+    duplarHeroVideo.preload = 'none';
+  }
+}
