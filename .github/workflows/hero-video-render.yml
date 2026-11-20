@@ -23,10 +23,17 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: true
-      - name: Check FFmpeg
+      - name: Install FFmpeg and FFprobe if needed
+        shell: bash
         run: |
+          set -euo pipefail
+          if ! command -v ffmpeg >/dev/null || ! command -v ffprobe >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y ffmpeg
+          fi
+          command -v ffmpeg
+          command -v ffprobe
           ffmpeg -version | head -1
-          ffprobe -version | head -1
       - name: Download original high-resolution footage from Pexels
         shell: bash
         run: |
