@@ -211,6 +211,11 @@ if (duplarHeroVideo) {
     duplarHeroVideo.defaultMuted = true;
     duplarHeroVideo.playsInline = true;
     duplarHeroVideo.preload = 'auto';
+    const mobileHero = window.matchMedia('(max-width: 600px)').matches;
+    duplarHeroVideo.src = mobileHero
+      ? duplarHeroVideo.dataset.srcMobile
+      : duplarHeroVideo.dataset.srcDesktop;
+    duplarHeroVideo.load();
 
     duplarHeroVideo.addEventListener('playing', () => {
       heroMedia?.classList.add('is-video-ready');
