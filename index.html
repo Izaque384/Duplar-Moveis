@@ -60,10 +60,9 @@
       </picture>
       <video id="heroVideo" class="hero-video" muted loop playsinline preload="none"
              poster="assets/video/hero-duplar-poster.jpg" disablepictureinpicture
-             aria-hidden="true" tabindex="-1">
-        <source src="assets/video/hero-duplar-mobile.mp4" type="video/mp4" media="(max-width: 600px)">
-        <source src="assets/video/hero-duplar-wide.mp4" type="video/mp4">
-      </video>
+             data-src-desktop="assets/video/hero-duplar-wide.mp4"
+             data-src-mobile="assets/video/hero-duplar-mobile.mp4"
+             aria-hidden="true" tabindex="-1"></video>
     </div>
     <svg class="grain-rings" viewBox="0 0 800 800" aria-hidden="true">
       <circle cx="400" cy="400" r="60" class="ring ring-1"/>
