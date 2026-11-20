@@ -67,7 +67,7 @@ jobs:
                 const header=document.querySelector('.site-header').getBoundingClientRect();
                 const next=document.querySelector('#ambientes').getBoundingClientRect();
                 const mediaVideo=document.querySelector('.hero-video').getBoundingClientRect();
-                const buttons=[...document.querySelectorAll('.hero-actions .btn')].map(x=>x.getBoundingClientRect().bottom);
+                const buttons=[...document.querySelectorAll('.hero .hero-actions .btn')].map(x=>x.getBoundingClientRect().bottom);
                 return {
                   viewport:innerHeight,heroTop:hero.top,heroBottom:hero.bottom,heroHeight:hero.height,
                   mediaHeight:media.height,videoHeight:mediaVideo.height,nextTop:next.top,
@@ -77,7 +77,7 @@ jobs:
               });
               if(Math.abs(viewportCheck.heroHeight-viewportCheck.viewport)>2
                 || Math.abs(viewportCheck.nextTop-viewportCheck.viewport)>2
-                || Math.abs(viewportCheck.videoHeight-viewportCheck.viewport)>2
+                || Math.abs(viewportCheck.mediaHeight-viewportCheck.viewport)>2
                 || viewportCheck.contentBottom>viewportCheck.viewport+1
                 || viewportCheck.buttonBottom>viewportCheck.viewport+1
                 || viewportCheck.contentTop<viewportCheck.headerBottom-3)
