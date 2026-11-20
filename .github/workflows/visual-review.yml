@@ -5,6 +5,11 @@ on:
     branches: [develop]
     paths:
       - .github/workflows/visual-review.yml
+      - index.html
+      - styles.css
+      - theme-monochrome.css
+      - script.js
+      - assets/img/**
   workflow_dispatch:
 
 permissions:
@@ -50,6 +55,13 @@ jobs:
               await page.waitForTimeout(200);
               const dims=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,inner:innerWidth}));
               if(dims.scroll>dims.inner+2)throw Error(cfg.name+' horizontal overflow '+JSON.stringify(dims));
+              const theme = await page.evaluate(()=>({
+                cssLoaded:[...document.styleSheets].some(s=>(s.href||'').includes('theme-monochrome.css')),
+                surface:getComputedStyle(document.querySelector('.ambientes')).backgroundColor,
+                text:getComputedStyle(document.querySelector('.ambientes')).color
+              }));
+              if(!theme.cssLoaded || theme.surface!=='rgb(16, 17, 19)')
+                throw Error(cfg.name+' new theme missing: '+JSON.stringify(theme));
               if(errors.length)throw Error(cfg.name+' runtime errors: '+errors.join('; '));
               await page.screenshot({path:'review/'+cfg.name+'.png',fullPage:true,animations:'disabled'});
               if(cfg.name==='mobile'){
@@ -79,6 +91,7 @@ jobs:
             review/
             index.html
             styles.css
+            theme-monochrome.css
             script.js
             assets/img/
           retention-days: 14
