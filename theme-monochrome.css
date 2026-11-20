@@ -718,3 +718,208 @@ h3 { font-size: clamp(1.2rem, 1.8vw, 1.5rem); }
 /* Header sem linhas divisórias: preservar marca, menu e botões. */
 .site-header, .site-header.scrolled { border-bottom: none; }
 .site-header .logo-texto { border-left: 1px solid var(--hairline-bright); padding-left: .7rem; }
+
+
+/* =========================================================
+   SINGLE INSTAGRAM TESTIMONIAL
+   Identidade editorial monocromatica: um comentario fixo
+   ========================================================= */
+.depoimento-secao {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #202124;
+  color: var(--cream-text);
+}
+.depoimento-secao::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: min(66vw, 900px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(244, 242, 238, .045);
+  border-radius: 50%;
+  top: -55%; left: -24%;
+  box-shadow: 0 0 0 74px rgba(244,242,238,.012), 0 0 0 148px rgba(244,242,238,.009);
+  pointer-events: none;
+}
+.depoimento-grid {
+  display: grid;
+  grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr);
+  align-items: center;
+  gap: clamp(2.75rem, 7.5vw, 8rem);
+  padding-top: clamp(5.5rem, 10vw, 9rem);
+  padding-bottom: clamp(5.5rem, 10vw, 9rem);
+}
+.depoimento-intro { max-width: 510px; min-width: 0; }
+.depoimento-intro .eyebrow {
+  margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+  color: var(--silver);
+}
+.depoimento-intro h2 {
+  font-size: clamp(2.9rem, 4.5vw, 5.2rem);
+  font-weight: 400;
+  line-height: 1.11;
+  letter-spacing: -.044em;
+  margin: 0 0 clamp(1.75rem, 3.5vw, 2.8rem);
+  max-width: 12ch;
+  color: var(--cream-text);
+}
+.depoimento-intro h2 em {
+  font-weight: 350;
+  font-style: italic;
+  color: var(--silver);
+}
+.depoimento-descricao {
+  max-width: 420px;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: clamp(.94rem, 1.15vw, 1.06rem);
+  line-height: 1.9;
+}
+.depoimento-intro-rodape {
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+  margin-top: clamp(2rem, 4.5vw, 3.6rem);
+  font-family: var(--font-mono);
+  font-size: .62rem;
+  letter-spacing: .15em;
+  color: var(--silver);
+}
+.depoimento-linha {
+  width: 44px;
+  height: 1px;
+  flex: 0 0 auto;
+  background: var(--hairline-bright);
+}
+.depoimento-card {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: clamp(2.1rem, 4vw, 4rem);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(244,242,238,.15);
+  border-radius: 2px;
+  background:
+    radial-gradient(ellipse at 100% 0%, rgba(244,242,238,.055), transparent 48%),
+    linear-gradient(150deg, #2a2b2e 0%, #222326 100%);
+  box-shadow: 0 24px 75px rgba(0,0,0,.17);
+}
+.depoimento-card-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding-bottom: 1.55rem;
+  border-bottom: 1px solid var(--hairline);
+}
+.depoimento-plataforma {
+  color: #d5d4d1;
+  font-family: var(--font-mono);
+  font-size: .63rem;
+  letter-spacing: .16em;
+  line-height: 1.6;
+}
+.depoimento-icone-instagram { width: 21px; height: 21px; flex: 0 0 auto; color: var(--silver); opacity: .85; }
+.depoimento-citacao {
+  padding: clamp(1.25rem, 3vw, 2.1rem) 0 clamp(1.6rem, 3.4vw, 2.3rem);
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.depoimento-aspas {
+  display: block;
+  height: clamp(2.5rem, 4.5vw, 3.9rem);
+  font-family: var(--font-display);
+  font-size: clamp(4.7rem, 7vw, 6.4rem);
+  font-weight: 300;
+  line-height: 1;
+  color: rgba(244,242,238,.38);
+  pointer-events: none;
+}
+.depoimento-citacao p {
+  margin: 0;
+  max-width: none;
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-style: normal;
+  font-size: clamp(.97rem, 1.18vw, 1.075rem);
+  line-height: 1.88;
+  letter-spacing: -.012em;
+  color: var(--cream-text);
+}
+.depoimento-autor {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  padding-top: 1.35rem;
+  border-top: 1px solid var(--hairline);
+}
+.depoimento-avatar {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  background: #3b3c3f;
+  border: 1px solid var(--hairline-bright);
+  border-radius: 50%;
+  color: var(--cream-text);
+  font: 400 1.2rem/1 var(--font-display);
+}
+.depoimento-autor-dados { display: flex; flex-direction: column; gap: .1rem; min-width: 0; }
+.depoimento-autor-dados strong {
+  color: var(--cream-text);
+  font: 600 .87rem/1.5 var(--font-body);
+  overflow-wrap: anywhere;
+}
+.depoimento-autor-dados > span {
+  color: var(--text-muted);
+  font: 400 .73rem/1.6 var(--font-body);
+}
+.depoimento-aspas-final {
+  margin-left: auto;
+  color: rgba(244,242,238,.25);
+  font: 300 3.2rem/1 var(--font-display);
+  align-self: end;
+}
+@media (max-width: 1050px) {
+  .depoimento-grid {
+    grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
+    gap: clamp(2rem, 4vw, 3.5rem);
+  }
+  .depoimento-intro h2 { font-size: clamp(2.4rem, 4.3vw, 3.7rem); }
+  .depoimento-card { padding: clamp(1.75rem, 2.7vw, 2.75rem); }
+  .depoimento-citacao p { font-size: .97rem; line-height: 1.77; }
+}
+@media (max-width: 760px) {
+  .depoimento-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(2rem, 6vw, 3.4rem);
+    padding-top: clamp(4.4rem, 12vw, 6.4rem);
+    padding-bottom: clamp(4.4rem, 12vw, 6.4rem);
+  }
+  .depoimento-intro { max-width: 610px; }
+  .depoimento-intro h2 {
+    font-size: clamp(2.5rem, 7vw, 4rem);
+    max-width: 14ch;
+    margin-bottom: 1.5rem;
+  }
+  .depoimento-descricao { max-width: 560px; }
+  .depoimento-intro-rodape { margin-top: 1.8rem; }
+  .depoimento-card { max-width: 690px; }
+}
+@media (max-width: 480px) {
+  .depoimento-grid { gap: 2rem; }
+  .depoimento-intro h2 { font-size: clamp(2.45rem, 9vw, 3.35rem); }
+  .depoimento-descricao { font-size: .93rem; line-height: 1.8; }
+  .depoimento-intro-rodape { font-size: .56rem; }
+  .depoimento-card { padding: clamp(1.35rem, 5vw, 1.85rem); }
+  .depoimento-plataforma { font-size: .57rem; letter-spacing: .09em; }
+  .depoimento-citacao p { font-size: .9rem; line-height: 1.75; }
+  .depoimento-aspas { height: 2.7rem; font-size: 4.8rem; }
+  .depoimento-aspas-final { display: none; }
+}
