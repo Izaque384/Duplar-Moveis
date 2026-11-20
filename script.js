@@ -43,7 +43,7 @@ if (navToggle && nav) {
 // Revelação ao rolar
 // ============================================
 const revealTargets = document.querySelectorAll(
-  '.sobre-grid, .dif-card, .step, .ambiente-card, blockquote, .cta-inner'
+  '.depoimento-intro, .depoimento-card, .dif-card, .step, .ambiente-card, .cta-inner'
 );
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 if ('IntersectionObserver' in window && !prefersReducedMotion) {
