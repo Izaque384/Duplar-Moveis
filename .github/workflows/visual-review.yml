@@ -157,13 +157,17 @@ jobs:
                   fallback:!section.classList.contains('is-video-ready'),
                   videoPaused:document.querySelector('#cineVideo').paused,
                   overflow:section.scrollWidth>section.clientWidth+2,
-                  disabledToggle:document.querySelector('#cinePlayToggle').hidden
+                  disabledToggle:document.querySelector('#cinePlayToggle').hidden,
+                  sceneBottom:scenes[0].getBoundingClientRect().bottom,
+                  controlTop:section.querySelector('.cine-navigation').getBoundingClientRect().top,
+                  label:scenes[0].querySelector('h3').textContent.trim()
                 };
               });
               if(Math.abs(initialFilm.height-initialFilm.screen)>2||initialFilm.visible!==1
                 ||initialFilm.moments!==4||initialFilm.indicators!==4
                 ||!initialFilm.fallback||!initialFilm.videoPaused
-                ||!initialFilm.disabledToggle||initialFilm.overflow)
+                ||!initialFilm.disabledToggle||initialFilm.overflow
+                ||initialFilm.sceneBottom>initialFilm.controlTop+2)
                 throw Error(cfg.name+' full-screen cinematic fallback issue: '+JSON.stringify(initialFilm));
               await cine.scrollIntoViewIfNeeded();
               await page.locator('#cineNext').click();
