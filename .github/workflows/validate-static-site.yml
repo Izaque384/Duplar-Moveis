@@ -15,7 +15,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate JavaScript syntax
-        run: node --check script.js
+        run: |
+          node --check script.js
+          node --check cliente/app.js
       - name: Validate links, media and placeholder safety
         run: |
           python3 - <<'PY'
@@ -74,6 +76,18 @@ jobs:
           assert 'https://wa.me/558881734015' in html, 'Footer WhatsApp link missing'
           assert 'https://www.instagram.com/duplar_moveis/' in html, 'Official Instagram link missing'
           assert 'WhatsApp: aguardando confirmação' not in html and 'Instagram: aguardando confirmação' not in html, 'Old placeholders left in footer'
+          portal_html=Path('cliente/index.html').read_text(encoding='utf-8')
+          portal_css=Path('cliente/styles.css').read_text(encoding='utf-8')
+          portal_js=Path('cliente/app.js').read_text(encoding='utf-8')
+          assert 'href="cliente/"' in html, 'Client portal navigation missing'
+          assert 'name="robots" content="noindex, nofollow"' in portal_html, 'Client demo must not be indexed'
+          assert 'demo' in portal_js and 'showDemo' in portal_js, 'Client experience unavailable'
+          assert 'autenticação' in portal_html.lower(), 'Demo must not imply real login'
+          assert 'assets/img/' in portal_html, 'Client portal must share Duplar branding'
+          assert all('data-panel="'+p+'"' in portal_html for p in ('inicio','projeto','documentos','financeiro','atendimento','conta')), 'Client sections incomplete'
+          assert 'data-detail-button' in portal_html, 'Document preview controls missing'
+          assert 'https://wa.me/558881734015' in portal_html, 'Client support link missing'
+          assert 'cor' in portal_css, 'Stylesheet missing or malformed'
           assert 'whatsappReady' in js, 'WhatsApp activation script missing'
           print('OK: all images, page sections, CTA links and revisions are present')
           PY
