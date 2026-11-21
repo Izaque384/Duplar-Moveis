@@ -923,3 +923,185 @@ h3 { font-size: clamp(1.2rem, 1.8vw, 1.5rem); }
   .depoimento-aspas { height: 2.7rem; font-size: 4.8rem; }
   .depoimento-aspas-final { display: none; }
 }
+
+
+/* =========================================================
+   DUPLAR CONTACT EXPERIENCE V1
+   Ultima secao de atendimento — sem contatos ficticios.
+   ========================================================= */
+.atendimento {
+  text-align: left;
+  background: #101113;
+}
+.atendimento::before {
+  background: radial-gradient(ellipse at 18% 45%, rgba(230,229,226,.055), transparent 60%);
+}
+.atendimento-grid {
+  max-width: 1340px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+  align-items: center;
+  gap: clamp(3rem, 7.5vw, 8.5rem);
+  padding-top: clamp(5rem, 9vw, 9rem);
+  padding-bottom: clamp(5rem, 9vw, 9rem);
+}
+.atendimento-apresentacao {
+  min-width: 0;
+}
+.atendimento .cta-marca {
+  display: block;
+  height: 56px;
+  width: auto;
+  margin: 0 0 clamp(2.5rem, 5vw, 4rem);
+  opacity: .87;
+}
+.atendimento .eyebrow {
+  color: var(--silver);
+  font-size: .66rem;
+  letter-spacing: .19em;
+  margin-bottom: clamp(1.4rem, 2.5vw, 2rem);
+}
+.atendimento h2 {
+  max-width: 11ch;
+  font-size: clamp(2.9rem, 4.8vw, 5.35rem);
+  font-weight: 400;
+  line-height: 1.095;
+  letter-spacing: -.044em;
+  margin-bottom: 2rem;
+}
+.atendimento h2 em {
+  font-weight: 350;
+  font-style: italic;
+  color: var(--silver);
+}
+.atendimento .cta-sub {
+  max-width: 460px;
+  margin: 0 0 clamp(2rem, 4.2vw, 3rem);
+  color: var(--text-muted);
+  font-size: clamp(.96rem, 1.3vw, 1.08rem);
+  line-height: 1.85;
+}
+.atendimento-projetos {
+  font-size: .66rem;
+  color: var(--cream-text);
+}
+.atendimento-painel {
+  min-width: 0;
+  padding: clamp(2rem, 3.8vw, 3.7rem);
+  border: 1px solid var(--hairline-bright);
+  background:
+    radial-gradient(ellipse at 100% 0%, rgba(244,242,238,.065), transparent 57%),
+    #202124;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.atendimento-painel-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: clamp(1.75rem, 3vw, 2.6rem);
+  border-bottom: 1px solid var(--hairline);
+  font: 400 .62rem/1.5 var(--font-mono);
+  letter-spacing: .17em;
+  color: var(--silver);
+}
+.atendimento-painel-simbolo {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  letter-spacing: -.09em;
+  color: rgba(244,242,238,.6);
+}
+.atendimento-painel h3 {
+  color: var(--cream-text);
+  font-size: clamp(2rem, 3vw, 3.1rem);
+  font-weight: 400;
+  line-height: 1.17;
+  letter-spacing: -.035em;
+  max-width: 15ch;
+  margin: clamp(1.6rem, 3vw, 2.4rem) 0 1rem;
+}
+.atendimento-painel-sub {
+  margin: 0;
+  font: 400 .94rem/1.75 var(--font-body);
+  color: var(--text-muted);
+}
+.atendimento-pistas {
+  margin: clamp(1.5rem, 3vw, 2.5rem) 0 clamp(1.7rem, 3.4vw, 2.8rem);
+  border-top: 1px solid var(--hairline);
+}
+.atendimento-pista {
+  display: grid;
+  grid-template-columns: 2.3rem 1fr;
+  align-items: baseline;
+  gap: .8rem;
+  border-bottom: 1px solid var(--hairline);
+  padding: 1.05rem 0;
+}
+.atendimento-pista > span {
+  color: var(--silver);
+  font: 400 .62rem/1.5 var(--font-mono);
+  letter-spacing: .1em;
+}
+.atendimento-pista p {
+  color: var(--cream-text);
+  font: 400 .92rem/1.55 var(--font-body);
+  margin: 0;
+}
+.atendimento-botao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 55px;
+  width: 100%;
+  text-align: center;
+}
+.atendimento .contact-channel[aria-disabled="true"] {
+  border: 1px solid var(--hairline-bright);
+  color: var(--silver);
+  background: rgba(244,242,238,.045);
+  opacity: .9;
+}
+.atendimento .cta-note {
+  color: var(--text-muted);
+  font: 400 .74rem/1.65 var(--font-body);
+  letter-spacing: 0;
+  margin: 1.1rem 0 0;
+  max-width: none;
+  opacity: .95;
+  text-align: center;
+}
+@media (max-width: 940px) {
+  .atendimento-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(2.75rem, 7vw, 4.5rem);
+    max-width: 760px;
+  }
+  .atendimento h2 {
+    max-width: 14ch;
+  }
+  .atendimento-painel h3 {
+    max-width: 20ch;
+  }
+}
+@media (max-width: 600px) {
+  .atendimento-grid {
+    padding-top: clamp(4.5rem, 12vw, 6rem);
+    padding-bottom: clamp(4.5rem, 12vw, 6rem);
+  }
+  .atendimento h2 {
+    font-size: clamp(2.55rem, 9vw, 3.7rem);
+    max-width: 13ch;
+  }
+  .atendimento .cta-marca {
+    height: 48px;
+    margin-bottom: 2rem;
+  }
+  .atendimento-painel {
+    padding: clamp(1.5rem, 5.5vw, 2.2rem);
+  }
+  .atendimento-painel h3 {
+    font-size: clamp(1.9rem, 7vw, 2.7rem);
+  }
+}
