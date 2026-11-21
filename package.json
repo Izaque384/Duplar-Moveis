@@ -1,0 +1,15 @@
+{
+  "name": "duplar-moveis",
+  "private": true,
+  "version": "1.1.0",
+  "type": "module",
+  "engines": { "node": ">=20.12.2" },
+  "scripts": {
+    "dev": "netlify dev",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "@netlify/database": "2.0.3",
+    "@netlify/blobs": "11.1.9"
+  }
+}
