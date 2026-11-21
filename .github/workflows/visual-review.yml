@@ -139,9 +139,11 @@ jobs:
               const contacts=await page.evaluate(()=>({
                 instagram:[...document.querySelectorAll('.site-footer a')].some(a=>a.href==='https://www.instagram.com/duplar_moveis/'),
                 whatsapp:[...document.querySelectorAll('.site-footer a')].some(a=>a.href==='https://wa.me/558881734015'),
+                locationFooter:[...document.querySelectorAll('.site-footer a')].some(a=>a.href==='https://maps.app.goo.gl/RKPxFfgDnBxY4xmz5'),
+                locationContact:document.querySelector('.atendimento-localizacao')?.href==='https://maps.app.goo.gl/RKPxFfgDnBxY4xmz5',
                 allCtas:[...document.querySelectorAll('[data-contact-cta]')].every(a=>a.href.startsWith('https://wa.me/558881734015?text='))
               }));
-              if(!contacts.instagram||!contacts.whatsapp||!contacts.allCtas)
+              if(!contacts.instagram||!contacts.whatsapp||!contacts.locationFooter||!contacts.locationContact||!contacts.allCtas)
                 throw Error(cfg.name+' official contact links issue: '+JSON.stringify(contacts));
               const cine=page.locator('#diferenciais');
               const initialFilm=await page.evaluate(()=>{
