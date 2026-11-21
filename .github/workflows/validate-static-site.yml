@@ -70,6 +70,10 @@ jobs:
           contact_section=html.split('<!-- ATENDIMENTO / CONVERSÃO FINAL -->',1)[1].split('</section>',1)[0]
           assert '>DM<' not in contact_section and 'class="cta-marca"' not in contact_section, 'DM icons should be absent in contact section'
           assert 'DUPLAR 2026 - PRIMEIRA REVISAO' in css, 'Visual revision CSS missing'
+          assert '<body data-whatsapp-number="558881734015">' in html, 'Provided WhatsApp number missing'
+          assert 'https://wa.me/558881734015' in html, 'Footer WhatsApp link missing'
+          assert 'https://www.instagram.com/duplar_moveis/' in html, 'Official Instagram link missing'
+          assert 'WhatsApp: aguardando confirmação' not in html and 'Instagram: aguardando confirmação' not in html, 'Old placeholders left in footer'
           assert 'whatsappReady' in js, 'WhatsApp activation script missing'
           print('OK: all images, page sections, CTA links and revisions are present')
           PY
