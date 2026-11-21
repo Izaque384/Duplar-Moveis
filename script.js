@@ -43,7 +43,7 @@ if (navToggle && nav) {
 // Revelação ao rolar
 // ============================================
 const revealTargets = document.querySelectorAll(
-  '.depoimento-intro, .depoimento-card, .dif-card, .ambiente-card, .atendimento-apresentacao, .atendimento-painel'
+  '.depoimento-intro, .depoimento-card, .ambiente-card, .atendimento-apresentacao, .atendimento-painel'
 );
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 if ('IntersectionObserver' in window && !prefersReducedMotion) {
@@ -58,6 +58,159 @@ if ('IntersectionObserver' in window && !prefersReducedMotion) {
   }, { threshold: 0.08 });
   revealTargets.forEach(el => observer.observe(el));
 }
+
+// ============================================
+// Diferenciais: carrossel editorial, 4 quadros reais do acervo.
+// Auto apenas em desktop e em área visível; controle total ao visitante.
+// ============================================
+(() => {
+  const carousel = document.getElementById('difCarousel');
+  if (!carousel) return;
+
+  const slides = Array.from(carousel.querySelectorAll('.dif-slide'));
+  const selectors = Array.from(carousel.querySelectorAll('[data-dif-go]'));
+  const prev = document.getElementById('difPrevious');
+  const next = document.getElementById('difNext');
+  const rotationToggle = document.getElementById('difRotationToggle');
+  const rotationIcon = rotationToggle?.querySelector('.dif-rotation-icon');
+  const rotationText = rotationToggle?.querySelector('.dif-rotation-text');
+  const announcement = document.getElementById('difAnnouncement');
+  const slideTrack = document.getElementById('difSlideTrack');
+  const desktop = window.matchMedia('(min-width: 861px)');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const DURATION = 7800;
+
+  if (slides.length !== 4 || selectors.length !== slides.length || !prev || !next || !rotationToggle || !slideTrack) return;
+
+  let current = 0;
+  let userPaused = false;
+  let pointerInside = false;
+  let focusInside = false;
+  let inView = false;
+  let timer = null;
+  let touchStart = null;
+
+  const preload = index => {
+    const image = slides[(index + slides.length) % slides.length].querySelector('img');
+    if (image) image.loading = 'eager';
+  };
+
+  const canAutoplay = () => desktop.matches && !reducedMotion.matches &&
+    !userPaused && !pointerInside && !focusInside && inView && !document.hidden;
+
+  const updateToggle = () => {
+    const paused = userPaused || !desktop.matches || reducedMotion.matches;
+    rotationToggle.setAttribute('aria-pressed', String(paused));
+    rotationToggle.setAttribute('aria-label', userPaused ? 'Retomar apresentação automática' : 'Pausar apresentação automática');
+    if (rotationText) rotationText.textContent = userPaused ? 'Retomar' : 'Pausar';
+    if (rotationIcon) rotationIcon.textContent = userPaused ? '▶' : 'Ⅱ';
+  };
+
+  const updateAutoplay = () => {
+    if (timer !== null) window.clearTimeout(timer);
+    timer = null;
+    carousel.classList.remove('is-playing');
+    const playing = canAutoplay();
+    slideTrack.setAttribute('aria-live', playing ? 'off' : 'polite');
+    if (playing) {
+      // The CSS progress animation and the JS timer start together.
+      void carousel.offsetWidth;
+      carousel.classList.add('is-playing');
+      timer = window.setTimeout(() => showSlide(current + 1, false), DURATION);
+    }
+    updateToggle();
+  };
+
+  const showSlide = (index, manual) => {
+    const newIndex = (index + slides.length) % slides.length;
+    if (manual) userPaused = true;
+    current = newIndex;
+    slides.forEach((slide, i) => {
+      const active = i === current;
+      slide.hidden = !active;
+      slide.classList.toggle('is-active', active);
+    });
+    selectors.forEach((button, i) => {
+      const active = i === current;
+      button.classList.toggle('is-current', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+    preload(current);
+    preload(current + 1);
+    if (announcement && manual) announcement.textContent = slides[current].getAttribute('aria-label') || '';
+    updateAutoplay();
+  };
+
+  selectors.forEach(button => button.addEventListener('click', () => {
+    showSlide(Number(button.dataset.difGo), true);
+  }));
+  prev.addEventListener('click', () => showSlide(current - 1, true));
+  next.addEventListener('click', () => showSlide(current + 1, true));
+
+  rotationToggle.addEventListener('click', () => {
+    userPaused = !userPaused;
+    updateAutoplay();
+  });
+
+  carousel.addEventListener('pointerenter', event => {
+    if (event.pointerType === 'mouse' || event.pointerType === 'pen') {
+      pointerInside = true;
+      updateAutoplay();
+    }
+  });
+  carousel.addEventListener('pointerleave', event => {
+    if (event.pointerType === 'mouse' || event.pointerType === 'pen') {
+      pointerInside = false;
+      updateAutoplay();
+    }
+  });
+  carousel.addEventListener('focusin', () => {
+    focusInside = true;
+    updateAutoplay();
+  });
+  carousel.addEventListener('focusout', event => {
+    if (!event.relatedTarget || !carousel.contains(event.relatedTarget)) {
+      focusInside = false;
+      updateAutoplay();
+    }
+  });
+
+  // Swipe changes only slides, never scrolls the page artificially.
+  slideTrack.addEventListener('touchstart', event => {
+    if (event.touches.length !== 1) return;
+    touchStart = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+  }, { passive: true });
+  slideTrack.addEventListener('touchend', event => {
+    if (!touchStart || event.changedTouches.length !== 1) return;
+    const dx = event.changedTouches[0].clientX - touchStart.x;
+    const dy = event.changedTouches[0].clientY - touchStart.y;
+    touchStart = null;
+    if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.3) {
+      showSlide(current + (dx < 0 ? 1 : -1), true);
+    }
+  }, { passive: true });
+  slideTrack.addEventListener('touchcancel', () => { touchStart = null; }, { passive: true });
+
+  document.addEventListener('visibilitychange', updateAutoplay);
+  desktop.addEventListener?.('change', updateAutoplay);
+  reducedMotion.addEventListener?.('change', updateAutoplay);
+
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      inView = entries[0].isIntersecting;
+      updateAutoplay();
+    }, { threshold: 0.24 });
+    observer.observe(carousel);
+  } else {
+    // Lack of visibility observation must not trigger unsolicited rotation.
+    inView = false;
+  }
+
+  carousel.classList.add('is-enhanced');
+  preload(0);
+  preload(1);
+  updateAutoplay();
+})();
 
 // ============================================
 // Lightbox da galeria de ambientes
