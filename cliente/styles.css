@@ -76,3 +76,166 @@
   .portal-footer{padding:23px 18px;display:block}.portal-footer>span{display:block}.portal-footer>span+span{margin-top:9px}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+
+/* ==========================================================
+   Entrada da área do cliente — composição em uma tela (100svh)
+   Compacta a apresentação sem cortar informações importantes.
+   A navegação interna do portal permanece independente.
+   ========================================================== */
+.entry-screen {
+  height: 100svh;
+  min-height: 100svh;
+  max-height: 100svh;
+  overflow: hidden;
+}
+.entry-header {
+  flex: 0 0 auto;
+  margin: 0 auto;
+  padding: clamp(12px, 2.5svh, 24px) clamp(22px, 5vw, 80px);
+}
+.entry-layout {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: clamp(14px, 3svh, 34px) clamp(22px, 5vw, 80px);
+  gap: clamp(24px, 5.5vw, 92px);
+}
+.entry-copy h1 {
+  font-size: clamp(3rem, 5.3vw, 6.2rem);
+  line-height: 1.04;
+  max-width: 12ch;
+  margin: clamp(12px, 2.5svh, 24px) 0;
+}
+.entry-lead {
+  font-size: clamp(.88rem, 1.15vw, 1.05rem);
+  line-height: 1.65;
+  margin-bottom: clamp(16px, 2.6svh, 28px);
+}
+.entry-values > div {
+  padding: clamp(7px, 1svh, 11px) 0;
+  gap: 13px;
+}
+.entry-values p { font-size: .84rem; }
+.entry-card { padding: clamp(23px, 3.1vw, 44px); }
+.entry-card .card-kicker { padding-bottom: clamp(10px, 1.6svh, 17px); }
+.entry-card h2 {
+  font-size: clamp(2rem, 2.85vw, 3.45rem);
+  line-height: 1.12;
+  max-width: 15ch;
+  margin: clamp(17px, 3.2svh, 30px) 0 13px;
+}
+.entry-card > p:not(.entry-disclaimer) {
+  font-size: .88rem;
+  line-height: 1.65;
+  margin-bottom: clamp(12px, 2.2svh, 20px);
+}
+.access-state { margin-bottom: clamp(10px, 1.8svh, 18px); }
+.entry-card .primary-action { min-height: 48px; margin-bottom: 11px; }
+.entry-disclaimer { font-size: .69rem; line-height: 1.5; }
+.entry-footer {
+  flex: 0 0 auto;
+  padding: clamp(8px, 1.6svh, 14px) clamp(22px, 5vw, 80px);
+}
+
+@media (max-width: 1080px) and (min-width: 761px) {
+  .entry-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, .86fr);
+    gap: clamp(20px, 3vw, 38px);
+  }
+  .entry-copy h1 { font-size: clamp(3rem, 5.2vw, 4.8rem); }
+  .entry-card h2 { font-size: clamp(2rem, 3.2vw, 2.9rem); }
+}
+@media (max-width: 760px) {
+  .entry-header { padding: clamp(12px, 2svh, 20px) clamp(19px, 5vw, 30px); }
+  .entry-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(12px, 2.4svh, 22px);
+    padding: clamp(10px, 2svh, 19px) clamp(19px, 5vw, 30px);
+  }
+  .entry-copy h1 {
+    font-size: clamp(2.45rem, 8vw, 3.5rem);
+    max-width: 18ch;
+    line-height: 1.07;
+    margin: clamp(7px, 1.5svh, 13px) 0;
+  }
+  .entry-copy .eyebrow { font-size: .58rem; letter-spacing: .12em; }
+  .entry-lead {
+    max-width: 590px;
+    font-size: .86rem;
+    line-height: 1.53;
+    margin-bottom: 0;
+  }
+  /* Os três benefícios aparecem no painel; não precisam repetir-se no mobile. */
+  .entry-values { display: none; }
+  .entry-card {
+    max-width: none;
+    padding: clamp(18px, 3.2svh, 30px);
+  }
+  .entry-card .card-kicker { padding-bottom: 10px; }
+  .entry-card h2 {
+    font-size: clamp(1.95rem, 5.3vw, 2.7rem);
+    max-width: 19ch;
+    margin: clamp(12px, 2svh, 20px) 0 10px;
+  }
+  .entry-card > p:not(.entry-disclaimer) {
+    max-width: 580px;
+    font-size: .81rem;
+    line-height: 1.52;
+    margin-bottom: 13px;
+  }
+  .access-state { margin-bottom: 12px; font-size: .7rem; }
+  .entry-card .primary-action { min-height: 45px; margin-bottom: 9px; }
+  .entry-disclaimer { font-size: .66rem; line-height: 1.42; }
+  .entry-footer {
+    padding: clamp(8px, 1.4svh, 13px) clamp(19px, 5vw, 30px);
+  }
+}
+@media (max-width: 480px) {
+  .entry-header { padding: 10px 18px; }
+  .entry-header .brand-lockup img { width: 39px; height: 39px; }
+  .entry-header .brand-name { font-size: 1.12rem; }
+  .entry-layout { padding: 10px 18px; gap: clamp(10px, 2svh, 17px); }
+  .entry-copy h1 {
+    font-size: clamp(2.3rem, 9.6vw, 2.9rem);
+    line-height: 1.06;
+  }
+  .entry-lead { font-size: .81rem; line-height: 1.48; }
+  .entry-card { padding: clamp(16px, 2.5svh, 22px); }
+  .entry-card h2 { font-size: clamp(1.85rem, 7vw, 2.25rem); }
+  .entry-card > p:not(.entry-disclaimer) { font-size: .77rem; }
+  .entry-footer { padding: 9px 18px; }
+}
+@media (max-height: 700px) {
+  .entry-header { padding-top: 8px; padding-bottom: 8px; }
+  .entry-header .brand-lockup img { height: 35px; width: 35px; }
+  .entry-layout { padding-top: 7px; padding-bottom: 7px; gap: 11px; }
+  .entry-copy h1 {
+    font-size: clamp(2.05rem, min(5.2vw, 6svh), 3.4rem);
+    line-height: 1.02;
+    margin: 7px 0;
+  }
+  .entry-lead { font-size: .77rem; line-height: 1.42; margin: 0; }
+  .entry-values { display: none; }
+  .entry-card { padding: clamp(14px, 2svh, 21px); }
+  .entry-card .card-kicker { padding-bottom: 7px; }
+  .entry-card h2 {
+    font-size: clamp(1.7rem, 4.7svh, 2.35rem);
+    margin: 9px 0 7px;
+    line-height: 1.08;
+  }
+  .entry-card > p:not(.entry-disclaimer) { display: none; }
+  .access-state { font-size: .66rem; margin-bottom: 9px; }
+  .entry-card .primary-action { min-height: 41px; margin-bottom: 7px; }
+  .entry-disclaimer { font-size: .63rem; line-height: 1.35; }
+  .entry-footer { padding-top: 7px; padding-bottom: 7px; }
+}
+/* Em paisagem muito baixa ou zoom extremo, rolagem é preferível a cortar o CTA. */
+@media (max-height: 510px) {
+  .entry-screen {
+    height: auto;
+    min-height: 100svh;
+    max-height: none;
+    overflow-y: auto;
+  }
+  .entry-layout { padding-top: 13px; padding-bottom: 13px; }
+}
