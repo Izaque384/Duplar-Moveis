@@ -103,6 +103,9 @@ jobs:
           assert '<body data-whatsapp-number="558881734015">' in html, 'Provided WhatsApp number missing'
           assert 'https://wa.me/558881734015' in html, 'Footer WhatsApp link missing'
           assert 'https://www.instagram.com/duplar_moveis/' in html, 'Official Instagram link missing'
+          assert html.count('https://maps.app.goo.gl/RKPxFfgDnBxY4xmz5') == 2, 'Google Maps location should appear in contact and footer'
+          assert 'Como chegar à Duplar' in html and 'Localização no Google Maps' in html, 'Location links missing'
+          assert 'Atendimento no Ceará</p>' not in html, 'Old generic footer placeholder remains'
           assert 'WhatsApp: aguardando confirmação' not in html and 'Instagram: aguardando confirmação' not in html, 'Old placeholders left in footer'
           portal_html=Path('cliente/index.html').read_text(encoding='utf-8')
           portal_css=Path('cliente/styles.css').read_text(encoding='utf-8')
