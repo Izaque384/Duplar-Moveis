@@ -32,6 +32,14 @@ jobs:
           run-id: 44910751937
           github-token: ${{ github.token }}
           path: .
+      - name: Install FFprobe if unavailable
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v ffprobe >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y ffmpeg
+          fi
       - name: Verify rendered media and publish only the three needed files
         shell: bash
         run: |
