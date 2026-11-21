@@ -239,3 +239,25 @@
   }
   .entry-layout { padding-top: 13px; padding-bottom: 13px; }
 }
+
+
+/* Área final: somente quatro telas, mantendo a linguagem visual aprovada. */
+.portal-login-form{display:grid;gap:12px;margin:22px 0 14px}
+.portal-login-form label{color:var(--silver);font:.68rem var(--mono);letter-spacing:.08em}
+.portal-login-form input,.project-switcher select{width:100%;min-height:51px;padding:12px 15px;border:1px solid var(--hair-strong);background:#151618;color:var(--cream);font:1rem var(--body)}
+.portal-login-form input:focus,.project-switcher select:focus{outline:2px solid var(--silver);outline-offset:2px}
+.portal-login-form .primary-action{width:100%;justify-content:center;text-align:center}
+.portal-login-form .quiet-link{border:0;background:transparent;justify-self:start;padding:8px 0}
+.login-status{color:var(--silver);font-size:.78rem;min-height:18px}.login-status.error{color:#ffc3ba}
+.demo-preview-link{display:inline-block;margin-top:22px;font-size:.58rem}
+.project-switcher{margin-bottom:34px;border:1px solid var(--hair);padding:15px 21px;display:flex;align-items:center;gap:18px}
+.project-switcher label{font:.62rem var(--mono);color:var(--silver);letter-spacing:.12em}
+.project-switcher select{max-width:510px}
+.empty-state{padding:30px;border:1px solid var(--hair);background:var(--surface);color:var(--muted);font-size:.88rem;margin:0}
+.docs-list .document-row{display:grid;grid-template-columns:65px minmax(0,1fr) auto;gap:20px;align-items:center}
+.docs-list .document-row .doc-icon{width:52px;height:52px;display:grid;place-items:center}
+.docs-list .document-row button{border:1px solid var(--hair-strong);padding:12px 18px;background:transparent;color:var(--cream);font:.68rem var(--mono)}
+.docs-list .document-row button:hover{border-color:var(--cream)}
+.docs-list .document-row button:disabled{opacity:.6}
+.project-services{white-space:pre-line;margin:22px 0 0;overflow-wrap:anywhere}
+@media(max-width:680px){.project-switcher{display:block}.project-switcher select{margin-top:12px}.docs-list .document-row{grid-template-columns:45px minmax(0,1fr);gap:12px}.docs-list .document-row button{grid-column:2;justify-self:start}.entry-copy h1{font-size:clamp(3rem,11vw,4.3rem)}}
