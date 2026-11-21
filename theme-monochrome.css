@@ -1064,3 +1064,24 @@ h3 { font-size: clamp(1.2rem, 1.8vw, 1.5rem); }
     padding: clamp(1.4rem, 5vw, 2rem);
   }
 }
+
+/* Official contact links — subtle states aligned with Duplar's monochrome identity. */
+.site-footer .footer-contact-link {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: .45rem;
+  color: var(--silver);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(213,212,209,.25);
+  transition: color .24s ease, border-color .24s ease;
+}
+.site-footer .footer-contact-link:hover,
+.site-footer .footer-contact-link:focus-visible {
+  color: #fff;
+  border-bottom-color: rgba(244,242,238,.75);
+}
+.site-footer .footer-contact-link span {
+  font-size: .85em;
+  opacity: .7;
+}
