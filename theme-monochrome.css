@@ -1303,7 +1303,7 @@ h3 { font-size: clamp(1.2rem, 1.8vw, 1.5rem); }
   .cine-video { transition: none; }
 }
 
-/* Compact monochrome footer — only recognizable channel icons. */
+/* Compact monochrome footer — channel icons and clear labels. */
 .site-footer {
   background: #0b0c0e;
 }
@@ -1341,21 +1341,29 @@ h3 { font-size: clamp(1.2rem, 1.8vw, 1.5rem); }
   align-items: center;
   justify-content: flex-end;
   flex-wrap: wrap;
-  gap: clamp(.55rem, 1.1vw, 1rem);
+  gap: clamp(.4rem, .85vw, .8rem);
+  max-width: 730px;
 }
 .site-footer .footer-icon-link {
-  width: 47px;
-  height: 47px;
-  flex: 0 0 47px;
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: .62rem;
+  padding: .62rem .8rem;
   border: 1px solid rgba(244,242,238,.19);
-  border-radius: 50%;
+  border-radius: 3px;
   background: rgba(244,242,238,.025);
   color: var(--silver);
+  white-space: nowrap;
   text-decoration: none;
   transition: color .22s ease, background .22s ease, border-color .22s ease, transform .22s ease;
+}
+.site-footer .footer-link-label {
+  font-family: var(--font-body);
+  font-size: .75rem;
+  line-height: 1.25;
+  letter-spacing: .01em;
 }
 .site-footer .footer-icon-link:hover {
   background: rgba(244,242,238,.13);
@@ -1395,12 +1403,26 @@ h3 { font-size: clamp(1.2rem, 1.8vw, 1.5rem); }
     height: 64px;
   }
   .site-footer .footer-socials {
-    justify-content: flex-start;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-content: stretch;
+    width: 100%;
+    gap: .55rem;
+    max-width: 440px;
   }
   .site-footer .footer-icon-link {
-    width: 44px;
-    height: 44px;
-    flex-basis: 44px;
+    justify-content: flex-start;
+    min-height: 43px;
+    gap: .48rem;
+    padding: .55rem .62rem;
+  }
+  .site-footer .footer-icon-link svg {
+    width: 19px;
+    height: 19px;
+  }
+  .site-footer .footer-link-label {
+    font-size: .7rem;
+    white-space: normal;
   }
   .site-footer .footer-bottom {
     padding-top: .85rem;
