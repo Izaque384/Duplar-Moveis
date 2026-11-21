@@ -11,6 +11,6 @@
   },
   "dependencies": {
     "pg": "^8.13.3",
-    "@netlify/blobs": "^10.0.0"
+    "@netlify/blobs": "^11.0.0"
   }
 }
