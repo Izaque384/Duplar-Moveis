@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Gestão de clientes | Duplar Móveis</title>
+<link rel="icon" href="assets/img/favicon-32.png" sizes="32x32">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="cliente.css">
+<script src="equipe.js" defer></script>
+</head>
+<body>
+<header class="portal-header">
+  <a class="brand" href="index.html" aria-label="Duplar Móveis — site"><img src="assets/img/logo-marca.png" alt="" width="44" height="44"><span>DUPLAR <small>MÓVEIS</small></span></a>
+  <div class="header-end"><a href="cliente.html" class="header-link">Portal do cliente</a><button class="text-button" id="logout" hidden>Sair</button></div>
+</header>
+<main class="portal-main">
+  <div id="accessDenied" class="login-card" hidden>
+    <h1>Área restrita à equipe</h1>
+    <p>Entre com o WhatsApp autorizado para gerenciar clientes, projetos e documentos.</p>
+    <a class="primary-button" href="cliente.html">Fazer login</a>
+  </div>
+  <section id="staffView" hidden>
+    <div class="dashboard-heading"><div><span class="overline">DUPLAR · ADMINISTRAÇÃO</span><h1>Gestão de clientes</h1><p>Cadastre clientes, projetos e disponibilize contratos e notas fiscais.</p></div></div>
+    <div class="staff-grid">
+      <section class="staff-card">
+        <span class="overline">01 / CADASTRO</span><h2>Cadastrar cliente</h2><p>O cliente receberá o código somente no WhatsApp informado aqui.</p>
+        <form id="clientForm">
+          <div><label for="clientName">Nome completo</label><input id="clientName" maxlength="160" required></div>
+          <div><label for="clientPhone">WhatsApp com DDD</label><input id="clientPhone" type="tel" autocomplete="off" placeholder="(88) 99999-9999" required></div>
+          <button class="primary-button" type="submit">Salvar cliente</button>
+        </form>
+        <p id="clientMessage" class="form-message" role="status"></p>
+      </section>
+      <section class="staff-card">
+        <span class="overline">02 / PROJETO</span><h2>Cadastrar projeto</h2><p>Descreva o serviço que a Duplar irá prestar e o orçamento acordado.</p>
+        <form id="projectForm">
+          <div><label for="projectClient">Cliente</label><select id="projectClient" required></select></div>
+          <div><label for="projectName">Nome do projeto</label><input id="projectName" placeholder="Ex.: Cozinha planejada" maxlength="160" required></div>
+          <div><label for="projectStatus">Situação atual</label><select id="projectStatus"><option>Em planejamento</option><option>Orçamento apresentado</option><option>Contrato assinado</option><option>Em produção</option><option>Instalação agendada</option><option>Concluído</option></select></div>
+          <div><label for="projectBudget">Orçamento em reais (opcional)</label><input id="projectBudget" type="number" min="0" step="0.01" placeholder="Ex.: 12500.00"></div>
+          <div><label for="projectDescription">Descrição do projeto</label><textarea id="projectDescription" maxlength="4000"></textarea></div>
+          <div><label for="projectServices">Serviços contratados</label><textarea id="projectServices" maxlength="4000"></textarea></div>
+          <button class="primary-button" type="submit">Salvar projeto</button>
+        </form>
+        <p id="projectMessage" class="form-message" role="status"></p>
+      </section>
+      <section class="staff-card">
+        <span class="overline">03 / DOCUMENTOS</span><h2>Enviar PDF</h2><p>Arquivos são privados e só ficam disponíveis para o cliente do projeto escolhido.</p>
+        <form id="documentForm">
+          <div><label for="documentClient">Cliente</label><select id="documentClient" required></select></div>
+          <div><label for="documentProject">Projeto</label><select id="documentProject" required></select></div>
+          <div><label for="documentType">Tipo de documento</label><select id="documentType"><option value="contract">Contrato</option><option value="invoice">Nota fiscal</option></select></div>
+          <div><label for="documentFile">Arquivo PDF (até 10 MB)</label><input id="documentFile" type="file" accept=".pdf,application/pdf" required></div>
+          <button class="primary-button" type="submit">Enviar documento</button>
+        </form>
+        <p id="documentMessage" class="form-message" role="status"></p>
+      </section>
+      <section class="staff-card">
+        <span class="overline">04 / CLIENTES</span><h2>Clientes cadastrados</h2>
+        <div class="staff-data" id="clientsList"></div>
+        <p class="secondary-text">Cadastros e documentos reais são armazenados no banco de dados e no armazenamento privado da Netlify, não no código do site.</p>
+      </section>
+    </div>
+  </section>
+</main>
+<footer class="portal-footer"><span>© 2026 DUPLAR MÓVEIS</span><span>Área restrita à equipe autorizada.</span></footer>
+</body>
+</html>
