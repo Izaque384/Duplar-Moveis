@@ -1092,3 +1092,11 @@ h3 { font-size: clamp(1.2rem, 1.8vw, 1.5rem); }
   width: min(70vw, 720px);
   height: min(70vw, 720px);
 }
+
+
+/* Duplar client-area navigation: understated beside the main CTA. */
+.nav .nav-client {color:var(--silver);opacity:.95}
+.nav .nav-client:hover,.nav .nav-client:focus-visible{color:#fff;opacity:1}
+@media(max-width:860px){
+  .nav .nav-client{color:var(--cream-text);opacity:1}
+}
