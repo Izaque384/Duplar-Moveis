@@ -221,6 +221,56 @@ jobs:
                 await page.waitForTimeout(350);
                 if(await page.locator('#lightbox').isVisible())throw Error('lightbox did not close');
               }
+              // Navigation should land on meaningful content rather than leave
+              // a strip of the preceding hero above the next section.
+              for(const dest of [
+                {id:'ambientes',focus:'#ambientes .section-heading-row',mode:'portfolio'},
+                {id:'depoimentos',focus:'#depoimentos .depoimento-intro h2',mode:'content'},
+                {id:'diferenciais',focus:'#diferenciais',mode:'full'}
+              ]){
+                if(cfg.width<=860)await page.locator('#navToggle').click();
+                await page.locator('#nav a[href="#'+dest.id+'"]').click();
+                await page.waitForFunction(id=>location.hash==='#'+id,dest.id);
+                const alignment=await page.evaluate(({id,focus})=>{
+                  const head=document.querySelector('#header').getBoundingClientRect();
+                  const section=document.getElementById(id).getBoundingClientRect();
+                  const focal=document.querySelector(focus).getBoundingClientRect();
+                  return {
+                    headerBottom:head.bottom,sectionTop:section.top,
+                    focusTop:focal.top,focusBottom:focal.bottom,screen:innerHeight,
+                    top:scrollY
+                  };
+                },dest);
+                if(dest.mode==='full'){
+                  if(Math.abs(alignment.sectionTop)>3)
+                    throw Error(cfg.name+' cinematic nav is not full-screen: '+JSON.stringify(alignment));
+                } else {
+                  if(alignment.focusTop<alignment.headerBottom-6 ||
+                     alignment.focusTop>=alignment.screen-22)
+                    throw Error(cfg.name+' '+dest.id+' heading is obscured or off-screen: '+JSON.stringify(alignment));
+                  if(dest.mode==='portfolio' && (
+                    alignment.focusTop>alignment.headerBottom+210 ||
+                    alignment.sectionTop>alignment.headerBottom+5))
+                    throw Error(cfg.name+' portfolio nav retains too much empty space / hero: '+JSON.stringify(alignment));
+                }
+                await page.screenshot({path:'review/nav-'+dest.id+'-'+cfg.name+'.png',animations:'disabled'});
+                console.log('PASS anchor '+cfg.name+' '+dest.id+' '+JSON.stringify(alignment));
+              }
+              // The existing WhatsApp budget CTA is external; the contact section
+              // is reachable through #contato direct-link/history navigation.
+              await page.evaluate(()=>{window.location.hash='#contato'});
+              await page.waitForFunction(()=>location.hash==='#contato');
+              await page.waitForTimeout(60);
+              const contactFrame=await page.evaluate(()=>({
+                top:document.querySelector('#atendimento-titulo').getBoundingClientRect().top,
+                header:document.querySelector('#header').getBoundingClientRect().bottom,
+                screen:innerHeight
+              }));
+              if(contactFrame.top<contactFrame.header-6||contactFrame.top>=contactFrame.screen-20)
+                throw Error(cfg.name+' contact anchor framed incorrectly: '+JSON.stringify(contactFrame));
+              await page.locator('a.logo').click();
+              if(await page.evaluate(()=>Math.abs(scrollY)>2 || location.hash!=='#topo'))
+                throw Error(cfg.name+' logo does not return to hero top');
               console.log('PASS '+cfg.name+' '+JSON.stringify(dims));
               await page.close();
             }
