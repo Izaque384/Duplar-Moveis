@@ -156,7 +156,6 @@ if (lightbox && cards.length) {
 const whatsappNumber = (document.body.dataset.whatsappNumber || '').replace(/\D/g, '');
 const whatsappReady = /^55\d{10,11}$/.test(whatsappNumber);
 const contactCtas = document.querySelectorAll('[data-contact-cta]');
-const contactNote = document.getElementById('contactNote');
 const whatsBtn = document.getElementById('whatsBtn');
 if (whatsappReady) {
   const message = encodeURIComponent('Olá! Visitei o site da Duplar Móveis e gostaria de conversar sobre um projeto de móveis sob medida.');
@@ -171,7 +170,6 @@ if (whatsappReady) {
     whatsBtn.classList.remove('is-pending');
     whatsBtn.textContent = 'Conversar no WhatsApp ↗';
   }
-  if (contactNote) contactNote.hidden = true;
 } else if (whatsBtn) {
   whatsBtn.addEventListener('click', event => event.preventDefault());
 }
