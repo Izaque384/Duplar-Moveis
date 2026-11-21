@@ -40,6 +40,88 @@ if (navToggle && nav) {
 }
 
 // ============================================
+// Enquadramento editorial da navegação interna.
+// Evita o acúmulo de scroll-padding e scroll-margin do salto nativo.
+// Em seções longas, foca o conteúdo; no vídeo, mostra o quadro inteiro.
+// ============================================
+(() => {
+  const sections = {
+    topo: { selector: '#topo', mode: 'full' },
+    ambientes: { selector: '#ambientes .section-heading-row', mode: 'portfolio' },
+    depoimentos: { selector: '#depoimentos .depoimento-grid', mode: 'center' },
+    diferenciais: { selector: '#diferenciais', mode: 'full' },
+    contato: { selector: '#contato .atendimento-grid', mode: 'center' },
+    galeria: { selector: '#ambientes .ambientes-grid', mode: 'start' }
+  };
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const topHeader = document.getElementById('header');
+
+  function getDestination(id) {
+    const rule = sections[id];
+    const target = rule && document.querySelector(rule.selector);
+    if (!target) return null;
+
+    const headerHeight = topHeader?.getBoundingClientRect().height || 0;
+    const viewport = window.innerHeight;
+    const available = Math.max(0, viewport - headerHeight);
+    const bounds = target.getBoundingClientRect();
+    const targetTop = bounds.top + window.scrollY;
+    let visibleTop = headerHeight + 22;
+
+    if (rule.mode === 'full') {
+      visibleTop = 0;
+    } else if (rule.mode === 'center') {
+      // Centraliza o conjunto (texto + depoimento / CTA), quando couber.
+      // Se for maior que a tela, preserva a abertura logo abaixo do menu.
+      visibleTop = headerHeight + Math.max(18, (available - bounds.height) / 2);
+    } else if (rule.mode === 'portfolio') {
+      // Centraliza visualmente a introdução junto ao início da galeria:
+      // não pula o título nem deixa uma grande área vazia acima dele.
+      visibleTop = headerHeight + Math.max(16, Math.min(112, (available - bounds.height) * .17));
+    }
+
+    const maxScroll = Math.max(0, document.documentElement.scrollHeight - viewport);
+    return Math.min(maxScroll, Math.max(0, targetTop - visibleTop));
+  }
+
+  function frameSection(id, options = {}) {
+    const top = getDestination(id);
+    if (top === null) return false;
+    const behavior = options.animate && !reducedMotion.matches ? 'smooth' : 'instant';
+    window.scrollTo({ top, behavior });
+    return true;
+  }
+
+  // Links existentes continuam sendo links reais e preservam o histórico.
+  document.addEventListener('click', event => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey ||
+        event.ctrlKey || event.shiftKey || event.altKey) return;
+    const link = event.target.closest('a[href^="#"]');
+    if (!link || link.target === '_blank') return;
+    const id = decodeURIComponent(link.hash.slice(1));
+    if (!Object.prototype.hasOwnProperty.call(sections, id)) return;
+    event.preventDefault();
+    if (window.location.hash !== '#' + encodeURIComponent(id)) {
+      window.history.pushState(null, '', '#' + encodeURIComponent(id));
+    }
+    frameSection(id, { animate: true });
+  });
+
+  // Abrir URLs diretas (#ambientes, #depoimentos...) também deve enquadrar.
+  const followHash = () => {
+    const id = decodeURIComponent(window.location.hash.slice(1));
+    if (id) frameSection(id);
+  };
+  window.addEventListener('popstate', followHash);
+  window.addEventListener('hashchange', followHash);
+  window.addEventListener('load', () => {
+    if (window.location.hash) {
+      window.requestAnimationFrame(() => window.requestAnimationFrame(followHash));
+    }
+  });
+})();
+
+// ============================================
 // Revelação ao rolar
 // ============================================
 const revealTargets = document.querySelectorAll(
