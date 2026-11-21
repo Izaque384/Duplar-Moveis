@@ -1433,3 +1433,8 @@ h3 { font-size: clamp(1.2rem, 1.8vw, 1.5rem); }
   .site-footer .footer-icon-link { transition: none; }
   .site-footer .footer-icon-link:hover { transform: none; }
 }
+
+
+/* Internal navigation uses precise JS framing; avoid double native anchor insets.
+   The existing html scroll-padding remains a fallback if JS is unavailable. */
+section[id] { scroll-margin-top: 0; }
