@@ -11,10 +11,10 @@ Vídeo silencioso e ilustrativo para a seção **03 / NOSSO JEITO DE PROJETAR**.
 Licença geral consultada: https://www.pexels.com/license/
 A licença permite usar, recortar e editar vídeos para websites e promover negócios, sem exigir crédito, mas proíbe sugerir endosso por pessoas ou marcas retratadas.
 
-1. **Projeto personalizado** — Curtis Adams, *Modern Wooden Kitchen Interior Design*, ID **36906908**.
-   - Página: https://www.pexels.com/video/modern-wooden-kitchen-interior-design-36906908/
-   - Download 4K do Pexels: https://videos.pexels.com/video-files/36906908/15634460_3840_2160_30fps.mp4
-   - Conteúdo: cozinha de madeira com armários e bancada de granito.
+1. **Projeto personalizado** — Owen Mathias, *Modern Kitchen with Dark Cabinets and Wood Countertops*, ID **34955032**.
+   - Página: https://www.pexels.com/video/modern-kitchen-with-dark-cabinets-and-wood-countertops-34955032/
+   - Download 4K do Pexels: https://videos.pexels.com/video-files/34955032/14807020_3840_2160_25fps.mp4
+   - Conteúdo: cozinha contemporânea com armários escuros e bancadas de madeira.
 
 2. **Madeira selecionada** — Yusif Jalil, *Mastering Woodwork: A Carpenter’s Craft*, ID **18366463**.
    - Página: https://www.pexels.com/video/mastering-woodwork-a-carpenter-s-craft-18366463/
