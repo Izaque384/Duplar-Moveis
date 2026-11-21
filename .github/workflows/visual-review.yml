@@ -51,7 +51,7 @@ jobs:
               await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
               await page.locator('img[loading="lazy"]').evaluateAll(imgs=>imgs.forEach(img=>img.loading='eager'));
               const imageStates = await page.evaluate(async()=>{
-                const images=[...document.querySelectorAll('.ambiente-card img, .hero-media img, .sobre-foto img, .dif-slide img')];
+                const images=[...document.querySelectorAll('.ambiente-card img, .hero-media img, .sobre-foto img, .cine-still img')];
                 await Promise.all(images.map(img=>img.decode().catch(()=>{})));
                 return images.map(img=>({src:img.getAttribute('src'),width:img.naturalWidth,complete:img.complete}));
               });
@@ -143,45 +143,42 @@ jobs:
               }));
               if(!contacts.instagram||!contacts.whatsapp||!contacts.allCtas)
                 throw Error(cfg.name+' official contact links issue: '+JSON.stringify(contacts));
-              const carousel = page.locator('#difCarousel');
-              const initialCarousel=await page.evaluate(()=>{
-                const el=document.querySelector('#difCarousel');
-                const slides=[...el.querySelectorAll('.dif-slide')];
-                const first=slides[0].getBoundingClientRect();
-                const picture=slides[0].querySelector('.dif-slide-visual').getBoundingClientRect();
-                const copy=slides[0].querySelector('.dif-slide-copy').getBoundingClientRect();
+              const cine=page.locator('#diferenciais');
+              const initialFilm=await page.evaluate(()=>{
+                const section=document.querySelector('#diferenciais');
+                const scenes=[...section.querySelectorAll('.cine-scene')];
+                const controls=[...section.querySelectorAll('[data-cine-go]')];
                 return {
-                  slideCount:slides.length,
-                  visible:slides.filter(s=>!s.hidden).length,
-                  firstVisible:!slides[0].hidden,
-                  running:el.classList.contains('is-playing'),
-                  imageLeft:picture.left, imageTop:picture.top,
-                  copyLeft:copy.left,copyTop:copy.top,
-                  overflow:el.scrollWidth>el.clientWidth+2
+                  height:section.getBoundingClientRect().height,
+                  screen:innerHeight,
+                  visible:scenes.filter(s=>!s.hidden).length,
+                  moments:scenes.length,
+                  indicators:controls.length,
+                  fallback:!section.classList.contains('is-video-ready'),
+                  videoPaused:document.querySelector('#cineVideo').paused,
+                  overflow:section.scrollWidth>section.clientWidth+2,
+                  disabledToggle:document.querySelector('#cinePlayToggle').hidden
                 };
               });
-              if(initialCarousel.slideCount!==4||initialCarousel.visible!==1
-                 ||!initialCarousel.firstVisible||initialCarousel.running
-                 ||initialCarousel.overflow
-                 ||!(cfg.width>860
-                    ? initialCarousel.copyLeft>=initialCarousel.imageLeft+30
-                    : initialCarousel.copyTop>=initialCarousel.imageTop+50))
-                throw Error(cfg.name+' initial editorial carousel issue: '+JSON.stringify(initialCarousel));
-              await carousel.scrollIntoViewIfNeeded();
-              await page.locator('#difNext').click();
-              if(!await page.locator('.dif-slide[data-dif-index="1"]').isVisible()
-                 ||await page.locator('#difCarousel.is-playing').count()!==0
-                 ||await page.locator('[data-dif-go="1"]').getAttribute('aria-pressed')!=='true')
-                 throw Error(cfg.name+' manual next or pause failed');
-              await page.locator('[data-dif-go="3"]').click();
-              if(!await page.locator('.dif-slide[data-dif-index="3"]').isVisible())
-                 throw Error(cfg.name+' indicator selection failed');
-              await page.locator('#difPrevious').click();
-              if(!await page.locator('.dif-slide[data-dif-index="2"]').isVisible())
-                 throw Error(cfg.name+' previous navigation failed');
-              await page.locator('[data-dif-go="0"]').click();
-              await carousel.screenshot({path:'review/diferenciais-'+cfg.name+'.png',animations:'disabled'});
-              console.log('PASS carousel '+cfg.name+' '+JSON.stringify(initialCarousel));
+              if(Math.abs(initialFilm.height-initialFilm.screen)>2||initialFilm.visible!==1
+                ||initialFilm.moments!==4||initialFilm.indicators!==4
+                ||!initialFilm.fallback||!initialFilm.videoPaused
+                ||!initialFilm.disabledToggle||initialFilm.overflow)
+                throw Error(cfg.name+' full-screen cinematic fallback issue: '+JSON.stringify(initialFilm));
+              await cine.scrollIntoViewIfNeeded();
+              await page.locator('#cineNext').click();
+              if(!await page.locator('[data-cine-scene="1"]').isVisible())
+                throw Error(cfg.name+' next cinematic moment failed');
+              await page.locator('[data-cine-go="3"]').click();
+              if(!await page.locator('[data-cine-scene="3"]').isVisible()
+                ||await page.locator('[data-cine-go="3"]').getAttribute('aria-pressed')!=='true')
+                throw Error(cfg.name+' cinematic indicator failed');
+              await page.locator('#cinePrevious').click();
+              if(!await page.locator('[data-cine-scene="2"]').isVisible())
+                throw Error(cfg.name+' previous cinematic moment failed');
+              await page.locator('[data-cine-go="0"]').click();
+              await cine.screenshot({path:'review/cinema-'+cfg.name+'.png',animations:'disabled'});
+              console.log('PASS cinematic fallback '+cfg.name+' '+JSON.stringify(initialFilm));
               await page.screenshot({path:'review/'+cfg.name+'.png',fullPage:true,animations:'disabled'});
               await page.locator('#contato').screenshot({path:'review/atendimento-'+cfg.name+'.png',animations:'disabled'});
               await page.locator('#depoimentos').screenshot({path:'review/depoimento-'+cfg.name+'.png',animations:'disabled'});
@@ -238,29 +235,34 @@ jobs:
               console.log('PASS '+cfg.name+' autoplay '+JSON.stringify(info));
               await page.close();
             }
-            // Autoplay must advance only when visible and user has not requested reduced motion.
-            const autoplay = await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
-            await autoplay.emulateMedia({reducedMotion:'no-preference'});
-            await autoplay.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
-            await autoplay.locator('#difCarousel').scrollIntoViewIfNeeded();
-            await autoplay.waitForFunction(() => document.querySelector('#difCarousel')?.classList.contains('is-playing'), null, {timeout:3000});
-            await autoplay.waitForFunction(() => !document.querySelector('.dif-slide[data-dif-index="1"]')?.hidden, null, {timeout:10000});
-            await autoplay.locator('#difCarousel').hover();
-            if(await autoplay.locator('#difCarousel.is-playing').count()!==0)
-              throw Error('Autoplay did not pause while hovering');
-            await autoplay.locator('#difNext').click();
-            if(await autoplay.locator('#difRotationToggle').getAttribute('aria-pressed')!=='true')
-              throw Error('Manual navigation did not stop autoplay');
-            console.log('PASS desktop autoplay, hover pause and manual override');
-            await autoplay.close();
-            const touch = await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true});
-            await touch.emulateMedia({reducedMotion:'no-preference'});
-            await touch.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
-            await touch.locator('#difCarousel').scrollIntoViewIfNeeded();
-            if(await touch.locator('#difCarousel.is-playing').count()!==0)
-              throw Error('Mobile carousel unexpectedly autoplaying');
-            console.log('PASS mobile manual-only');
-            await touch.close();
+            // Verify scene timing and responsive codec only when real media is available.
+            for(const cfg of [
+              {name:'desktop',width:1440,height:900,source:'duplar-detalhes-wide.mp4'},
+              {name:'mobile',width:390,height:844,source:'duplar-detalhes-mobile.mp4'}
+            ]){
+              const p=await browser.newPage({viewport:{width:cfg.width,height:cfg.height},deviceScaleFactor:1});
+              await p.emulateMedia({reducedMotion:'no-preference'});
+              await p.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
+              await p.locator('#diferenciais').scrollIntoViewIfNeeded();
+              const decoder=await p.locator('#cineVideo').evaluate(v=>v.canPlayType('video/mp4; codecs="avc1.42E01E"'));
+              if(!decoder){console.log('SKIP cinema decoder '+cfg.name);await p.close();continue;}
+              await p.waitForFunction(()=>{
+                const v=document.getElementById('cineVideo');
+                return v&&v.readyState>=2&&!v.paused&&document.querySelector('#diferenciais').classList.contains('is-video-ready');
+              },null,{timeout:20000});
+              const meta=await p.locator('#cineVideo').evaluate(v=>({src:v.currentSrc,duration:v.duration,muted:v.muted,paused:v.paused}));
+              if(!meta.src.includes(cfg.source)||meta.duration<20||meta.duration>21||!meta.muted||meta.paused)
+                throw Error(cfg.name+' cinematic media mismatch '+JSON.stringify(meta));
+              await p.locator('#cineVideo').evaluate(v=>{v.currentTime=10.7});
+              await p.waitForFunction(()=>!document.querySelector('[data-cine-scene="2"]').hidden,null,{timeout:3000});
+              await p.locator('#diferenciais').hover();
+              await p.waitForFunction(()=>document.querySelector('#cineVideo').paused,null,{timeout:3000});
+              await p.locator('#cineNext').click();
+              if(await p.locator('#cinePlayToggle').getAttribute('aria-pressed')!=='true')
+                throw Error(cfg.name+' manual navigation should pause cinematic video');
+              console.log('PASS cinematic video '+cfg.name+' '+JSON.stringify(meta));
+              await p.close();
+            }
             await browser.close();
           })().catch(err=>{console.error(err);process.exit(1)});
           NODE
