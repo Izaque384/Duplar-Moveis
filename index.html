@@ -238,128 +238,89 @@
     </div>
   </section>
 
-  <!-- DIFERENCIAIS / APRESENTAÇÃO EDITORIAL -->
-  <section class="diferenciais" id="diferenciais" aria-labelledby="diferenciais-titulo">
-    <div class="section-inner">
-      <div class="dif-section-heading">
-        <p class="eyebrow eyebrow-dark">03 / NOSSO JEITO DE PROJETAR</p>
-        <h2 id="diferenciais-titulo">Por que projetar em vez de comprar pronto</h2>
+  <!-- DIFERENCIAIS / EXPERIÊNCIA CINEMATOGRÁFICA -->
+  <section class="diferenciais cine-section" id="diferenciais" aria-labelledby="cine-heading">
+    <div class="cine-media" aria-hidden="true">
+      <picture class="cine-still is-current" data-cine-still="0" aria-hidden="true">
+        <source srcset="assets/img/cozinha-planejada-full.webp" type="image/webp">
+        <img src="assets/img/cozinha-planejada-full.jpg" alt="" width="900" height="1200" loading="lazy" decoding="async">
+      </picture>
+      <picture class="cine-still" data-cine-still="1" hidden aria-hidden="true">
+        <source srcset="assets/img/cozinha-gourmet-full.webp" type="image/webp">
+        <img src="assets/img/cozinha-gourmet-full.jpg" alt="" width="900" height="1200" loading="lazy" decoding="async">
+      </picture>
+      <picture class="cine-still" data-cine-still="2" hidden aria-hidden="true">
+        <source srcset="assets/img/cozinha-bancada-full.webp" type="image/webp">
+        <img src="assets/img/cozinha-bancada-full.jpg" alt="" width="900" height="1200" loading="lazy" decoding="async">
+      </picture>
+      <picture class="cine-still" data-cine-still="3" hidden aria-hidden="true">
+        <source srcset="assets/img/sala-integrada-full.webp" type="image/webp">
+        <img src="assets/img/sala-integrada-full.jpg" alt="" width="900" height="1200" loading="lazy" decoding="async">
+      </picture>
+      <video id="cineVideo" class="cine-video" muted loop playsinline preload="none"
+             poster="assets/video/duplar-detalhes-poster.jpg"
+             data-src-desktop="assets/video/duplar-detalhes-wide.mp4"
+             data-src-mobile="assets/video/duplar-detalhes-mobile.mp4"
+             disablepictureinpicture tabindex="-1"></video>
+    </div>
+    <div class="cine-overlay" aria-hidden="true"></div>
+    <div class="section-inner cine-shell">
+      <div class="cine-top">
+        <p class="cine-eyebrow" id="cine-heading">03 / NOSSO JEITO DE PROJETAR</p>
+        <span class="cine-signature">DUPLAR / MÓVEIS PROJETADOS</span>
       </div>
-      <div class="dif-carousel" id="difCarousel" role="region" aria-roledescription="carrossel" aria-label="Quatro diferenciais da Duplar">
-        <div class="dif-slide-track" id="difSlideTrack" aria-live="off">
-        <article class="dif-slide is-active" role="group" aria-roledescription="slide" aria-label="1 de 4: Projeto personalizado" data-dif-index="0">
-          <div class="dif-slide-visual">
-            <picture>
-              <source srcset="assets/img/cozinha-planejada-full.webp" type="image/webp">
-              <img src="assets/img/cozinha-planejada-full.jpg" alt="Cozinha planejada com armários em fendi, portas de vidro reflecta e painel ripado iluminado" loading="lazy" decoding="async" width="900" height="1200" style="object-position: center center">
-            </picture>
-            <div class="dif-slide-visual-content">
-              <span class="dif-image-label">DUPLAR / MÓVEIS PROJETADOS</span>
-              <div class="dif-image-title">
-                <span class="dif-image-number">01 <span aria-hidden="true">/</span> 04</span>
-                <h3>Projeto <em>personalizado.</em></h3>
-              </div>
-            </div>
-          </div>
-          <div class="dif-slide-copy">
-            <p class="dif-slide-category">01 / PERSONALIZAÇÃO</p>
-            <div class="dif-slide-copy-main">
-              <span class="dif-copy-kicker">CADA ESCOLHA TEM UM PROPÓSITO</span>
-              <p class="dif-copy-primary">Cada móvel é desenhado sob medida para as dimensões e a rotina do seu ambiente.</p>
-              <p class="dif-copy-secondary">Nada de adaptar sua casa ao catálogo de alguém.</p>
-            </div>
-            <div class="dif-copy-footer"><span class="dif-copy-rule" aria-hidden="true"></span>UM PROJETO QUE RESPEITA SEU ESPAÇO</div>
-          </div>
+      <div class="cine-main" aria-live="off">
+        <article class="cine-scene is-current" data-cine-scene="0">
+          <span class="cine-count">01 / 04</span>
+          <h3>Projeto <em>personalizado.</em></h3>
+          <p>Cada espaço tem uma história. Cada projeto, uma solução única, pensada para a sua rotina.</p>
         </article>
-        <article class="dif-slide" role="group" aria-roledescription="slide" aria-label="2 de 4: Madeira selecionada" data-dif-index="1" hidden>
-          <div class="dif-slide-visual">
-            <picture>
-              <source srcset="assets/img/cozinha-gourmet-full.webp" type="image/webp">
-              <img src="assets/img/cozinha-gourmet-full.jpg" alt="Cozinha gourmet com marcenaria amadeirada, armários aéreos em vidro e ilha em mármore" loading="lazy" decoding="async" width="900" height="1200" style="object-position: center 55%">
-            </picture>
-            <div class="dif-slide-visual-content">
-              <span class="dif-image-label">DUPLAR / MÓVEIS PROJETADOS</span>
-              <div class="dif-image-title">
-                <span class="dif-image-number">02 <span aria-hidden="true">/</span> 04</span>
-                <h3>Madeira <em>selecionada.</em></h3>
-              </div>
-            </div>
-          </div>
-          <div class="dif-slide-copy">
-            <p class="dif-slide-category">02 / MATERIAIS</p>
-            <div class="dif-slide-copy-main">
-              <span class="dif-copy-kicker">CADA ESCOLHA TEM UM PROPÓSITO</span>
-              <p class="dif-copy-primary">Trabalhamos com matéria-prima escolhida peça a peça.</p>
-              <p class="dif-copy-secondary">Priorizando durabilidade, o desenho natural da madeira e a harmonia do ambiente.</p>
-            </div>
-            <div class="dif-copy-footer"><span class="dif-copy-rule" aria-hidden="true"></span>ESCOLHAS QUE FAZEM DIFERENÇA</div>
-          </div>
+        <article class="cine-scene" data-cine-scene="1" hidden>
+          <span class="cine-count">02 / 04</span>
+          <h3>Madeira <em>selecionada.</em></h3>
+          <p>Materiais, texturas e tonalidades escolhidos para transformar boas ideias em móveis duradouros.</p>
         </article>
-        <article class="dif-slide" role="group" aria-roledescription="slide" aria-label="3 de 4: Acabamento sob medida" data-dif-index="2" hidden>
-          <div class="dif-slide-visual">
-            <picture>
-              <source srcset="assets/img/cozinha-bancada-full.webp" type="image/webp">
-              <img src="assets/img/cozinha-bancada-full.jpg" alt="Bancada de cozinha com frente ripada retroiluminada e nicho iluminado para geladeira" loading="lazy" decoding="async" width="900" height="1200" style="object-position: center 52%">
-            </picture>
-            <div class="dif-slide-visual-content">
-              <span class="dif-image-label">DUPLAR / MÓVEIS PROJETADOS</span>
-              <div class="dif-image-title">
-                <span class="dif-image-number">03 <span aria-hidden="true">/</span> 04</span>
-                <h3>Acabamento <em>sob medida.</em></h3>
-              </div>
-            </div>
-          </div>
-          <div class="dif-slide-copy">
-            <p class="dif-slide-category">03 / DETALHES</p>
-            <div class="dif-slide-copy-main">
-              <span class="dif-copy-kicker">CADA ESCOLHA TEM UM PROPÓSITO</span>
-              <p class="dif-copy-primary">Cores, ferragens e texturas ajustadas ao seu projeto de interiores.</p>
-              <p class="dif-copy-secondary">O móvel entra em harmonia com o restante da casa, até nos pequenos detalhes.</p>
-            </div>
-            <div class="dif-copy-footer"><span class="dif-copy-rule" aria-hidden="true"></span>A PRECISÃO ESTÁ NOS DETALHES</div>
-          </div>
+        <article class="cine-scene" data-cine-scene="2" hidden>
+          <span class="cine-count">03 / 04</span>
+          <h3>Acabamento <em>sob medida.</em></h3>
+          <p>O cuidado aparece nos detalhes: ferragens, encaixes, superfícies e soluções que fazem sentido.</p>
         </article>
-        <article class="dif-slide" role="group" aria-roledescription="slide" aria-label="4 de 4: Do projeto à instalação" data-dif-index="3" hidden>
-          <div class="dif-slide-visual">
-            <picture>
-              <source srcset="assets/img/sala-integrada-full.webp" type="image/webp">
-              <img src="assets/img/sala-integrada-full.jpg" alt="Sala integrada à cozinha com painel ripado verde e espelhos orgânicos iluminados" loading="lazy" decoding="async" width="900" height="1200" style="object-position: center center">
-            </picture>
-            <div class="dif-slide-visual-content">
-              <span class="dif-image-label">DUPLAR / MÓVEIS PROJETADOS</span>
-              <div class="dif-image-title">
-                <span class="dif-image-number">04 <span aria-hidden="true">/</span> 04</span>
-                <h3>Do projeto à <em>instalação.</em></h3>
-              </div>
-            </div>
-          </div>
-          <div class="dif-slide-copy">
-            <p class="dif-slide-category">04 / EXECUÇÃO</p>
-            <div class="dif-slide-copy-main">
-              <span class="dif-copy-kicker">CADA ESCOLHA TEM UM PROPÓSITO</span>
-              <p class="dif-copy-primary">Acompanhamos cada etapa, da primeira medição ao ambiente pronto.</p>
-              <p class="dif-copy-secondary">Você não fica sozinho entre o projeto, a produção e o móvel instalado no seu espaço.</p>
-            </div>
-            <div class="dif-copy-footer"><span class="dif-copy-rule" aria-hidden="true"></span>CUIDADO DO INÍCIO AO FIM</div>
-          </div>
+        <article class="cine-scene" data-cine-scene="3" hidden>
+          <span class="cine-count">04 / 04</span>
+          <h3>Do projeto à <em>instalação.</em></h3>
+          <p>Do primeiro traço ao ambiente finalizado, cada etapa é parte da experiência Duplar.</p>
         </article>
-        </div>
-        <div class="dif-carousel-controls" aria-label="Controles da apresentação">
-          <div class="dif-slide-selectors" aria-label="Escolher diferencial">
-          <button class="dif-select is-current" type="button" data-dif-go="0" aria-label="Ver diferencial 1 de 4: Projeto personalizado" aria-pressed="true"><span class="dif-select-track" aria-hidden="true"><span class="dif-select-fill"></span></span><span class="dif-select-num" aria-hidden="true">01</span></button>
-          <button class="dif-select" type="button" data-dif-go="1" aria-label="Ver diferencial 2 de 4: Madeira selecionada" aria-pressed="false"><span class="dif-select-track" aria-hidden="true"><span class="dif-select-fill"></span></span><span class="dif-select-num" aria-hidden="true">02</span></button>
-          <button class="dif-select" type="button" data-dif-go="2" aria-label="Ver diferencial 3 de 4: Acabamento sob medida" aria-pressed="false"><span class="dif-select-track" aria-hidden="true"><span class="dif-select-fill"></span></span><span class="dif-select-num" aria-hidden="true">03</span></button>
-          <button class="dif-select" type="button" data-dif-go="3" aria-label="Ver diferencial 4 de 4: Do projeto à instalação" aria-pressed="false"><span class="dif-select-track" aria-hidden="true"><span class="dif-select-fill"></span></span><span class="dif-select-num" aria-hidden="true">04</span></button>
+      </div>
+      <div class="cine-footer">
+        <div class="cine-navigation">
+          <div class="cine-selectors" aria-label="Selecionar momento do vídeo">
+          <button type="button" class="cine-select is-current" data-cine-go="0" aria-label="Ver momento 1 de 4: Projeto personalizado" aria-pressed="true">
+            <span class="cine-select-track" aria-hidden="true"><span class="cine-select-progress"></span></span>
+            <span class="cine-select-num" aria-hidden="true">01</span>
+          </button>
+          <button type="button" class="cine-select" data-cine-go="1" aria-label="Ver momento 2 de 4: Madeira selecionada" aria-pressed="false">
+            <span class="cine-select-track" aria-hidden="true"><span class="cine-select-progress"></span></span>
+            <span class="cine-select-num" aria-hidden="true">02</span>
+          </button>
+          <button type="button" class="cine-select" data-cine-go="2" aria-label="Ver momento 3 de 4: Acabamento sob medida" aria-pressed="false">
+            <span class="cine-select-track" aria-hidden="true"><span class="cine-select-progress"></span></span>
+            <span class="cine-select-num" aria-hidden="true">03</span>
+          </button>
+          <button type="button" class="cine-select" data-cine-go="3" aria-label="Ver momento 4 de 4: Do projeto à instalação" aria-pressed="false">
+            <span class="cine-select-track" aria-hidden="true"><span class="cine-select-progress"></span></span>
+            <span class="cine-select-num" aria-hidden="true">04</span>
+          </button>
           </div>
-          <div class="dif-carousel-actions">
-            <button class="dif-rotation-toggle" id="difRotationToggle" type="button" aria-label="Pausar apresentação automática" aria-pressed="false"><span class="dif-rotation-icon" aria-hidden="true">Ⅱ</span><span class="dif-rotation-text">Pausar</span></button>
-            <button class="dif-arrow" id="difPrevious" type="button" aria-label="Diferencial anterior"><span aria-hidden="true">←</span></button>
-            <button class="dif-arrow" id="difNext" type="button" aria-label="Próximo diferencial"><span aria-hidden="true">→</span></button>
+          <div class="cine-actions" aria-label="Controle do vídeo e dos momentos">
+            <button class="cine-arrow" id="cinePrevious" type="button" aria-label="Momento anterior"><span aria-hidden="true">←</span></button>
+            <button class="cine-arrow" id="cineNext" type="button" aria-label="Próximo momento"><span aria-hidden="true">→</span></button>
+            <button class="cine-play-toggle" id="cinePlayToggle" type="button" aria-label="Pausar vídeo" aria-pressed="false"><span class="cine-play-icon" aria-hidden="true">Ⅱ</span><span class="cine-play-text">Pausar</span></button>
           </div>
         </div>
-        <p class="visually-hidden" id="difAnnouncement" role="status" aria-live="polite" aria-atomic="true"></p>
+        <p class="cine-disclaimer">Vídeo ilustrativo. Conheça projetos reais na seção de portfólio.</p>
       </div>
     </div>
+    <p id="cineAnnouncement" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></p>
   </section>
 
   <!-- ATENDIMENTO / CONVERSÃO FINAL -->
