@@ -124,17 +124,25 @@ jobs:
                   missing:false,
                   number:section.textContent.includes('04 / ATENDIMENTO'),
                   processRemoved:!document.querySelector('#processo'),
-                  buttonDisabled:button.getAttribute('aria-disabled')==='true',
+                  whatsappActive:button.getAttribute('aria-disabled')!== 'true' && button.href.startsWith('https://wa.me/558881734015?text='),
+                  buttonText:button.textContent.trim(),
                   position:b.left>=a.right-2?'right':b.top>=a.bottom-2?'below':'overlap',
                   overflow:section.scrollWidth>section.clientWidth+2,
                   height:section.getBoundingClientRect().height
                 };
               });
               if(contact.missing||!contact.number||!contact.processRemoved
-                ||!contact.buttonDisabled||contact.overflow
+                ||!contact.whatsappActive||contact.overflow
                 ||contact.position!==(cfg.width>940?'right':'below'))
                 throw Error(cfg.name+' contact section issue: '+JSON.stringify(contact));
               console.log('PASS contact '+cfg.name+' '+JSON.stringify(contact));
+              const contacts=await page.evaluate(()=>({
+                instagram:[...document.querySelectorAll('.site-footer a')].some(a=>a.href==='https://www.instagram.com/duplar_moveis/'),
+                whatsapp:[...document.querySelectorAll('.site-footer a')].some(a=>a.href==='https://wa.me/558881734015'),
+                allCtas:[...document.querySelectorAll('[data-contact-cta]')].every(a=>a.href.startsWith('https://wa.me/558881734015?text='))
+              }));
+              if(!contacts.instagram||!contacts.whatsapp||!contacts.allCtas)
+                throw Error(cfg.name+' official contact links issue: '+JSON.stringify(contacts));
               await page.screenshot({path:'review/'+cfg.name+'.png',fullPage:true,animations:'disabled'});
               await page.locator('#contato').screenshot({path:'review/atendimento-'+cfg.name+'.png',animations:'disabled'});
               await page.locator('#depoimentos').screenshot({path:'review/depoimento-'+cfg.name+'.png',animations:'disabled'});
