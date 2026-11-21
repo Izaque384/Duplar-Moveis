@@ -136,15 +136,27 @@ jobs:
                 ||contact.position!==(cfg.width>940?'right':'below'))
                 throw Error(cfg.name+' contact section issue: '+JSON.stringify(contact));
               console.log('PASS contact '+cfg.name+' '+JSON.stringify(contact));
-              const contacts=await page.evaluate(()=>({
-                instagram:[...document.querySelectorAll('.site-footer a')].some(a=>a.href==='https://www.instagram.com/duplar_moveis/'),
-                whatsapp:[...document.querySelectorAll('.site-footer a')].some(a=>a.href==='https://wa.me/558881734015'),
-                locationFooter:[...document.querySelectorAll('.site-footer a')].some(a=>a.href==='https://maps.app.goo.gl/RKPxFfgDnBxY4xmz5'),
-                locationContact:document.querySelector('.atendimento-localizacao')?.href==='https://maps.app.goo.gl/RKPxFfgDnBxY4xmz5',
-                allCtas:[...document.querySelectorAll('[data-contact-cta]')].every(a=>a.href.startsWith('https://wa.me/558881734015?text='))
-              }));
-              if(!contacts.instagram||!contacts.whatsapp||!contacts.locationFooter||!contacts.locationContact||!contacts.allCtas)
-                throw Error(cfg.name+' official contact links issue: '+JSON.stringify(contacts));
+              const contacts=await page.evaluate(()=>{
+                const footer=document.querySelector('.site-footer');
+                const icons=[...footer.querySelectorAll('.footer-icon-link')];
+                return {
+                  instagram:icons.some(a=>a.href==='https://www.instagram.com/duplar_moveis/'),
+                  whatsapp:icons.some(a=>a.href==='https://wa.me/558881734015'),
+                  locationFooter:icons.some(a=>a.href==='https://maps.app.goo.gl/RKPxFfgDnBxY4xmz5'),
+                  client:icons.some(a=>a.getAttribute('href')==='cliente/'),
+                  icons:icons.length,
+                  accessible:icons.every(a=>a.getAttribute('aria-label')&&a.getAttribute('title')&&a.querySelector('svg[aria-hidden="true"]')&&!a.textContent.trim()),
+                  locationContactRemoved:!document.querySelector('.atendimento-localizacao'),
+                  footerOverflow:footer.scrollWidth>footer.clientWidth+2,
+                  footerHeight:footer.getBoundingClientRect().height,
+                  allCtas:[...document.querySelectorAll('[data-contact-cta]')].every(a=>a.href.startsWith('https://wa.me/558881734015?text='))
+                };
+              });
+              if(!contacts.instagram||!contacts.whatsapp||!contacts.locationFooter||!contacts.client
+                ||contacts.icons!==4||!contacts.accessible||!contacts.locationContactRemoved
+                ||contacts.footerOverflow||contacts.footerHeight>(cfg.width>600?300:350)||!contacts.allCtas)
+                throw Error(cfg.name+' compact footer or official contact links issue: '+JSON.stringify(contacts));
+              console.log('PASS compact footer '+cfg.name+' '+JSON.stringify(contacts));
               const cine=page.locator('#diferenciais');
               const initialFilm=await page.evaluate(()=>{
                 const section=document.querySelector('#diferenciais');
