@@ -1085,3 +1085,10 @@ h3 { font-size: clamp(1.2rem, 1.8vw, 1.5rem); }
   font-size: .85em;
   opacity: .7;
 }
+
+/* Keep the decorative rings inside the contact section viewport. */
+.atendimento .grain-rings-cta {
+  left: 50%;
+  width: min(70vw, 720px);
+  height: min(70vw, 720px);
+}
