@@ -596,7 +596,7 @@ blockquote cite{
 .site-footer{ background: var(--charcoal); color: var(--linen-warm); }
 .footer-inner{
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-columns: 2fr repeat(3, 1fr);
   gap: 2rem;
   padding-top: 4rem; padding-bottom: 2rem;
 }
