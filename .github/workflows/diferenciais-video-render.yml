@@ -1,0 +1,147 @@
+name: Render Duplar cinematic details video
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [develop]
+    paths:
+      - .github/workflows/diferenciais-video-render.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: duplar-details-render
+  cancel-in-progress: false
+
+jobs:
+  render:
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Check encoding tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v ffmpeg >/dev/null || ! command -v ffprobe >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y ffmpeg
+          fi
+          ffmpeg -version | head -1
+      - name: Download four traceable Pexels originals
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/duplar-detail-originals assets/video review/detalhes
+          curl --fail --location --retry 4 --retry-delay 5 --silent --show-error \
+            'https://videos.pexels.com/video-files/36906908/15634460_3840_2160_30fps.mp4' -o /tmp/duplar-detail-originals/01-projeto.mp4
+          curl --fail --location --retry 4 --retry-delay 5 --silent --show-error \
+            'https://videos.pexels.com/video-files/18366463/18366463-uhd_3840_2160_30fps.mp4' -o /tmp/duplar-detail-originals/02-madeira.mp4
+          curl --fail --location --retry 4 --retry-delay 5 --silent --show-error \
+            'https://videos.pexels.com/video-files/5973229/5973229-uhd_3840_2160_25fps.mp4' -o /tmp/duplar-detail-originals/03-detalhe.mp4
+          curl --fail --location --retry 4 --retry-delay 5 --silent --show-error \
+            'https://videos.pexels.com/video-files/38675643/16428573_3840_2160_30fps.mp4' -o /tmp/duplar-detail-originals/04-finalizado.mp4
+          for file in /tmp/duplar-detail-originals/*.mp4; do
+            ffprobe -v error -select_streams v:0 -show_entries stream=width,height,duration,r_frame_rate -of default=nw=1 "$file"
+          done
+      - name: Capture representative original frames for review
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in 01-projeto 02-madeira 03-detalhe 04-finalizado; do
+            for sec in 1 3 5; do
+              ffmpeg -hide_banner -loglevel error -y -ss "$sec" \
+                -i "/tmp/duplar-detail-originals/$name.mp4" -frames:v 1 \
+                -vf 'scale=960:-2' -q:v 3 "review/detalhes/$name-$sec.jpg"
+            done
+          done
+      - name: Render 4 scenes with synchronized cinematic dissolves
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Exactly 4 x 5.5 sec scenes; 0.5-sec crossfades:
+          # starts at 0,5,10,15 sec; duration approximately 20.5sec.
+          for mode in wide mobile; do
+            if [[ "$mode" == wide ]]; then
+              w=1920; h=1080; crf=19; preset=medium
+              x1=0.50; x2=0.50; x3=0.50; x4=0.50
+              maxrate=6500k; bufsize=12000k
+            else
+              w=720; h=1280; crf=21; preset=medium
+              x1=0.50; x2=0.47; x3=0.52; x4=0.50
+              maxrate=3600k; bufsize=6200k
+            fi
+            filter="[0:v]trim=start=1.4:duration=5.5,setpts=PTS-STARTPTS,fps=24,scale=$w:$h:force_original_aspect_ratio=increase,crop=$w:$h:x=(in_w-out_w)*$x1:y=(in_h-out_h)/2,setsar=1,eq=contrast=1.035:saturation=0.96,format=yuv420p,settb=AVTB[a];"
+            filter+="[1:v]trim=start=0.6:duration=5.5,setpts=PTS-STARTPTS,fps=24,scale=$w:$h:force_original_aspect_ratio=increase,crop=$w:$h:x=(in_w-out_w)*$x2:y=(in_h-out_h)/2,setsar=1,eq=contrast=1.035:saturation=0.96,format=yuv420p,settb=AVTB[b];"
+            filter+="[2:v]trim=start=0.15:duration=5.5,setpts=PTS-STARTPTS,fps=24,scale=$w:$h:force_original_aspect_ratio=increase,crop=$w:$h:x=(in_w-out_w)*$x3:y=(in_h-out_h)/2,setsar=1,eq=contrast=1.035:saturation=0.96,format=yuv420p,settb=AVTB[c];"
+            filter+="[3:v]trim=start=2.5:duration=5.5,setpts=PTS-STARTPTS,fps=24,scale=$w:$h:force_original_aspect_ratio=increase,crop=$w:$h:x=(in_w-out_w)*$x4:y=(in_h-out_h)/2,setsar=1,eq=contrast=1.035:saturation=0.96,format=yuv420p,settb=AVTB[d];"
+            filter+="[a][b]xfade=transition=fade:duration=0.5:offset=5.0[ab];"
+            filter+="[ab][c]xfade=transition=fade:duration=0.5:offset=10.0[abc];"
+            filter+="[abc][d]xfade=transition=fade:duration=0.5:offset=15.0[out]"
+            ffmpeg -hide_banner -loglevel error -stats -y \
+              -i /tmp/duplar-detail-originals/01-projeto.mp4 \
+              -i /tmp/duplar-detail-originals/02-madeira.mp4 \
+              -i /tmp/duplar-detail-originals/03-detalhe.mp4 \
+              -i /tmp/duplar-detail-originals/04-finalizado.mp4 \
+              -filter_complex "$filter" -map "[out]" -an -sn \
+              -c:v libx264 -preset "$preset" -crf "$crf" -maxrate "$maxrate" -bufsize "$bufsize" \
+              -pix_fmt yuv420p -profile:v high -level 4.1 -movflags +faststart \
+              "assets/video/duplar-detalhes-$mode.mp4"
+            for sec in 1 6 11 16; do
+              ffmpeg -hide_banner -loglevel error -y -ss "$sec" \
+                -i "assets/video/duplar-detalhes-$mode.mp4" -frames:v 1 \
+                -vf 'scale=960:-2' -q:v 3 "review/detalhes/finished-$mode-$sec.jpg"
+            done
+          done
+          ffmpeg -hide_banner -loglevel error -y -ss 1.0 \
+            -i assets/video/duplar-detalhes-wide.mp4 -frames:v 1 \
+            -q:v 3 assets/video/duplar-detalhes-poster.jpg
+      - name: Validate files, codecs and timeline
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json,os,subprocess
+          for mode,dimensions,limit in [('wide',(1920,1080),22_000_000),('mobile',(720,1280),11_000_000)]:
+              path=f'assets/video/duplar-detalhes-{mode}.mp4'
+              data=json.loads(subprocess.check_output(['ffprobe','-v','error','-show_streams','-show_format','-of','json',path]))
+              streams=data['streams']
+              video=next(s for s in streams if s['codec_type']=='video')
+              assert all(s['codec_type']!='audio' for s in streams),path+' audio found'
+              assert (video['width'],video['height'])==dimensions,(path,video['width'],video['height'])
+              assert video['codec_name']=='h264'
+              duration=float(data['format']['duration'])
+              size=os.stat(path).st_size
+              print('RENDER',mode,'duration',duration,'MB',round(size/1e6,2))
+              assert 20.2<=duration<=20.8,(path,duration)
+              assert size<limit,(path,size)
+          assert os.stat('assets/video/duplar-detalhes-poster.jpg').st_size<1_000_000
+          PY
+      - name: Commit only final media to develop
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/video/duplar-detalhes-wide.mp4 assets/video/duplar-detalhes-mobile.mp4 assets/video/duplar-detalhes-poster.jpg
+          if git diff --cached --quiet; then
+            echo 'No media changes'
+          else
+            git commit -m 'assets: add second cinematic Duplar film for section 03'
+            git push origin HEAD:develop
+          fi
+      - name: Upload source samples and encoded clips for QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: duplar-details-film-qa
+          path: |
+            review/detalhes/
+            assets/video/duplar-detalhes-wide.mp4
+            assets/video/duplar-detalhes-mobile.mp4
+            assets/video/duplar-detalhes-poster.jpg
+          retention-days: 14
+          if-no-files-found: warn
