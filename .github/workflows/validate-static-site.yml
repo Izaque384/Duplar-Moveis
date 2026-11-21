@@ -63,7 +63,12 @@ jobs:
           assert 'href="#processo"' not in html, 'Broken process navigation link'
           assert '04 / ATENDIMENTO' in html, 'Contact section number missing'
           assert 'class="atendimento-painel"' in html, 'Contact panel missing'
-          assert 'whatsBtn' in html and 'contactNote' in html, 'Contact activation selectors missing'
+          assert 'id="whatsBtn"' in html, 'Contact activation element missing'
+          assert 'contactNote' not in html, 'Removed contact note still present'
+          assert 'Vamos entender o seu espaço.' not in html, 'Removed headline still present'
+          assert 'O número oficial de atendimento será disponibilizado em breve.' not in html, 'Removed helper copy still present'
+          contact_section=html.split('<!-- ATENDIMENTO / CONVERSÃO FINAL -->',1)[1].split('</section>',1)[0]
+          assert '>DM<' not in contact_section and 'class="cta-marca"' not in contact_section, 'DM icons should be absent in contact section'
           assert 'DUPLAR 2026 - PRIMEIRA REVISAO' in css, 'Visual revision CSS missing'
           assert 'whatsappReady' in js, 'WhatsApp activation script missing'
           print('OK: all images, page sections, CTA links and revisions are present')
