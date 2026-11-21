@@ -60,156 +60,247 @@ if ('IntersectionObserver' in window && !prefersReducedMotion) {
 }
 
 // ============================================
-// Diferenciais: carrossel editorial, 4 quadros reais do acervo.
-// Auto apenas em desktop e em área visível; controle total ao visitante.
+// ============================================
+// Seção 03 / Filme cinematográfico sincronizado aos textos.
+// 4 cenas (5.5s cada, dissolvências 0.5s):
+// offsets 0 / 5 / 10 / 15; duração final ~20.5s.
+// Sem rede, sem movimento reduzido ou sem vídeo:
+// imagens estáticas do portfólio e navegação manual.
 // ============================================
 (() => {
-  const carousel = document.getElementById('difCarousel');
-  if (!carousel) return;
+  const section = document.getElementById('diferenciais');
+  const video = document.getElementById('cineVideo');
+  if (!section || !video) return;
 
-  const slides = Array.from(carousel.querySelectorAll('.dif-slide'));
-  const selectors = Array.from(carousel.querySelectorAll('[data-dif-go]'));
-  const prev = document.getElementById('difPrevious');
-  const next = document.getElementById('difNext');
-  const rotationToggle = document.getElementById('difRotationToggle');
-  const rotationIcon = rotationToggle?.querySelector('.dif-rotation-icon');
-  const rotationText = rotationToggle?.querySelector('.dif-rotation-text');
-  const announcement = document.getElementById('difAnnouncement');
-  const slideTrack = document.getElementById('difSlideTrack');
-  const desktop = window.matchMedia('(min-width: 861px)');
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const DURATION = 7800;
+  const scenes = Array.from(section.querySelectorAll('[data-cine-scene]'));
+  const stills = Array.from(section.querySelectorAll('[data-cine-still]'));
+  const selectors = Array.from(section.querySelectorAll('[data-cine-go]'));
+  const prev = document.getElementById('cinePrevious');
+  const next = document.getElementById('cineNext');
+  const toggle = document.getElementById('cinePlayToggle');
+  const toggleText = toggle?.querySelector('.cine-play-text');
+  const toggleIcon = toggle?.querySelector('.cine-play-icon');
+  const announcement = document.getElementById('cineAnnouncement');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const mobile = window.matchMedia('(max-width: 600px)');
+  const saveData = Boolean(navigator.connection && navigator.connection.saveData);
+  const sceneStart = [0, 5.25, 10.25, 15.25];
+  const duration = 20.5;
 
-  if (slides.length !== 4 || selectors.length !== slides.length || !prev || !next || !rotationToggle || !slideTrack) return;
+  if (scenes.length !== 4 || stills.length !== 4 || selectors.length !== 4 ||
+      !prev || !next || !toggle) return;
 
-  let current = 0;
+  let index = 0;
+  let mediaLoaded = false;
+  let mediaBroken = false;
+  let metadataLoaded = false;
   let userPaused = false;
-  let pointerInside = false;
-  let focusInside = false;
-  let inView = false;
-  let timer = null;
-  let touchStart = null;
+  let hoverPaused = false;
+  let focusPaused = false;
+  let visible = false;
+  let near = false;
+  let pendingSeek = null;
+  let pointerStart = null;
 
-  const preload = index => {
-    const image = slides[(index + slides.length) % slides.length].querySelector('img');
-    if (image) image.loading = 'eager';
-  };
+  const isStatic = () => reduceMotion.matches || saveData || mediaBroken;
+  const shouldPlay = () => !isStatic() && mediaLoaded && visible && !document.hidden &&
+    !userPaused && !hoverPaused && !focusPaused;
 
-  const canAutoplay = () => desktop.matches && !reducedMotion.matches &&
-    !userPaused && !pointerInside && !focusInside && inView && !document.hidden;
-
-  const updateToggle = () => {
-    const paused = userPaused || !desktop.matches || reducedMotion.matches;
-    rotationToggle.setAttribute('aria-pressed', String(paused));
-    rotationToggle.setAttribute('aria-label', userPaused ? 'Retomar apresentação automática' : 'Pausar apresentação automática');
-    if (rotationText) rotationText.textContent = userPaused ? 'Retomar' : 'Pausar';
-    if (rotationIcon) rotationIcon.textContent = userPaused ? '▶' : 'Ⅱ';
-  };
-
-  const updateAutoplay = () => {
-    if (timer !== null) window.clearTimeout(timer);
-    timer = null;
-    carousel.classList.remove('is-playing');
-    const playing = canAutoplay();
-    slideTrack.setAttribute('aria-live', playing ? 'off' : 'polite');
-    if (playing) {
-      // The CSS progress animation and the JS timer start together.
-      void carousel.offsetWidth;
-      carousel.classList.add('is-playing');
-      timer = window.setTimeout(() => showSlide(current + 1, false), DURATION);
-    }
-    updateToggle();
-  };
-
-  const showSlide = (index, manual) => {
-    const newIndex = (index + slides.length) % slides.length;
-    if (manual) userPaused = true;
-    current = newIndex;
-    slides.forEach((slide, i) => {
-      const active = i === current;
-      slide.hidden = !active;
-      slide.classList.toggle('is-active', active);
-    });
-    selectors.forEach((button, i) => {
-      const active = i === current;
-      button.classList.toggle('is-current', active);
-      button.setAttribute('aria-pressed', String(active));
-    });
-    preload(current);
-    preload(current + 1);
-    if (announcement && manual) announcement.textContent = slides[current].getAttribute('aria-label') || '';
-    updateAutoplay();
-  };
-
-  selectors.forEach(button => button.addEventListener('click', () => {
-    showSlide(Number(button.dataset.difGo), true);
-  }));
-  prev.addEventListener('click', () => showSlide(current - 1, true));
-  next.addEventListener('click', () => showSlide(current + 1, true));
-
-  rotationToggle.addEventListener('click', () => {
-    userPaused = !userPaused;
-    updateAutoplay();
-  });
-
-  carousel.addEventListener('pointerenter', event => {
-    if (event.pointerType === 'mouse' || event.pointerType === 'pen') {
-      pointerInside = true;
-      updateAutoplay();
-    }
-  });
-  carousel.addEventListener('pointerleave', event => {
-    if (event.pointerType === 'mouse' || event.pointerType === 'pen') {
-      pointerInside = false;
-      updateAutoplay();
-    }
-  });
-  carousel.addEventListener('focusin', () => {
-    focusInside = true;
-    updateAutoplay();
-  });
-  carousel.addEventListener('focusout', event => {
-    if (!event.relatedTarget || !carousel.contains(event.relatedTarget)) {
-      focusInside = false;
-      updateAutoplay();
-    }
-  });
-
-  // Swipe changes only slides, never scrolls the page artificially.
-  slideTrack.addEventListener('touchstart', event => {
-    if (event.touches.length !== 1) return;
-    touchStart = { x: event.touches[0].clientX, y: event.touches[0].clientY };
-  }, { passive: true });
-  slideTrack.addEventListener('touchend', event => {
-    if (!touchStart || event.changedTouches.length !== 1) return;
-    const dx = event.changedTouches[0].clientX - touchStart.x;
-    const dy = event.changedTouches[0].clientY - touchStart.y;
-    touchStart = null;
-    if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.3) {
-      showSlide(current + (dx < 0 ? 1 : -1), true);
-    }
-  }, { passive: true });
-  slideTrack.addEventListener('touchcancel', () => { touchStart = null; }, { passive: true });
-
-  document.addEventListener('visibilitychange', updateAutoplay);
-  desktop.addEventListener?.('change', updateAutoplay);
-  reducedMotion.addEventListener?.('change', updateAutoplay);
-
-  if ('IntersectionObserver' in window) {
-    const observer = new IntersectionObserver(entries => {
-      inView = entries[0].isIntersecting;
-      updateAutoplay();
-    }, { threshold: 0.24 });
-    observer.observe(carousel);
-  } else {
-    // Lack of visibility observation must not trigger unsolicited rotation.
-    inView = false;
+  function refreshToggle() {
+    toggle.hidden = isStatic();
+    toggle.setAttribute('aria-pressed', String(userPaused));
+    toggle.setAttribute('aria-label', userPaused ? 'Retomar vídeo' : 'Pausar vídeo');
+    if (toggleText) toggleText.textContent = userPaused ? 'Retomar' : 'Pausar';
+    if (toggleIcon) toggleIcon.textContent = userPaused ? '▶' : 'Ⅱ';
   }
 
-  carousel.classList.add('is-enhanced');
-  preload(0);
-  preload(1);
-  updateAutoplay();
+  function paintProgress(time) {
+    const ends = [sceneStart[1], sceneStart[2], sceneStart[3], duration];
+    selectors.forEach((button, i) => {
+      const fill = button.querySelector('.cine-select-progress');
+      if (!fill) return;
+      const value = i < index ? 100 :
+        i > index ? 0 : isStatic() ? 100 :
+        Math.max(0, Math.min(100, ((time - sceneStart[i]) / (ends[i] - sceneStart[i])) * 100));
+      fill.style.width = value.toFixed(1) + '%';
+    });
+  }
+
+  function showScene(newIndex, manual = false) {
+    const normalized = (newIndex + scenes.length) % scenes.length;
+    if (manual) userPaused = true;
+    const changed = normalized !== index;
+    index = normalized;
+    scenes.forEach((element, i) => {
+      element.hidden = i !== index;
+      element.classList.toggle('is-current', i === index);
+    });
+    stills.forEach((element, i) => {
+      element.hidden = i !== index;
+      element.classList.toggle('is-current', i === index);
+    });
+    selectors.forEach((button, i) => {
+      button.classList.toggle('is-current', i === index);
+      button.setAttribute('aria-pressed', String(i === index));
+    });
+    if (manual && announcement) {
+      announcement.textContent = selectors[index].getAttribute('aria-label') || '';
+    }
+    paintProgress(mediaLoaded && metadataLoaded && !isStatic() ? video.currentTime : sceneStart[index]);
+    if (manual) {
+      pendingSeek = sceneStart[index] + (index === 0 ? 0 : .12);
+      if (metadataLoaded) {
+        try { video.currentTime = pendingSeek; pendingSeek = null; } catch (_) {}
+      }
+      updatePlayback();
+    } else if (changed) {
+      refreshToggle();
+    }
+  }
+
+  function updatePlayback() {
+    refreshToggle();
+    if (shouldPlay()) {
+      const attempt = video.play();
+      if (attempt && typeof attempt.catch === 'function') {
+        attempt.catch(() => {
+          // Restrições de autoplay: preservar o último frame ou a foto.
+          section.classList.remove('is-video-ready');
+        });
+      }
+    } else if (!video.paused) {
+      video.pause();
+    }
+  }
+
+  function loadIfAppropriate() {
+    if (!near || mediaLoaded || isStatic()) return;
+    const source = mobile.matches ? video.dataset.srcMobile : video.dataset.srcDesktop;
+    if (!source) return;
+    mediaLoaded = true;
+    video.src = source;
+    video.preload = 'auto';
+    video.load();
+    updatePlayback();
+  }
+
+  function switchSource() {
+    if (!mediaLoaded || isStatic()) return;
+    video.pause();
+    section.classList.remove('is-video-ready');
+    metadataLoaded = false;
+    pendingSeek = sceneStart[index];
+    video.src = mobile.matches ? video.dataset.srcMobile : video.dataset.srcDesktop;
+    video.load();
+  }
+
+  selectors.forEach((button, i) => button.addEventListener('click', () => showScene(i, true)));
+  prev.addEventListener('click', () => showScene(index - 1, true));
+  next.addEventListener('click', () => showScene(index + 1, true));
+  toggle.addEventListener('click', () => {
+    userPaused = !userPaused;
+    updatePlayback();
+  });
+
+  video.addEventListener('loadedmetadata', () => {
+    metadataLoaded = true;
+    if (pendingSeek !== null) {
+      try { video.currentTime = pendingSeek; pendingSeek = null; } catch (_) {}
+    }
+    updatePlayback();
+  });
+  video.addEventListener('playing', () => {
+    section.classList.add('is-video-ready');
+    refreshToggle();
+  });
+  video.addEventListener('error', () => {
+    mediaBroken = true;
+    section.classList.remove('is-video-ready');
+    updatePlayback();
+    paintProgress(sceneStart[index]);
+  });
+  video.addEventListener('timeupdate', () => {
+    if (isStatic()) return;
+    const t = video.currentTime;
+    const newIndex = t >= sceneStart[3] ? 3 :
+      t >= sceneStart[2] ? 2 :
+      t >= sceneStart[1] ? 1 : 0;
+    if (newIndex !== index) showScene(newIndex, false);
+    paintProgress(t);
+  });
+  video.addEventListener('seeked', () => {
+    if (video.paused && !isStatic() && video.readyState >= 2) {
+      section.classList.add('is-video-ready');
+    }
+  });
+
+  section.addEventListener('pointerenter', e => {
+    if (e.pointerType === 'mouse' || e.pointerType === 'pen') {
+      hoverPaused = true;
+      updatePlayback();
+    }
+  });
+  section.addEventListener('pointerleave', e => {
+    if (e.pointerType === 'mouse' || e.pointerType === 'pen') {
+      hoverPaused = false;
+      updatePlayback();
+    }
+  });
+  section.addEventListener('focusin', () => {
+    focusPaused = true;
+    updatePlayback();
+  });
+  section.addEventListener('focusout', e => {
+    if (!e.relatedTarget || !section.contains(e.relatedTarget)) {
+      focusPaused = false;
+      updatePlayback();
+    }
+  });
+
+  // Navegação horizontal sem interferir no gesto vertical de rolagem.
+  section.addEventListener('touchstart', e => {
+    if (e.touches.length !== 1) return;
+    pointerStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }, { passive: true });
+  section.addEventListener('touchend', e => {
+    if (!pointerStart || e.changedTouches.length !== 1) return;
+    const dx = e.changedTouches[0].clientX - pointerStart.x;
+    const dy = e.changedTouches[0].clientY - pointerStart.y;
+    pointerStart = null;
+    if (Math.abs(dx) >= 60 && Math.abs(dx) >= Math.abs(dy) * 1.3) {
+      showScene(index + (dx < 0 ? 1 : -1), true);
+    }
+  }, { passive: true });
+  section.addEventListener('touchcancel', () => { pointerStart = null; }, { passive: true });
+
+  document.addEventListener('visibilitychange', updatePlayback);
+  mobile.addEventListener?.('change', switchSource);
+  reduceMotion.addEventListener?.('change', () => {
+    section.classList.remove('is-video-ready');
+    if (reduceMotion.matches) video.pause();
+    if (!reduceMotion.matches) loadIfAppropriate();
+    updatePlayback();
+  });
+
+  if ('IntersectionObserver' in window) {
+    const nearObserver = new IntersectionObserver(entries => {
+      near = entries[0].isIntersecting;
+      loadIfAppropriate();
+    }, { rootMargin: '350px 0px', threshold: 0 });
+    nearObserver.observe(section);
+    const visibilityObserver = new IntersectionObserver(entries => {
+      visible = entries[0].isIntersecting;
+      updatePlayback();
+    }, { threshold: .17 });
+    visibilityObserver.observe(section);
+  } else {
+    near = true;
+    visible = false; // Não iniciar movimento automaticamente sem observação confiável.
+    loadIfAppropriate();
+  }
+
+  showScene(0, false);
+  refreshToggle();
 })();
 
 // ============================================
