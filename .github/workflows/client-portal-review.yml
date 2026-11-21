@@ -58,6 +58,39 @@ jobs:
                 if(dims.scroll>dims.client+2) throw Error(config.name+' '+label+' overflow: '+JSON.stringify(dims));
               };
               await checkOverflow('entry');
+              const entryFrame=await page.evaluate(()=>{
+                const rect=selector=>document.querySelector(selector).getBoundingClientRect();
+                const entry=rect('#entryScreen');
+                const header=rect('.entry-header');
+                const copy=rect('.entry-copy');
+                const card=rect('.entry-card');
+                const cta=rect('.entry-card [data-show-demo]');
+                const footer=rect('.entry-footer');
+                return {
+                  viewport:innerHeight,
+                  entryHeight:entry.height,
+                  pageHeight:document.documentElement.scrollHeight,
+                  headerBottom:header.bottom,
+                  copyTop:copy.top,
+                  copyBottom:copy.bottom,
+                  cardTop:card.top,
+                  cardBottom:card.bottom,
+                  ctaTop:cta.top,
+                  ctaBottom:cta.bottom,
+                  footerTop:footer.top,
+                  footerBottom:footer.bottom
+                };
+              });
+              if(Math.abs(entryFrame.entryHeight-entryFrame.viewport)>2 ||
+                 entryFrame.pageHeight>entryFrame.viewport+2 ||
+                 entryFrame.copyTop<entryFrame.headerBottom-2 ||
+                 entryFrame.cardTop<entryFrame.headerBottom-2 ||
+                 entryFrame.copyBottom>entryFrame.footerTop+2 ||
+                 entryFrame.cardBottom>entryFrame.footerTop+2 ||
+                 entryFrame.ctaBottom>entryFrame.footerTop+2 ||
+                 entryFrame.footerBottom>entryFrame.viewport+2)
+                throw Error(config.name+' entry should fit exactly one viewport without clipped content: '+JSON.stringify(entryFrame));
+              console.log('PASS single-screen client entry '+config.name+' '+JSON.stringify(entryFrame));
               await page.screenshot({path:'portal-review/'+config.name+'-entrada.png',fullPage:true,animations:'disabled'});
               await page.locator('[data-show-demo]').click();
               if(!await page.locator('[data-panel="inicio"]').isVisible())throw Error(config.name+' overview not shown');
