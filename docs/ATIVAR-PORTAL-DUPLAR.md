@@ -63,6 +63,10 @@ Abra **Project configuration > Environment variables** do projeto duplarmoveis. 
 5. Confirme que outro cliente não consegue obter documentos que não lhe pertencem. Limites básicos: no máximo **3 solicitações por número e 12 por IP a cada 15 minutos; 5 tentativas de código por solicitação**.
 6. Depois do teste, publique a atualização em produção e confira desktop e celular.
 
+## Limite de tamanho dos arquivos
+
+Por segurança e compatibilidade com os limites de payload da Netlify Functions, a primeira versão aceita PDFs de **até 4 MB**. Contratos ou notas fiscais acima desse limite exigem um fluxo de upload direto para armazenamento privado, a implementar separadamente.
+
 ## Limitações desta primeira versão
 
 - A equipe consegue **cadastrar** clientes/projetos e **anexar** PDFs. A edição, exclusão, revogação, histórico de alterações e múltiplas funções de atendente ainda não têm interface.
