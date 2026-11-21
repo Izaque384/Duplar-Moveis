@@ -74,9 +74,6 @@ if ('IntersectionObserver' in window && !prefersReducedMotion) {
 
   const scenes = Array.from(section.querySelectorAll('[data-cine-scene]'));
   const stills = Array.from(section.querySelectorAll('[data-cine-still]'));
-  const toggle = document.getElementById('cinePlayToggle');
-  const toggleText = toggle?.querySelector('.cine-play-text');
-  const toggleIcon = toggle?.querySelector('.cine-play-icon');
   const announcement = document.getElementById('cineAnnouncement');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const mobile = window.matchMedia('(max-width: 600px)');
@@ -89,13 +86,12 @@ if ('IntersectionObserver' in window && !prefersReducedMotion) {
     'Do projeto à instalação'
   ];
 
-  if (scenes.length !== 4 || stills.length !== 4 || !toggle) return;
+  if (scenes.length !== 4 || stills.length !== 4) return;
 
   let index = 0;
   let mediaLoaded = false;
   let mediaBroken = false;
   let metadataLoaded = false;
-  let userPaused = false;
   let visible = false;
   let near = false;
   let pendingSeek = null;
@@ -104,15 +100,7 @@ if ('IntersectionObserver' in window && !prefersReducedMotion) {
 
   const isStatic = () => reduceMotion.matches || saveData || mediaBroken;
   const shouldPlay = () => !isStatic() && mediaLoaded && visible &&
-    !document.hidden && !userPaused;
-
-  function refreshToggle() {
-    toggle.hidden = isStatic();
-    toggle.setAttribute('aria-pressed', String(userPaused));
-    toggle.setAttribute('aria-label', userPaused ? 'Retomar vídeo' : 'Pausar vídeo');
-    if (toggleText) toggleText.textContent = userPaused ? 'Retomar' : 'Pausar';
-    if (toggleIcon) toggleIcon.textContent = userPaused ? '▶' : 'Ⅱ';
-  }
+    !document.hidden;
 
   function showScene(newIndex, manual = false) {
     index = (newIndex + scenes.length) % scenes.length;
@@ -142,7 +130,6 @@ if ('IntersectionObserver' in window && !prefersReducedMotion) {
   }
 
   function updatePlayback() {
-    refreshToggle();
     if (shouldPlay()) {
       if (!video.paused) return;
       const attempt = video.play();
@@ -178,14 +165,8 @@ if ('IntersectionObserver' in window && !prefersReducedMotion) {
     video.load();
   }
 
-  // A única interação visual mantida é pausar/retomar o filme.
-  toggle.addEventListener('click', () => {
-    userPaused = !userPaused;
-    updatePlayback();
-  });
-
   // Toda a área cinematográfica responde ao lado do clique.
-  // O clique no próprio controle de pausa não troca de cena.
+  // Clicar em uma metade navega sem interromper o vídeo.
   section.addEventListener('click', event => {
     if (Date.now() < suppressClickUntil) return;
     if (event.target.closest('button, a, input, select, textarea, [role="button"]')) return;
@@ -216,7 +197,6 @@ if ('IntersectionObserver' in window && !prefersReducedMotion) {
 
   video.addEventListener('playing', () => {
     section.classList.add('is-video-ready');
-    refreshToggle();
   });
 
   video.addEventListener('error', () => {
@@ -287,7 +267,6 @@ if ('IntersectionObserver' in window && !prefersReducedMotion) {
   }
 
   showScene(0, false);
-  refreshToggle();
 })();
 
 // ============================================
