@@ -1,167 +1,70 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#101113">
-  <meta name="robots" content="noindex, nofollow">
-  <meta name="description" content="Área do cliente Duplar Móveis — acompanhe a proposta de experiência para projetos sob medida.">
-  <title>Área do cliente — Duplar Móveis</title>
-  <link rel="icon" type="image/png" href="../assets/img/favicon-32.png">
-  <link rel="apple-touch-icon" href="../assets/img/favicon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#101113">
+<title>Área do cliente — Duplar Móveis</title>
+<link rel="icon" href="../assets/img/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Work+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./styles.css">
+<script src="./app.js" defer></script>
 </head>
 <body>
-  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
-  <div class="ambient-grain" aria-hidden="true"></div>
-
-  <!-- O portal é somente uma prévia sem autenticação nem dados de clientes. -->
-  <div class="entry-screen" id="entryScreen">
-    <header class="entry-header">
-      <a class="brand-lockup" href="../" aria-label="Duplar Móveis — voltar ao site">
-        <img src="../assets/img/logo-marca.png" alt="" width="400" height="403">
-        <span class="brand-name">Duplar<small>MÓVEIS PROJETADOS</small></span>
-      </a>
-      <a class="quiet-link" href="../">Voltar ao site <span aria-hidden="true">↗</span></a>
-    </header>
-    <main class="entry-layout" id="conteudo">
-      <div class="entry-copy">
-        <span class="eyebrow"><span class="eyebrow-line"></span> UMA EXPERIÊNCIA DUPLAR</span>
-        <h1>Seu projeto, em <em>cada detalhe.</em></h1>
-        <p class="entry-lead">Um espaço pensado para acompanhar a evolução dos seus móveis sob medida, da primeira conversa até a entrega.</p>
-        <div class="entry-values" aria-label="Recursos previstos para o portal">
-          <div><span>01 /</span><p>Etapas e próximos passos organizados</p></div>
-          <div><span>02 /</span><p>Projetos e documentos em um só lugar</p></div>
-          <div><span>03 /</span><p>Atendimento próximo e transparente</p></div>
-        </div>
-      </div>
-      <div class="entry-card">
-        <div class="card-kicker"><span>ÁREA DO CLIENTE</span><span class="micro-mark" aria-hidden="true">✳</span></div>
-        <span class="outlined-circle" aria-hidden="true"></span>
-        <h2>Acompanhe a construção do seu espaço.</h2>
-        <p>Estamos preparando o acesso individual para clientes da Duplar. Enquanto isso, conheça a experiência que estamos desenvolvendo.</p>
-        <div class="access-state"><span class="access-state-dot"></span><span>Acesso individual ainda não habilitado</span></div>
-        <button class="primary-action" type="button" data-show-demo>Explorar demonstração <span aria-hidden="true">↗</span></button>
-        <p class="entry-disclaimer">Demonstração visual com informações ilustrativas. Não exige login e não contém dados reais de clientes.</p>
-      </div>
-    </main>
-    <footer class="entry-footer"><span>© Duplar Móveis</span><span>PROJETOS QUE FAZEM SENTIDO</span></footer>
-  </div>
-
-  <div class="portal-shell" id="dashboard" hidden>
-    <div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
-    <aside class="sidebar" id="sidebar" aria-label="Menu da área do cliente">
-      <a class="brand-lockup sidebar-brand" href="../" aria-label="Duplar Móveis — voltar ao site">
-        <img src="../assets/img/logo-marca.png" alt="" width="400" height="403">
-        <span class="brand-name">Duplar<small>MÓVEIS PROJETADOS</small></span>
-      </a>
-      <div class="sidebar-project">
-        <span>PORTAL DO CLIENTE</span>
-        <strong>Seu espaço, em construção.</strong>
-        <small>Ambiente de demonstração</small>
-      </div>
-      <nav class="sidebar-nav" aria-label="Seções do portal">
-        <span class="sidebar-label">ACOMPANHAMENTO</span>
-        <button type="button" data-view="inicio" class="side-link is-active" aria-current="page"><span class="nav-symbol" aria-hidden="true">◫</span> Visão geral <span class="side-arrow" aria-hidden="true">↗</span></button>
-        <button type="button" data-view="projeto" class="side-link"><span class="nav-symbol" aria-hidden="true">⌗</span> Meu projeto <span class="side-arrow" aria-hidden="true">↗</span></button>
-        <button type="button" data-view="documentos" class="side-link"><span class="nav-symbol" aria-hidden="true">▤</span> Documentos <span class="side-arrow" aria-hidden="true">↗</span></button>
-        <button type="button" data-view="financeiro" class="side-link"><span class="nav-symbol" aria-hidden="true">◇</span> Financeiro <span class="side-arrow" aria-hidden="true">↗</span></button>
-        <span class="sidebar-label sidebar-label-second">SUPORTE</span>
-        <button type="button" data-view="atendimento" class="side-link"><span class="nav-symbol" aria-hidden="true">◎</span> Atendimento <span class="side-arrow" aria-hidden="true">↗</span></button>
-        <button type="button" data-view="conta" class="side-link"><span class="nav-symbol" aria-hidden="true">◈</span> Minha conta <span class="side-arrow" aria-hidden="true">↗</span></button>
-      </nav>
-      <div class="sidebar-bottom">
-        <p>PROJETO DE EXPERIÊNCIA <span>01 / 01</span></p>
-        <button class="secondary-action side-exit" type="button" data-exit-demo>Encerrar demonstração <span aria-hidden="true">↗</span></button>
-        <a href="../" class="sidebar-home">Voltar ao site da Duplar</a>
-      </div>
-    </aside>
-    <div class="portal-workspace">
-      <header class="portal-header">
-        <button id="sidebarToggle" class="mobile-nav-toggle" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="Abrir menu do portal">☰ <span>Menu</span></button>
-        <div class="portal-breadcrumb"><span>ÁREA DO CLIENTE</span><span aria-hidden="true">/</span><strong id="currentSection">Visão geral</strong></div>
-        <div class="portal-header-actions"><span class="demo-indicator"><span></span> DADOS ILUSTRATIVOS</span><button class="top-exit" type="button" data-exit-demo title="Encerrar demonstração">Sair da prévia <span aria-hidden="true">↗</span></button></div>
-      </header>
-      <main class="portal-content" id="portalMain">
-        <div class="demo-notice" role="note"><span class="notice-symbol" aria-hidden="true">i</span><p><strong>Você está em uma demonstração.</strong> As etapas, os documentos e as informações exibidas abaixo são exemplos. Não representam projetos ou pagamentos de clientes.</p></div>
-
-        <section class="portal-view" data-panel="inicio" aria-labelledby="inicio-title">
-          <div class="view-heading"><div><span class="eyebrow">VISÃO GERAL / 01</span><h1 id="inicio-title">Bem-vindo ao seu <em>espaço.</em></h1><p>Uma visão clara do andamento, das próximas decisões e de tudo o que envolve seu projeto.</p></div><span class="page-index">01 / 06</span></div>
-          <article class="project-hero">
-            <div class="project-hero-copy"><span class="mini-label">EXEMPLO DE ACOMPANHAMENTO</span><h2>Cozinha integrada <span>sob medida.</span></h2><p>Uma experiência ilustrativa para mostrar como você poderá acompanhar cada etapa.</p><div class="project-hero-footer"><span>ETAPA 03 DE 05</span><span>60% DO EXEMPLO</span></div><div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="5" aria-valuenow="3" aria-label="Progresso ilustrativo do projeto"><span></span></div></div>
-            <div class="project-hero-visual" aria-hidden="true">
-              <svg class="blueprint" viewBox="0 0 460 360" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="55" y="39" width="350" height="282" stroke="currentColor" stroke-width="1.3"/><rect x="84" y="68" width="292" height="222" stroke="currentColor" stroke-opacity=".44"/><path d="M84 134H376M84 214H376M176 68V290M291 68V290" stroke="currentColor" stroke-opacity=".5"/><path d="M176 214H291V290H176V214Z" fill="currentColor" fill-opacity=".04"/><rect x="217" y="106" width="94" height="74" rx="34" stroke="currentColor"/><path d="M36 39H20M36 321H20M405 39H440M405 321H440M55 22V10M405 22V10M55 338V350M405 338V350" stroke="currentColor" stroke-opacity=".38"/><circle cx="229" cy="180" r="135" stroke="currentColor" stroke-opacity=".07"/><circle cx="229" cy="180" r="167" stroke="currentColor" stroke-opacity=".05"/></svg>
-              <span>TRAÇOS QUE SE TORNAM AMBIENTES</span>
-            </div>
-          </article>
-          <div class="metric-grid">
-            <div class="metric-card"><span>ETAPA ATUAL <span class="metric-icon" aria-hidden="true">↗</span></span><strong>Desenvolvimento do projeto</strong><small>Exemplo de status</small></div>
-            <div class="metric-card"><span>PRÓXIMO PASSO <span class="metric-icon" aria-hidden="true">↗</span></span><strong>Revisar a proposta</strong><small>Exemplo de ação futura</small></div>
-            <div class="metric-card"><span>PREVISÃO DE ENTREGA <span class="metric-icon" aria-hidden="true">↗</span></span><strong>A definir</strong><small>Sem prazo real cadastrado</small></div>
-          </div>
-          <div class="overview-columns">
-            <section class="surface-panel"><div class="panel-heading"><span>LINHA DO TEMPO</span><button type="button" class="inline-link" data-view="projeto">Ver todas as etapas ↗</button></div><ol class="compact-timeline"><li class="is-complete"><span class="time-node"></span><div><strong>Primeiro contato</strong><small>Etapa concluída no exemplo</small></div></li><li class="is-complete"><span class="time-node"></span><div><strong>Levantamento do ambiente</strong><small>Etapa concluída no exemplo</small></div></li><li class="is-current"><span class="time-node"></span><div><strong>Projeto e proposta</strong><small>Etapa atual ilustrativa</small></div></li><li><span class="time-node"></span><div><strong>Produção e instalação</strong><small>Etapas seguintes</small></div></li></ol></section>
-            <section class="surface-panel next-panel"><div class="panel-heading"><span>SEMPRE POR PERTO</span><span class="subtle-arrow" aria-hidden="true">↗</span></div><h3>Dúvidas pelo caminho?</h3><p>Converse diretamente com a Duplar para falar sobre ideias, referências e próximos passos do seu projeto.</p><a class="outline-link" href="https://wa.me/558881734015?text=Ol%C3%A1%21%20Gostaria%20de%20conversar%20sobre%20um%20projeto%20de%20m%C3%B3veis%20sob%20medida." target="_blank" rel="noopener noreferrer">Falar no WhatsApp <span aria-hidden="true">↗</span></a></section>
-          </div>
-        </section>
-
-        <section class="portal-view" data-panel="projeto" aria-labelledby="projeto-title" hidden>
-          <div class="view-heading"><div><span class="eyebrow">ACOMPANHAMENTO / 02</span><h1 id="projeto-title">Cada etapa tem seu <em>valor.</em></h1><p>Visualize o caminho do seu projeto, as decisões importantes e o que vem a seguir.</p></div><span class="page-index">02 / 06</span></div>
-          <div class="details-banner"><div><span class="mini-label">PROJETO DE EXEMPLO</span><h2>Cozinha integrada sob medida</h2><p>Simulação de um projeto para ilustrar o acompanhamento.</p></div><span class="status-pill">EM DESENVOLVIMENTO · EXEMPLO</span></div>
-          <div class="panel-heading separated"><span>ETAPAS DO SEU PROJETO</span><span>03 / 05</span></div>
-          <ol class="stage-list">
-            <li class="stage done"><span class="stage-index">01</span><div><div class="stage-header"><h3>Primeiro contato e briefing</h3><span>CONCLUÍDA NO EXEMPLO</span></div><p>Entendimento das necessidades, do estilo desejado e das referências para o ambiente.</p></div></li>
-            <li class="stage done"><span class="stage-index">02</span><div><div class="stage-header"><h3>Medição e levantamento</h3><span>CONCLUÍDA NO EXEMPLO</span></div><p>Registro de medidas e características técnicas do espaço.</p></div></li>
-            <li class="stage current"><span class="stage-index">03</span><div><div class="stage-header"><h3>Desenvolvimento do projeto</h3><span>ETAPA ILUSTRATIVA</span></div><p>Definição de soluções, acabamentos, proposta e eventuais ajustes.</p><div class="stage-detail"><strong>O que acontece nesta fase?</strong><p>O projeto é apresentado ao cliente para análise e alinhamento antes das próximas etapas.</p></div></div></li>
-            <li class="stage"><span class="stage-index">04</span><div><div class="stage-header"><h3>Aprovação e fabricação</h3><span>ETAPA FUTURA</span></div><p>Com as definições aprovadas, o trabalho avança para a produção.</p></div></li>
-            <li class="stage"><span class="stage-index">05</span><div><div class="stage-header"><h3>Instalação e entrega</h3><span>ETAPA FUTURA</span></div><p>Montagem, acabamentos finais e conclusão do projeto.</p></div></li>
-          </ol>
-          <div class="page-note">Estas etapas são uma representação da experiência pretendida. Prazos e condições serão definidos individualmente em cada projeto real.</div>
-        </section>
-
-        <section class="portal-view" data-panel="documentos" aria-labelledby="documentos-title" hidden>
-          <div class="view-heading"><div><span class="eyebrow">ARQUIVOS / 03</span><h1 id="documentos-title">Tudo organizado em <em>um só lugar.</em></h1><p>Propostas, desenhos e arquivos importantes, sempre associados ao projeto correto.</p></div><span class="page-index">03 / 06</span></div>
-          <div class="details-banner"><div><span class="mini-label">BIBLIOTECA DO PROJETO</span><h2>Documentos e aprovações</h2><p>A estrutura abaixo representa tipos de arquivo que o portal poderá reunir.</p></div><span class="status-pill">SEM ARQUIVOS REAIS</span></div>
-          <div class="docs-list">
-            <div class="document-row"><div class="doc-icon" aria-hidden="true">01</div><div><strong>Proposta comercial</strong><span>Orçamento, condições e escopo</span></div><span class="doc-tag">EXEMPLO</span><button type="button" data-detail-button aria-expanded="false" aria-controls="doc-one">Detalhes <span aria-hidden="true">+</span></button><div class="doc-details" id="doc-one" hidden>A proposta poderá ser disponibilizada para consulta após a integração segura. Não há documento anexado nesta demonstração.</div></div>
-            <div class="document-row"><div class="doc-icon" aria-hidden="true">02</div><div><strong>Desenhos e referências</strong><span>Plantas, vistas e acabamentos</span></div><span class="doc-tag">EXEMPLO</span><button type="button" data-detail-button aria-expanded="false" aria-controls="doc-two">Detalhes <span aria-hidden="true">+</span></button><div class="doc-details" id="doc-two" hidden>As versões de projeto e referências serão mostradas somente ao cliente autorizado. Esta é apenas uma prévia visual.</div></div>
-            <div class="document-row"><div class="doc-icon" aria-hidden="true">03</div><div><strong>Contrato e aprovações</strong><span>Documentos assinados e decisões</span></div><span class="doc-tag">EXEMPLO</span><button type="button" data-detail-button aria-expanded="false" aria-controls="doc-three">Detalhes <span aria-hidden="true">+</span></button><div class="doc-details" id="doc-three" hidden>Futuras aprovações deverão registrar data, versão e autorização do cliente no sistema. Nenhuma aprovação pode ser feita nesta demonstração.</div></div>
-            <div class="document-row"><div class="doc-icon" aria-hidden="true">04</div><div><strong>Entrega e garantia</strong><span>Orientações e arquivos finais</span></div><span class="doc-tag">EXEMPLO</span><button type="button" data-detail-button aria-expanded="false" aria-controls="doc-four">Detalhes <span aria-hidden="true">+</span></button><div class="doc-details" id="doc-four" hidden>Os comprovantes e orientações reais dependerão de cadastro e disponibilização pela equipe da Duplar.</div></div>
-          </div>
-          <p class="page-note">Nenhum documento está publicado ou disponível para download neste ambiente de demonstração.</p>
-        </section>
-
-        <section class="portal-view" data-panel="financeiro" aria-labelledby="financeiro-title" hidden>
-          <div class="view-heading"><div><span class="eyebrow">CONDIÇÕES / 04</span><h1 id="financeiro-title">Clareza em cada <em>acordo.</em></h1><p>Um espaço reservado para visualizar condições comerciais e pagamentos vinculados ao seu projeto.</p></div><span class="page-index">04 / 06</span></div>
-          <div class="finance-summary"><div><span class="mini-label">VISÃO FINANCEIRA</span><h2>Informações reservadas ao cliente.</h2><p>Valores, vencimentos e comprovantes só poderão aparecer após autenticação e conexão a dados autorizados.</p></div><span class="private-symbol" aria-hidden="true">◇</span></div>
-          <div class="financial-grid">
-            <div class="metric-card"><span>VALOR CONTRATADO</span><strong>Não disponível</strong><small>Nenhum contrato vinculado</small></div>
-            <div class="metric-card"><span>PRÓXIMO VENCIMENTO</span><strong>Não disponível</strong><small>Nenhuma parcela vinculada</small></div>
-            <div class="metric-card"><span>HISTÓRICO</span><strong>Não disponível</strong><small>Nenhum pagamento vinculado</small></div>
-          </div>
-          <div class="surface-panel payment-structure"><div class="panel-heading"><span>COMO SERÁ ORGANIZADO</span><span>VISÃO PREVISTA</span></div><div><strong>Condições aprovadas</strong><p>Valor e condições do contrato, disponíveis apenas ao titular do projeto.</p></div><div><strong>Cronograma de pagamentos</strong><p>Parcelas, datas e situação de cada pagamento, quando houver integração.</p></div><div><strong>Comprovantes e recibos</strong><p>Arquivos compartilhados pela Duplar de forma privada e segura.</p></div></div>
-        </section>
-
-        <section class="portal-view" data-panel="atendimento" aria-labelledby="atendimento-title" hidden>
-          <div class="view-heading"><div><span class="eyebrow">RELACIONAMENTO / 05</span><h1 id="atendimento-title">Estamos aqui para <em>conversar.</em></h1><p>Ideias, dúvidas e decisões importantes merecem um contato próximo.</p></div><span class="page-index">05 / 06</span></div>
-          <div class="support-grid">
-            <article class="support-primary"><span class="mini-label">CANAL DE ATENDIMENTO</span><h2>Vamos falar sobre seu projeto?</h2><p>Entre em contato diretamente pelo WhatsApp da Duplar para compartilhar fotos do espaço, referências ou tirar dúvidas.</p><a class="primary-action" href="https://wa.me/558881734015?text=Ol%C3%A1%21%20Gostaria%20de%20conversar%20sobre%20um%20projeto%20de%20m%C3%B3veis%20sob%20medida." target="_blank" rel="noopener noreferrer">Conversar no WhatsApp <span aria-hidden="true">↗</span></a><small>Atendimento humano. O histórico de conversas ainda não aparece neste portal.</small></article>
-            <article class="support-secondary"><span class="mini-label">OUTRO CANAL OFICIAL</span><h3>Mais inspirações, no Instagram.</h3><p>Conheça novidades e acompanhe a Duplar também pelas redes sociais.</p><a class="outline-link" href="https://www.instagram.com/duplar_moveis/" target="_blank" rel="noopener noreferrer">Visitar @duplar_moveis <span aria-hidden="true">↗</span></a></article>
-          </div>
-          <div class="faq-panel"><div class="panel-heading"><span>INFORMAÇÕES ÚTEIS</span><span>03 PERGUNTAS</span></div><details><summary>Como acompanharei as etapas do projeto? <span aria-hidden="true">+</span></summary><p>Quando o portal tiver cadastro e autenticação, as etapas poderão ser atualizadas pela equipe da Duplar e consultadas pelo cliente.</p></details><details><summary>Onde poderei consultar plantas e propostas? <span aria-hidden="true">+</span></summary><p>Na seção Documentos, após a implementação de permissões por cliente e armazenamento privado de arquivos.</p></details><details><summary>Posso enviar referências agora? <span aria-hidden="true">+</span></summary><p>Sim. Utilize o WhatsApp oficial informado acima para compartilhar suas ideias com a equipe.</p></details></div>
-        </section>
-
-        <section class="portal-view" data-panel="conta" aria-labelledby="conta-title" hidden>
-          <div class="view-heading"><div><span class="eyebrow">PERFIL / 06</span><h1 id="conta-title">Um acesso só <em>seu.</em></h1><p>Uma área reservada, com informações do titular e acesso aos projetos autorizados.</p></div><span class="page-index">06 / 06</span></div>
-          <div class="account-layout"><div class="surface-panel"><div class="panel-heading"><span>MEU PERFIL</span><span>NÃO CONFIGURADO</span></div><div class="account-avatar" aria-hidden="true">—</div><h2>Dados do cliente</h2><p>Nome, e-mail e telefone serão mostrados apenas após identificação segura. Nenhum dado pessoal é solicitado nesta demonstração.</p><div class="account-placeholder"><span>Nome</span><strong>Aguardando autenticação</strong></div><div class="account-placeholder"><span>E-mail</span><strong>Aguardando autenticação</strong></div><div class="account-placeholder"><span>Projetos vinculados</span><strong>Nenhum projeto real</strong></div></div><div class="surface-panel security-panel"><div class="panel-heading"><span>PRIVACIDADE E ACESSO</span><span aria-hidden="true">◇</span></div><h3>Seus projetos, com privacidade.</h3><p>Antes de disponibilizar documentos, valores e dados de clientes, a Duplar precisará configurar um sistema com autenticação, permissões e armazenamento privado.</p><ul><li>Login individual com recuperação de acesso</li><li>Somente projetos vinculados ao titular</li><li>Documentos e dados financeiros protegidos</li><li>Registro de atualizações importantes</li></ul><button class="outline-button" type="button" data-exit-demo>Voltar à apresentação <span aria-hidden="true">↗</span></button></div></div>
-        </section>
-      </main>
-      <footer class="portal-footer"><span>© Duplar Móveis</span><span>ÁREA DO CLIENTE · EXPERIÊNCIA DEMONSTRATIVA</span></footer>
-    </div>
-  </div>
-  <script src="./app.js" defer></script>
-</body>
-</html>
+<a href="#portalMain" class="skip-link">Pular para o conteúdo</a>
+<div class="ambient-grain" aria-hidden="true"></div>
+<div id="entryScreen" class="entry-screen">
+<header class="entry-header"><a href="../" class="brand-lockup"><img src="../assets/img/logo-marca.png" alt="" width="45" height="45"><span class="brand-name">Duplar<small>MÓVEIS PROJETADOS</small></span></a><a class="quiet-link" href="../">Voltar ao site ↗</a></header>
+<main class="entry-layout">
+ <div class="entry-copy"><span class="eyebrow">DUPLAR / ÁREA DO CLIENTE</span><h1>Seu projeto, em <em>cada detalhe.</em></h1><p class="entry-lead">Consulte seus contratos, notas fiscais, informações do projeto e converse diretamente com a Duplar.</p><div class="entry-values"><div><span>01 /</span><p>Contratos privados</p></div><div><span>02 /</span><p>Notas fiscais para download</p></div><div><span>03 /</span><p>Orçamento e serviços contratados</p></div><div><span>04 /</span><p>Atendimento pelo WhatsApp</p></div></div></div>
+ <div class="entry-card"><div class="card-kicker"><span>ACESSO SEGURO</span><span>✳</span></div><h2>Entre no seu <em>espaço.</em></h2>
+ <p>Receba um código temporário no WhatsApp cadastrado com a Duplar.</p>
+ <form id="phoneForm" class="portal-login-form"><label for="phone">WhatsApp com DDD</label><input id="phone" autocomplete="tel" type="tel" inputmode="tel" placeholder="(88) 99999-9999" required><button class="primary-action" type="submit" id="sendCode">Receber código no WhatsApp ↗</button></form>
+ <form id="codeForm" class="portal-login-form" hidden><label for="code">Código de seis dígitos</label><input id="code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000" required><button class="primary-action" type="submit" id="verifyCode">Confirmar meu acesso ↗</button><button class="quiet-link" type="button" id="backPhone">Usar outro número</button></form>
+ <p id="loginMessage" class="login-status" aria-live="polite" role="status"></p><p class="entry-disclaimer">Somente números previamente cadastrados pela Duplar recebem acesso. O código expira após cinco minutos.</p>
+ <a class="quiet-link demo-preview-link" href="?demo=1">Ver demonstração ilustrativa ↗</a></div>
+</main><footer class="entry-footer"><span>© DUPLAR MÓVEIS</span><span>UM ESPAÇO EXCLUSIVO PARA VOCÊ</span></footer></div>
+<div id="dashboard" class="portal-shell" hidden>
+ <div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
+ <aside class="sidebar" id="sidebar" aria-label="Menu da área do cliente">
+   <a class="brand-lockup sidebar-brand" href="../"><img src="../assets/img/logo-marca.png" alt="" width="41" height="41"><span class="brand-name">Duplar<small>MÓVEIS PROJETADOS</small></span></a>
+   <div class="sidebar-project"><span>PORTAL DO CLIENTE</span><strong>Seu espaço, em construção.</strong><small id="portalGreeting">Suas informações</small></div>
+   <nav class="sidebar-nav" aria-label="Quatro áreas do cliente">
+     <span class="sidebar-label">SEU ESPAÇO</span>
+     <button type="button" data-view="contratos" class="side-link is-active"><span class="nav-symbol" aria-hidden="true">▤</span> Contratos <span class="side-arrow">↗</span></button>
+     <button type="button" data-view="notas" class="side-link"><span class="nav-symbol" aria-hidden="true">▥</span> Notas fiscais <span class="side-arrow">↗</span></button>
+     <button type="button" data-view="projeto" class="side-link"><span class="nav-symbol" aria-hidden="true">⌗</span> Meu projeto <span class="side-arrow">↗</span></button>
+     <button type="button" data-view="atendimento" class="side-link"><span class="nav-symbol" aria-hidden="true">◎</span> Atendimento <span class="side-arrow">↗</span></button>
+   </nav>
+   <div class="sidebar-bottom"><p>ÁREAS DO CLIENTE <span>04 / 04</span></p><button class="secondary-action side-exit" id="exitPortal" type="button">Sair da área do cliente ↗</button><a href="../" class="sidebar-home">Voltar ao site da Duplar</a></div>
+ </aside>
+ <div class="portal-workspace">
+  <header class="portal-header"><button id="sidebarToggle" class="mobile-nav-toggle" aria-controls="sidebar" aria-expanded="false" type="button">☰ <span>Menu</span></button><div class="portal-breadcrumb"><span>ÁREA DO CLIENTE</span><span>/</span><strong id="currentSection">Contratos</strong></div><div class="portal-header-actions"><span class="demo-indicator" id="demoIndicator" hidden><span></span>DADOS ILUSTRATIVOS</span><button class="top-exit" id="topExit" type="button">Sair ↗</button></div></header>
+  <main class="portal-content" id="portalMain">
+   <div id="demoNotice" class="demo-notice" hidden><span class="notice-symbol">i</span><p><strong>Prévia visual.</strong> Os dados e documentos são ilustrativos. Nenhuma informação de cliente está sendo exibida.</p></div>
+   <div id="projectSwitch" class="project-switcher" hidden><label for="projectSelect">PROJETO</label><select id="projectSelect"></select></div>
+   <section class="portal-view" data-panel="contratos" aria-labelledby="contratos-title">
+    <div class="view-heading"><div><span class="eyebrow">DOCUMENTAÇÃO / 01</span><h1 id="contratos-title">Seus contratos, <em>organizados.</em></h1><p>Consulte seus contratos e baixe os documentos disponibilizados pela Duplar.</p></div><span class="page-index">01 / 04</span></div>
+    <div class="details-banner"><div><span class="mini-label">DOCUMENTOS CONTRATUAIS</span><h2>Contratos do projeto</h2><p>Somente documentos associados ao seu cadastro ficam disponíveis.</p></div><span class="status-pill">ACESSO PRIVADO</span></div>
+    <div id="contractsList" class="docs-list"></div>
+   </section>
+   <section class="portal-view" data-panel="notas" aria-labelledby="notas-title" hidden>
+    <div class="view-heading"><div><span class="eyebrow">DOCUMENTAÇÃO FISCAL / 02</span><h1 id="notas-title">Notas fiscais <em>à mão.</em></h1><p>Encontre e baixe as notas fiscais do seu projeto, quando disponibilizadas pela equipe.</p></div><span class="page-index">02 / 04</span></div>
+    <div class="details-banner"><div><span class="mini-label">NOTAS FISCAIS</span><h2>Arquivos do projeto</h2><p>Documentos fiscais vinculados diretamente ao projeto selecionado.</p></div><span class="status-pill">DOWNLOAD PROTEGIDO</span></div>
+    <div id="invoicesList" class="docs-list"></div>
+   </section>
+   <section class="portal-view" data-panel="projeto" aria-labelledby="projeto-title" hidden>
+    <div class="view-heading"><div><span class="eyebrow">MEU PROJETO / 03</span><h1 id="projeto-title">Cada detalhe do <em>seu projeto.</em></h1><p>Confira o orçamento, o escopo contratado e a situação atual.</p></div><span class="page-index">03 / 04</span></div>
+    <div class="details-banner"><div><span class="mini-label">PROJETO SELECIONADO</span><h2 id="projectName">Ainda não há projeto cadastrado</h2><p id="projectDescription">Os detalhes aparecerão aqui quando forem cadastrados pela Duplar.</p></div><span class="status-pill" id="projectStatus">Aguardando cadastro</span></div>
+    <div class="financial-grid"><div class="metric-card"><span>ORÇAMENTO</span><strong id="projectBudget">Não informado</strong><small>Valor informado pela Duplar</small></div><div class="metric-card"><span>SITUAÇÃO ATUAL</span><strong id="projectStatusCard">Aguardando cadastro</strong><small>Andamento do projeto</small></div><div class="metric-card"><span>PROJETO</span><strong id="projectTitleCard">—</strong><small>Identificação do ambiente</small></div></div>
+    <div class="surface-panel"><div class="panel-heading"><span>SERVIÇOS CONTRATADOS</span></div><p id="projectServices" class="project-services">A Duplar ainda não cadastrou os serviços deste projeto.</p></div>
+   </section>
+   <section class="portal-view" data-panel="atendimento" aria-labelledby="atendimento-title" hidden>
+    <div class="view-heading"><div><span class="eyebrow">ATENDIMENTO / 04</span><h1 id="atendimento-title">Estamos aqui para <em>conversar.</em></h1><p>Fale com a equipe da Duplar sobre contratos, documentos ou detalhes do seu projeto.</p></div><span class="page-index">04 / 04</span></div>
+    <div class="support-grid"><article class="support-primary"><span class="mini-label">ATENDIMENTO DIRETO</span><h2>Podemos ajudar?</h2><p>Entre em contato pelo WhatsApp oficial para tirar dúvidas e alinhar os próximos passos.</p><a id="supportLink" class="primary-action" href="https://wa.me/558881734015" target="_blank" rel="noopener noreferrer">Conversar pelo WhatsApp ↗</a></article><article class="support-secondary"><span class="mini-label">DUPLAR MÓVEIS</span><h3>Seu projeto em boas mãos.</h3><p>Contratos, notas e informações podem ser consultados nas outras três áreas. Se algo precisar de atualização, avise nossa equipe.</p></article></div>
+   </section>
+  <p id="dashboardMessage" class="login-status" role="status" aria-live="polite"></p>
+  </main><footer class="portal-footer"><span>© Duplar Móveis</span><span>PORTAL PRIVADO DO CLIENTE</span></footer>
+ </div>
+</div>
+</body></html>
