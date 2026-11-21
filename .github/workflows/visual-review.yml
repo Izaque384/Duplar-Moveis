@@ -156,7 +156,10 @@ jobs:
                   question:section.querySelector('.cine-signature')?.textContent.trim(),
                   videoPaused:document.querySelector('#cineVideo').paused,
                   overflow:section.scrollWidth>section.clientWidth+2,
-                  disabledToggle:document.querySelector('#cinePlayToggle').hidden,
+                  noPauseButton:!section.querySelector('#cinePlayToggle'),
+                  cursor:getComputedStyle(section).cursor,
+                  questionSize:parseFloat(getComputedStyle(section.querySelector('.cine-signature')).fontSize),
+                  questionBounds:section.querySelector('.cine-signature').getBoundingClientRect().toJSON(),
                   sceneBottom:scenes[0].getBoundingClientRect().bottom,
                   controlTop:section.querySelector('.cine-navigation').getBoundingClientRect().top
                 };
@@ -164,7 +167,9 @@ jobs:
               if(Math.abs(initialFilm.height-initialFilm.screen)>2||initialFilm.visible!==1
                 ||initialFilm.moments!==4||!initialFilm.removedControls
                 ||initialFilm.question!=='Por que projetar em vez de comprar pronto?'
-                ||!initialFilm.videoPaused||!initialFilm.disabledToggle||initialFilm.overflow
+                ||!initialFilm.videoPaused||!initialFilm.noPauseButton||initialFilm.overflow
+                ||initialFilm.cursor!=='auto'||initialFilm.questionSize<16
+                ||initialFilm.questionBounds.bottom>initialFilm.sceneBottom
                 ||initialFilm.sceneBottom>initialFilm.controlTop+2)
                 throw Error(cfg.name+' full-screen cinematic fallback issue: '+JSON.stringify(initialFilm));
               await cine.scrollIntoViewIfNeeded();
@@ -271,12 +276,11 @@ jobs:
                 throw Error(cfg.name+' right-half video navigation did not change scene');
               if(await p.locator('#cineVideo').evaluate(v=>v.paused))
                 throw Error(cfg.name+' clicking to navigate should not pause video');
-              await p.locator('#cinePlayToggle').click();
-              if(await p.locator('#cinePlayToggle').getAttribute('aria-pressed')!=='true'
-                 ||!(await p.locator('#cineVideo').evaluate(v=>v.paused)))
-                throw Error(cfg.name+' explicit pause control failed');
-              await p.locator('#cinePlayToggle').click();
-              await p.waitForFunction(()=>!document.querySelector('#cineVideo').paused,null,{timeout:3000});
+              if(await p.locator('#cinePlayToggle').count()!==0)
+                throw Error(cfg.name+' pause control should not be visible or present');
+              await p.waitForTimeout(150);
+              if(await p.locator('#cineVideo').evaluate(v=>v.paused))
+                throw Error(cfg.name+' cinematic video should keep playing after side navigation');
               console.log('PASS cinematic video '+cfg.name+' '+JSON.stringify(meta));
               await p.close();
             }
