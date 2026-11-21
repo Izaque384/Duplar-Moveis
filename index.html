@@ -37,7 +37,6 @@
       <a href="#ambientes">Projetos</a>
       <a href="#depoimentos">Depoimentos</a>
       <a href="#diferenciais">Diferenciais</a>
-      <a href="#processo">Processo</a>
       <a href="#contato" class="nav-cta" data-contact-cta>Solicitar orçamento</a>
     </nav>
     <button class="nav-toggle" id="navToggle" aria-label="Abrir menu" aria-controls="nav" aria-expanded="false" type="button">
@@ -276,54 +275,36 @@
     </div>
   </section>
 
-  <!-- PROCESSO -->
-  <section class="processo" id="processo">
-    <div class="section-inner">
-      <p class="eyebrow">04 / DO PRIMEIRO TRAÇO À ENTREGA</p>
-      <h2>Da primeira conversa ao ambiente pronto.</h2>
-      <p class="processo-sub">Um caminho simples para transformar sua ideia em um projeto feito para o seu espaço.</p>
-      <div class="processo-steps">
-        <div class="step">
-          <span class="step-num">01</span>
-          <h3>Consulta e briefing</h3>
-          <p>Visitamos o espaço, entendemos suas necessidades e o estilo que você quer para o ambiente.</p>
-        </div>
-        <div class="step">
-          <span class="step-num">02</span>
-          <h3>Projeto e escolha de materiais</h3>
-          <p>Desenhamos o móvel sob medida e apresentamos madeiras, cores e ferragens para aprovação.</p>
-        </div>
-        <div class="step">
-          <span class="step-num">03</span>
-          <h3>Produção artesanal</h3>
-          <p>Cada peça é fabricada com cuidado, respeitando o projeto aprovado e os prazos combinados.</p>
-        </div>
-        <div class="step">
-          <span class="step-num">04</span>
-          <h3>Instalação e entrega</h3>
-          <p>Instalamos no seu espaço com acabamento final revisado antes da entrega.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA FINAL -->
-  <section class="cta-final" id="contato">
+  <!-- ATENDIMENTO / CONVERSÃO FINAL -->
+  <section class="cta-final atendimento" id="contato" aria-labelledby="atendimento-titulo">
     <svg class="grain-rings grain-rings-cta" viewBox="0 0 800 800" aria-hidden="true">
       <circle cx="400" cy="400" r="100" class="ring ring-1"/>
       <circle cx="400" cy="400" r="200" class="ring ring-2"/>
       <circle cx="400" cy="400" r="310" class="ring ring-3"/>
     </svg>
-    <div class="section-inner cta-inner">
-      <img src="assets/img/logo-marca.png" alt="" width="400" height="403" class="cta-marca">
-      <p class="eyebrow">05 / O PRÓXIMO CAPÍTULO</p>
-      <h2>O ambiente que você imagina merece sair do papel.</h2>
-      <p class="cta-sub">Conte para a Duplar o que você tem em mente. Estamos preparando o canal de atendimento para receber seu projeto.</p>
-      <div class="hero-actions">
-        <a href="#contato" class="btn btn-primary contact-channel is-pending" id="whatsBtn" data-contact-cta aria-disabled="true">WhatsApp em configuração</a>
-        <a href="#ambientes" class="btn btn-ghost">Rever projetos</a>
+    <div class="section-inner cta-inner atendimento-grid">
+      <div class="atendimento-apresentacao">
+        <img src="assets/img/logo-marca.png" alt="" width="400" height="403" class="cta-marca">
+        <p class="eyebrow">04 / ATENDIMENTO</p>
+        <h2 id="atendimento-titulo">O próximo ambiente começa com uma <em>conversa.</em></h2>
+        <p class="cta-sub">Tem uma ideia para sua casa? Conte o que você imagina. Queremos conhecer seu espaço e entender o que é importante para você.</p>
+        <a class="text-link atendimento-projetos" href="#ambientes">Explorar projetos <span aria-hidden="true">↗</span></a>
       </div>
-      <p class="cta-note" id="contactNote">O contato oficial será habilitado após a confirmação do número de atendimento.</p>
+      <div class="atendimento-painel">
+        <div class="atendimento-painel-cabecalho">
+          <span>COMECE SEU PROJETO</span>
+          <span class="atendimento-painel-simbolo" aria-hidden="true">DM</span>
+        </div>
+        <h3>Vamos entender o seu espaço.</h3>
+        <p class="atendimento-painel-sub">Para iniciar uma conversa, você pode nos contar:</p>
+        <div class="atendimento-pistas" aria-label="Informações úteis para o primeiro contato">
+          <div class="atendimento-pista"><span aria-hidden="true">01</span><p>Qual ambiente deseja planejar</p></div>
+          <div class="atendimento-pista"><span aria-hidden="true">02</span><p>Em qual cidade fica o projeto</p></div>
+          <div class="atendimento-pista"><span aria-hidden="true">03</span><p>Que ideias ou referências já tem</p></div>
+        </div>
+        <a href="#contato" class="btn btn-primary contact-channel is-pending atendimento-botao" id="whatsBtn" data-contact-cta aria-disabled="true">WhatsApp em configuração</a>
+        <p class="cta-note" id="contactNote">O número oficial de atendimento será disponibilizado em breve.</p>
+      </div>
     </div>
   </section>
 
