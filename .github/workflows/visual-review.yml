@@ -145,7 +145,8 @@ jobs:
                   locationFooter:icons.some(a=>a.href==='https://maps.app.goo.gl/RKPxFfgDnBxY4xmz5'),
                   client:icons.some(a=>a.getAttribute('href')==='cliente/'),
                   icons:icons.length,
-                  accessible:icons.every(a=>a.getAttribute('aria-label')&&a.getAttribute('title')&&a.querySelector('svg[aria-hidden="true"]')&&!a.textContent.trim()),
+                  accessible:icons.every(a=>a.getAttribute('aria-label')&&a.getAttribute('title')&&a.querySelector('svg[aria-hidden="true"]')&&a.querySelector('.footer-link-label')?.textContent.trim()),
+                  labels:icons.map(a=>a.querySelector('.footer-link-label')?.textContent.trim()),
                   locationContactRemoved:!document.querySelector('.atendimento-localizacao'),
                   footerOverflow:footer.scrollWidth>footer.clientWidth+2,
                   footerHeight:footer.getBoundingClientRect().height,
@@ -153,7 +154,8 @@ jobs:
                 };
               });
               if(!contacts.instagram||!contacts.whatsapp||!contacts.locationFooter||!contacts.client
-                ||contacts.icons!==4||!contacts.accessible||!contacts.locationContactRemoved
+                ||contacts.icons!==4||!contacts.accessible
+                ||contacts.labels.join('|')!=='WhatsApp|Instagram|Localização|Área do cliente'||!contacts.locationContactRemoved
                 ||contacts.footerOverflow||contacts.footerHeight>(cfg.width>600?300:350)||!contacts.allCtas)
                 throw Error(cfg.name+' compact footer or official contact links issue: '+JSON.stringify(contacts));
               console.log('PASS compact footer '+cfg.name+' '+JSON.stringify(contacts));
