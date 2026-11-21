@@ -51,7 +51,7 @@ jobs:
               await page.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
               await page.locator('img[loading="lazy"]').evaluateAll(imgs=>imgs.forEach(img=>img.loading='eager'));
               const imageStates = await page.evaluate(async()=>{
-                const images=[...document.querySelectorAll('.ambiente-card img, .hero-media img, .sobre-foto img')];
+                const images=[...document.querySelectorAll('.ambiente-card img, .hero-media img, .sobre-foto img, .dif-slide img')];
                 await Promise.all(images.map(img=>img.decode().catch(()=>{})));
                 return images.map(img=>({src:img.getAttribute('src'),width:img.naturalWidth,complete:img.complete}));
               });
@@ -143,6 +143,45 @@ jobs:
               }));
               if(!contacts.instagram||!contacts.whatsapp||!contacts.allCtas)
                 throw Error(cfg.name+' official contact links issue: '+JSON.stringify(contacts));
+              const carousel = page.locator('#difCarousel');
+              const initialCarousel=await page.evaluate(()=>{
+                const el=document.querySelector('#difCarousel');
+                const slides=[...el.querySelectorAll('.dif-slide')];
+                const first=slides[0].getBoundingClientRect();
+                const picture=slides[0].querySelector('.dif-slide-visual').getBoundingClientRect();
+                const copy=slides[0].querySelector('.dif-slide-copy').getBoundingClientRect();
+                return {
+                  slideCount:slides.length,
+                  visible:slides.filter(s=>!s.hidden).length,
+                  firstVisible:!slides[0].hidden,
+                  running:el.classList.contains('is-playing'),
+                  imageLeft:picture.left, imageTop:picture.top,
+                  copyLeft:copy.left,copyTop:copy.top,
+                  overflow:el.scrollWidth>el.clientWidth+2
+                };
+              });
+              if(initialCarousel.slideCount!==4||initialCarousel.visible!==1
+                 ||!initialCarousel.firstVisible||initialCarousel.running
+                 ||initialCarousel.overflow
+                 ||!(cfg.width>860
+                    ? initialCarousel.copyLeft>=initialCarousel.imageLeft+30
+                    : initialCarousel.copyTop>=initialCarousel.imageTop+50))
+                throw Error(cfg.name+' initial editorial carousel issue: '+JSON.stringify(initialCarousel));
+              await carousel.scrollIntoViewIfNeeded();
+              await page.locator('#difNext').click();
+              if(!await page.locator('.dif-slide[data-dif-index="1"]').isVisible()
+                 ||await page.locator('#difCarousel.is-playing').count()!==0
+                 ||await page.locator('[data-dif-go="1"]').getAttribute('aria-pressed')!=='true')
+                 throw Error(cfg.name+' manual next or pause failed');
+              await page.locator('[data-dif-go="3"]').click();
+              if(!await page.locator('.dif-slide[data-dif-index="3"]').isVisible())
+                 throw Error(cfg.name+' indicator selection failed');
+              await page.locator('#difPrevious').click();
+              if(!await page.locator('.dif-slide[data-dif-index="2"]').isVisible())
+                 throw Error(cfg.name+' previous navigation failed');
+              await page.locator('[data-dif-go="0"]').click();
+              await carousel.screenshot({path:'review/diferenciais-'+cfg.name+'.png',animations:'disabled'});
+              console.log('PASS carousel '+cfg.name+' '+JSON.stringify(initialCarousel));
               await page.screenshot({path:'review/'+cfg.name+'.png',fullPage:true,animations:'disabled'});
               await page.locator('#contato').screenshot({path:'review/atendimento-'+cfg.name+'.png',animations:'disabled'});
               await page.locator('#depoimentos').screenshot({path:'review/depoimento-'+cfg.name+'.png',animations:'disabled'});
@@ -199,6 +238,29 @@ jobs:
               console.log('PASS '+cfg.name+' autoplay '+JSON.stringify(info));
               await page.close();
             }
+            // Autoplay must advance only when visible and user has not requested reduced motion.
+            const autoplay = await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
+            await autoplay.emulateMedia({reducedMotion:'no-preference'});
+            await autoplay.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
+            await autoplay.locator('#difCarousel').scrollIntoViewIfNeeded();
+            await autoplay.waitForFunction(() => document.querySelector('#difCarousel')?.classList.contains('is-playing'), null, {timeout:3000});
+            await autoplay.waitForFunction(() => !document.querySelector('.dif-slide[data-dif-index="1"]')?.hidden, null, {timeout:10000});
+            await autoplay.locator('#difCarousel').hover();
+            if(await autoplay.locator('#difCarousel.is-playing').count()!==0)
+              throw Error('Autoplay did not pause while hovering');
+            await autoplay.locator('#difNext').click();
+            if(await autoplay.locator('#difRotationToggle').getAttribute('aria-pressed')!=='true')
+              throw Error('Manual navigation did not stop autoplay');
+            console.log('PASS desktop autoplay, hover pause and manual override');
+            await autoplay.close();
+            const touch = await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1,isMobile:true,hasTouch:true});
+            await touch.emulateMedia({reducedMotion:'no-preference'});
+            await touch.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
+            await touch.locator('#difCarousel').scrollIntoViewIfNeeded();
+            if(await touch.locator('#difCarousel.is-playing').count()!==0)
+              throw Error('Mobile carousel unexpectedly autoplaying');
+            console.log('PASS mobile manual-only');
+            await touch.close();
             await browser.close();
           })().catch(err=>{console.error(err);process.exit(1)});
           NODE
