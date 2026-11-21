@@ -38,7 +38,7 @@ jobs:
           set -euo pipefail
           mkdir -p /tmp/duplar-detail-originals assets/video review/detalhes
           curl --fail --location --retry 4 --retry-delay 5 --silent --show-error \
-            'https://videos.pexels.com/video-files/36906908/15634460_3840_2160_30fps.mp4' -o /tmp/duplar-detail-originals/01-projeto.mp4
+            'https://videos.pexels.com/video-files/34955032/14807020_3840_2160_25fps.mp4' -o /tmp/duplar-detail-originals/01-projeto.mp4
           curl --fail --location --retry 4 --retry-delay 5 --silent --show-error \
             'https://videos.pexels.com/video-files/18366463/18366463-uhd_3840_2160_30fps.mp4' -o /tmp/duplar-detail-originals/02-madeira.mp4
           curl --fail --location --retry 4 --retry-delay 5 --silent --show-error \
@@ -124,13 +124,21 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          # Rebase the finished media onto the latest develop branch,
+          # without overwriting source, CSS, workflow or app changes.
+          mkdir -p /tmp/duplar-final-delivery
+          cp assets/video/duplar-detalhes-wide.mp4 assets/video/duplar-detalhes-mobile.mp4 assets/video/duplar-detalhes-poster.jpg /tmp/duplar-final-delivery/
+          git fetch origin develop
+          git reset --hard origin/develop
+          cp /tmp/duplar-final-delivery/* assets/video/
           git add assets/video/duplar-detalhes-wide.mp4 assets/video/duplar-detalhes-mobile.mp4 assets/video/duplar-detalhes-poster.jpg
           if git diff --cached --quiet; then
             echo 'No media changes'
           else
-            git commit -m 'assets: add second cinematic Duplar film for section 03'
+            git commit -m 'assets: refine second cinematic Duplar film with modern kitchen'
             git push origin HEAD:develop
           fi
       - name: Upload source samples and encoded clips for QA
