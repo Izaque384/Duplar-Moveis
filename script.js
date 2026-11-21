@@ -61,11 +61,11 @@ if ('IntersectionObserver' in window && !prefersReducedMotion) {
 
 // ============================================
 // ============================================
-// Seção 03 / Filme cinematográfico sincronizado aos textos.
-// 4 cenas (5.5s cada, dissolvências 0.5s):
-// offsets 0 / 5 / 10 / 15; duração final ~20.5s.
-// Sem rede, sem movimento reduzido ou sem vídeo:
-// imagens estáticas do portfólio e navegação manual.
+// ============================================
+// Seção 03 / Filme cinematográfico de quatro momentos.
+// Clique na metade esquerda ou direita para navegar; swipe
+// no celular e setas do teclado quando a seção está focada.
+// Movimento não pausa ao passar o mouse pelo vídeo.
 // ============================================
 (() => {
   const section = document.getElementById('diferenciais');
@@ -74,9 +74,6 @@ if ('IntersectionObserver' in window && !prefersReducedMotion) {
 
   const scenes = Array.from(section.querySelectorAll('[data-cine-scene]'));
   const stills = Array.from(section.querySelectorAll('[data-cine-still]'));
-  const selectors = Array.from(section.querySelectorAll('[data-cine-go]'));
-  const prev = document.getElementById('cinePrevious');
-  const next = document.getElementById('cineNext');
   const toggle = document.getElementById('cinePlayToggle');
   const toggleText = toggle?.querySelector('.cine-play-text');
   const toggleIcon = toggle?.querySelector('.cine-play-icon');
@@ -85,26 +82,29 @@ if ('IntersectionObserver' in window && !prefersReducedMotion) {
   const mobile = window.matchMedia('(max-width: 600px)');
   const saveData = Boolean(navigator.connection && navigator.connection.saveData);
   const sceneStart = [0, 5.25, 10.25, 15.25];
-  const duration = 20.5;
+  const sceneNames = [
+    'Projeto personalizado',
+    'Madeira selecionada',
+    'Acabamento sob medida',
+    'Do projeto à instalação'
+  ];
 
-  if (scenes.length !== 4 || stills.length !== 4 || selectors.length !== 4 ||
-      !prev || !next || !toggle) return;
+  if (scenes.length !== 4 || stills.length !== 4 || !toggle) return;
 
   let index = 0;
   let mediaLoaded = false;
   let mediaBroken = false;
   let metadataLoaded = false;
   let userPaused = false;
-  let hoverPaused = false;
-  let focusPaused = false;
   let visible = false;
   let near = false;
   let pendingSeek = null;
-  let pointerStart = null;
+  let touchStart = null;
+  let suppressClickUntil = 0;
 
   const isStatic = () => reduceMotion.matches || saveData || mediaBroken;
-  const shouldPlay = () => !isStatic() && mediaLoaded && visible && !document.hidden &&
-    !userPaused && !hoverPaused && !focusPaused;
+  const shouldPlay = () => !isStatic() && mediaLoaded && visible &&
+    !document.hidden && !userPaused;
 
   function refreshToggle() {
     toggle.hidden = isStatic();
@@ -114,23 +114,8 @@ if ('IntersectionObserver' in window && !prefersReducedMotion) {
     if (toggleIcon) toggleIcon.textContent = userPaused ? '▶' : 'Ⅱ';
   }
 
-  function paintProgress(time) {
-    const ends = [sceneStart[1], sceneStart[2], sceneStart[3], duration];
-    selectors.forEach((button, i) => {
-      const fill = button.querySelector('.cine-select-progress');
-      if (!fill) return;
-      const value = i < index ? 100 :
-        i > index ? 0 : isStatic() ? 100 :
-        Math.max(0, Math.min(100, ((time - sceneStart[i]) / (ends[i] - sceneStart[i])) * 100));
-      fill.style.width = value.toFixed(1) + '%';
-    });
-  }
-
   function showScene(newIndex, manual = false) {
-    const normalized = (newIndex + scenes.length) % scenes.length;
-    if (manual) userPaused = true;
-    const changed = normalized !== index;
-    index = normalized;
+    index = (newIndex + scenes.length) % scenes.length;
     scenes.forEach((element, i) => {
       element.hidden = i !== index;
       element.classList.toggle('is-current', i === index);
@@ -139,32 +124,31 @@ if ('IntersectionObserver' in window && !prefersReducedMotion) {
       element.hidden = i !== index;
       element.classList.toggle('is-current', i === index);
     });
-    selectors.forEach((button, i) => {
-      button.classList.toggle('is-current', i === index);
-      button.setAttribute('aria-pressed', String(i === index));
-    });
-    if (manual && announcement) {
-      announcement.textContent = selectors[index].getAttribute('aria-label') || '';
-    }
-    paintProgress(mediaLoaded && metadataLoaded && !isStatic() ? video.currentTime : sceneStart[index]);
     if (manual) {
+      if (announcement) {
+        announcement.textContent = (index + 1) + ' de 4: ' + sceneNames[index];
+      }
+      // Se o visitante escolheu uma cena, avançar o filme para
+      // o mesmo trecho sem interromper a reprodução automática.
       pendingSeek = sceneStart[index] + (index === 0 ? 0 : .12);
-      if (metadataLoaded) {
-        try { video.currentTime = pendingSeek; pendingSeek = null; } catch (_) {}
+      if (metadataLoaded && !isStatic()) {
+        try {
+          video.currentTime = pendingSeek;
+          pendingSeek = null;
+        } catch (_) {}
       }
       updatePlayback();
-    } else if (changed) {
-      refreshToggle();
     }
   }
 
   function updatePlayback() {
     refreshToggle();
     if (shouldPlay()) {
+      if (!video.paused) return;
       const attempt = video.play();
       if (attempt && typeof attempt.catch === 'function') {
         attempt.catch(() => {
-          // Restrições de autoplay: preservar o último frame ou a foto.
+          // Caso o navegador bloqueie o vídeo, a imagem de reserva continua.
           section.classList.remove('is-video-ready');
         });
       }
@@ -194,31 +178,53 @@ if ('IntersectionObserver' in window && !prefersReducedMotion) {
     video.load();
   }
 
-  selectors.forEach((button, i) => button.addEventListener('click', () => showScene(i, true)));
-  prev.addEventListener('click', () => showScene(index - 1, true));
-  next.addEventListener('click', () => showScene(index + 1, true));
+  // A única interação visual mantida é pausar/retomar o filme.
   toggle.addEventListener('click', () => {
     userPaused = !userPaused;
     updatePlayback();
   });
 
+  // Toda a área cinematográfica responde ao lado do clique.
+  // O clique no próprio controle de pausa não troca de cena.
+  section.addEventListener('click', event => {
+    if (Date.now() < suppressClickUntil) return;
+    if (event.target.closest('button, a, input, select, textarea, [role="button"]')) return;
+    if (window.getSelection()?.toString()) return;
+    const bounds = section.getBoundingClientRect();
+    const isLeft = event.clientX - bounds.left < bounds.width / 2;
+    showScene(index + (isLeft ? -1 : 1), true);
+  });
+
+  section.addEventListener('keydown', event => {
+    if (event.target.closest('button, a, input, select, textarea')) return;
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+      event.preventDefault();
+      showScene(index + (event.key === 'ArrowLeft' ? -1 : 1), true);
+    }
+  });
+
   video.addEventListener('loadedmetadata', () => {
     metadataLoaded = true;
     if (pendingSeek !== null) {
-      try { video.currentTime = pendingSeek; pendingSeek = null; } catch (_) {}
+      try {
+        video.currentTime = pendingSeek;
+        pendingSeek = null;
+      } catch (_) {}
     }
     updatePlayback();
   });
+
   video.addEventListener('playing', () => {
     section.classList.add('is-video-ready');
     refreshToggle();
   });
+
   video.addEventListener('error', () => {
     mediaBroken = true;
     section.classList.remove('is-video-ready');
     updatePlayback();
-    paintProgress(sceneStart[index]);
   });
+
   video.addEventListener('timeupdate', () => {
     if (isStatic()) return;
     const t = video.currentTime;
@@ -226,52 +232,33 @@ if ('IntersectionObserver' in window && !prefersReducedMotion) {
       t >= sceneStart[2] ? 2 :
       t >= sceneStart[1] ? 1 : 0;
     if (newIndex !== index) showScene(newIndex, false);
-    paintProgress(t);
   });
+
   video.addEventListener('seeked', () => {
     if (video.paused && !isStatic() && video.readyState >= 2) {
       section.classList.add('is-video-ready');
     }
   });
 
-  section.addEventListener('pointerenter', e => {
-    if (e.pointerType === 'mouse' || e.pointerType === 'pen') {
-      hoverPaused = true;
-      updatePlayback();
-    }
-  });
-  section.addEventListener('pointerleave', e => {
-    if (e.pointerType === 'mouse' || e.pointerType === 'pen') {
-      hoverPaused = false;
-      updatePlayback();
-    }
-  });
-  section.addEventListener('focusin', () => {
-    focusPaused = true;
-    updatePlayback();
-  });
-  section.addEventListener('focusout', e => {
-    if (!e.relatedTarget || !section.contains(e.relatedTarget)) {
-      focusPaused = false;
-      updatePlayback();
-    }
-  });
-
-  // Navegação horizontal sem interferir no gesto vertical de rolagem.
-  section.addEventListener('touchstart', e => {
-    if (e.touches.length !== 1) return;
-    pointerStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  // O gesto horizontal navega e não bloqueia a rolagem vertical.
+  section.addEventListener('touchstart', event => {
+    if (event.touches.length !== 1) return;
+    touchStart = {
+      x: event.touches[0].clientX,
+      y: event.touches[0].clientY
+    };
   }, { passive: true });
-  section.addEventListener('touchend', e => {
-    if (!pointerStart || e.changedTouches.length !== 1) return;
-    const dx = e.changedTouches[0].clientX - pointerStart.x;
-    const dy = e.changedTouches[0].clientY - pointerStart.y;
-    pointerStart = null;
+  section.addEventListener('touchend', event => {
+    if (!touchStart || event.changedTouches.length !== 1) return;
+    const dx = event.changedTouches[0].clientX - touchStart.x;
+    const dy = event.changedTouches[0].clientY - touchStart.y;
+    touchStart = null;
     if (Math.abs(dx) >= 60 && Math.abs(dx) >= Math.abs(dy) * 1.3) {
+      suppressClickUntil = Date.now() + 450;
       showScene(index + (dx < 0 ? 1 : -1), true);
     }
   }, { passive: true });
-  section.addEventListener('touchcancel', () => { pointerStart = null; }, { passive: true });
+  section.addEventListener('touchcancel', () => { touchStart = null; }, { passive: true });
 
   document.addEventListener('visibilitychange', updatePlayback);
   mobile.addEventListener?.('change', switchSource);
@@ -295,7 +282,7 @@ if ('IntersectionObserver' in window && !prefersReducedMotion) {
     visibilityObserver.observe(section);
   } else {
     near = true;
-    visible = false; // Não iniciar movimento automaticamente sem observação confiável.
+    visible = false;
     loadIfAppropriate();
   }
 
