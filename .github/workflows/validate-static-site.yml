@@ -63,7 +63,7 @@ jobs:
           assert 'id="sobre"' not in html and 'href="#sobre"' not in html, 'Old about section reference'
           assert 'id="processo"' not in html, 'Removed process section is still present'
           assert 'href="#processo"' not in html, 'Broken process navigation link'
-          assert html.count('class="dif-slide') == 4, 'Four carousel slides expected'
+          assert len(re.findall(r'<article class="dif-slide(?: is-active)?"', html)) == 4, 'Four carousel slides expected'
           assert html.count('class="dif-slide-visual"') == 4, 'A photo for every point is required'
           assert html.count('data-dif-go=') == 4, 'Four manual carousel selectors required'
           assert 'id="difRotationToggle"' in html, 'Pause control missing'
