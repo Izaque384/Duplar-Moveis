@@ -147,42 +147,44 @@ jobs:
               const initialFilm=await page.evaluate(()=>{
                 const section=document.querySelector('#diferenciais');
                 const scenes=[...section.querySelectorAll('.cine-scene')];
-                const controls=[...section.querySelectorAll('[data-cine-go]')];
                 return {
                   height:section.getBoundingClientRect().height,
                   screen:innerHeight,
                   visible:scenes.filter(s=>!s.hidden).length,
                   moments:scenes.length,
-                  indicators:controls.length,
-                  fallback:!section.classList.contains('is-video-ready'),
+                  removedControls:!section.querySelector('[data-cine-go], #cineNext, #cinePrevious, .cine-selectors'),
+                  question:section.querySelector('.cine-signature')?.textContent.trim(),
                   videoPaused:document.querySelector('#cineVideo').paused,
                   overflow:section.scrollWidth>section.clientWidth+2,
                   disabledToggle:document.querySelector('#cinePlayToggle').hidden,
                   sceneBottom:scenes[0].getBoundingClientRect().bottom,
-                  controlTop:section.querySelector('.cine-navigation').getBoundingClientRect().top,
-                  label:scenes[0].querySelector('h3').textContent.trim()
+                  controlTop:section.querySelector('.cine-navigation').getBoundingClientRect().top
                 };
               });
               if(Math.abs(initialFilm.height-initialFilm.screen)>2||initialFilm.visible!==1
-                ||initialFilm.moments!==4||initialFilm.indicators!==4
-                ||!initialFilm.fallback||!initialFilm.videoPaused
-                ||!initialFilm.disabledToggle||initialFilm.overflow
+                ||initialFilm.moments!==4||!initialFilm.removedControls
+                ||initialFilm.question!=='Por que projetar em vez de comprar pronto?'
+                ||!initialFilm.videoPaused||!initialFilm.disabledToggle||initialFilm.overflow
                 ||initialFilm.sceneBottom>initialFilm.controlTop+2)
                 throw Error(cfg.name+' full-screen cinematic fallback issue: '+JSON.stringify(initialFilm));
               await cine.scrollIntoViewIfNeeded();
-              await page.locator('#cineNext').click();
+              const dimensions=await cine.boundingBox();
+              const position=part=>({x:Math.floor(dimensions.width*part),y:Math.floor(dimensions.height*.52)});
+              await cine.click({position:position(.75)});
               if(!await page.locator('[data-cine-scene="1"]').isVisible())
-                throw Error(cfg.name+' next cinematic moment failed');
-              await page.locator('[data-cine-go="3"]').click();
-              if(!await page.locator('[data-cine-scene="3"]').isVisible()
-                ||await page.locator('[data-cine-go="3"]').getAttribute('aria-pressed')!=='true')
-                throw Error(cfg.name+' cinematic indicator failed');
-              await page.locator('#cinePrevious').click();
-              if(!await page.locator('[data-cine-scene="2"]').isVisible())
-                throw Error(cfg.name+' previous cinematic moment failed');
-              await page.locator('[data-cine-go="0"]').click();
+                throw Error(cfg.name+' right-half click did not advance scene');
+              await cine.click({position:position(.25)});
+              if(!await page.locator('[data-cine-scene="0"]').isVisible())
+                throw Error(cfg.name+' left-half click did not go back');
+              await cine.focus();
+              await page.keyboard.press('ArrowRight');
+              if(!await page.locator('[data-cine-scene="1"]').isVisible())
+                throw Error(cfg.name+' right keyboard navigation failed');
+              await page.keyboard.press('ArrowLeft');
+              if(!await page.locator('[data-cine-scene="0"]').isVisible())
+                throw Error(cfg.name+' left keyboard navigation failed');
               await cine.screenshot({path:'review/cinema-'+cfg.name+'.png',animations:'disabled'});
-              console.log('PASS cinematic fallback '+cfg.name+' '+JSON.stringify(initialFilm));
+              console.log('PASS cinematic click zones '+cfg.name+' '+JSON.stringify(initialFilm));
               await page.screenshot({path:'review/'+cfg.name+'.png',fullPage:true,animations:'disabled'});
               await page.locator('#contato').screenshot({path:'review/atendimento-'+cfg.name+'.png',animations:'disabled'});
               await page.locator('#depoimentos').screenshot({path:'review/depoimento-'+cfg.name+'.png',animations:'disabled'});
@@ -260,10 +262,21 @@ jobs:
               await p.locator('#cineVideo').evaluate(v=>{v.currentTime=10.7});
               await p.waitForFunction(()=>!document.querySelector('[data-cine-scene="2"]').hidden,null,{timeout:3000});
               await p.locator('#diferenciais').hover();
-              await p.waitForFunction(()=>document.querySelector('#cineVideo').paused,null,{timeout:3000});
-              await p.locator('#cineNext').click();
-              if(await p.locator('#cinePlayToggle').getAttribute('aria-pressed')!=='true')
-                throw Error(cfg.name+' manual navigation should pause cinematic video');
+              await p.waitForTimeout(180);
+              if(await p.locator('#cineVideo').evaluate(v=>v.paused))
+                throw Error(cfg.name+' video stopped on hover');
+              const box=await p.locator('#diferenciais').boundingBox();
+              await p.locator('#diferenciais').click({position:{x:box.width*.75,y:box.height*.55}});
+              if(!await p.locator('[data-cine-scene="3"]').isVisible())
+                throw Error(cfg.name+' right-half video navigation did not change scene');
+              if(await p.locator('#cineVideo').evaluate(v=>v.paused))
+                throw Error(cfg.name+' clicking to navigate should not pause video');
+              await p.locator('#cinePlayToggle').click();
+              if(await p.locator('#cinePlayToggle').getAttribute('aria-pressed')!=='true'
+                 ||!(await p.locator('#cineVideo').evaluate(v=>v.paused)))
+                throw Error(cfg.name+' explicit pause control failed');
+              await p.locator('#cinePlayToggle').click();
+              await p.waitForFunction(()=>!document.querySelector('#cineVideo').paused,null,{timeout:3000});
               console.log('PASS cinematic video '+cfg.name+' '+JSON.stringify(meta));
               await p.close();
             }
