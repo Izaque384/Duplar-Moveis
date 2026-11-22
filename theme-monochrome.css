@@ -1438,3 +1438,63 @@ h3 { font-size: clamp(1.2rem, 1.8vw, 1.5rem); }
 /* Internal navigation uses precise JS framing; avoid double native anchor insets.
    The existing html scroll-padding remains a fallback if JS is unavailable. */
 section[id] { scroll-margin-top: 0; }
+
+
+/* Detalhes de marca — monograma DM original, quase imperceptível.
+   Limitado às superfícies escuras; a fotografia do hero e o vídeo cinematográfico
+   permanecem limpos. Não interfere em links, botões ou leitura. */
+.ambientes,
+.depoimento-secao,
+.cta-final {
+  position: relative;
+  isolation: isolate;
+}
+.ambientes { overflow: clip; }
+.ambientes::before,
+.depoimento-secao::after,
+.cta-final::after {
+  content: "";
+  position: absolute;
+  display: block;
+  width: min(52vw, 740px);
+  aspect-ratio: 400 / 403;
+  background: url("assets/img/logo-marca.png") center / contain no-repeat;
+  opacity: .048;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+.ambientes::before {
+  top: 4%;
+  right: -9%;
+  opacity: .046;
+}
+.depoimento-secao::after {
+  left: -11%;
+  bottom: -29%;
+  opacity: .038;
+}
+.cta-final::after {
+  width: min(46vw, 660px);
+  right: -13%;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: .048;
+}
+.ambientes > .section-inner,
+.depoimento-secao > .section-inner,
+.cta-final > .section-inner {
+  position: relative;
+  z-index: 1;
+}
+@media (max-width: 760px) {
+  .ambientes::before,
+  .depoimento-secao::after,
+  .cta-final::after {
+    width: min(80vw, 360px);
+    opacity: .029;
+  }
+  .ambientes::before { top: 2%; right: -19%; }
+  .depoimento-secao::after { left: -24%; bottom: -10%; }
+  .cta-final::after { right: -27%; }
+}
