@@ -160,7 +160,7 @@ $('inviteAdminForm').addEventListener('submit',async e=>{
   e.preventDefault();buttonBusy(e.currentTarget,true);note('inviteAdminMessage','');
   try{
     const created=await api('admin-auth/invite',{method:'POST',body:{name:$('inviteName').value,email:$('inviteEmail').value}});
-    $('invitationLink').value=location.origin+location.pathname+'#convite='+created.invitationToken;
+    $('invitationLink').value=location.origin+'/admin#convite='+created.invitationToken;
     $('invitationResult').hidden=false;
     $('inviteAdminForm').reset();
     note('inviteAdminMessage','Convite individual gerado. Válido por 24 horas. Envie o link em um canal privado.');
@@ -197,7 +197,7 @@ async function refreshAdminUsers(){
 }
 $('logout').addEventListener('click', async () => {
   try{await api('auth/logout',{method:'POST',body:{}});}catch{}
-  window.location.replace('equipe.html');
+  window.location.replace('/admin');
 });
 (async()=>{
   const params=new URLSearchParams(location.hash.slice(1));

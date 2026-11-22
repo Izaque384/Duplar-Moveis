@@ -29,10 +29,10 @@ PDFs são armazenados em **Netlify Blobs privado**, não no PostgreSQL e não na
 
 A área administrativa usa autenticação própria, separada do WhatsApp dos clientes.
 
-O responsável principal inicia o sistema definindo sua conta em /equipe.html. Para ativar:
+O responsável principal inicia o sistema definindo sua conta em /admin. Para ativar:
 1. Configure DATABASE_URL do banco Neon (branch develop) no escopo Functions da Netlify.
 2. Configure PORTAL_ADMIN_SETUP_TOKEN no escopo Functions, com segredo aleatório de pelo menos 32 caracteres.
-3. Depois do deploy e da migração SQL 20261122090000_admin_credentials.sql, acesse /equipe.html.
+3. Depois do deploy e da migração SQL 20261122090000_admin_credentials.sql, acesse /admin.
 4. Informe nome, e-mail, senha com 12 a 128 caracteres e a chave do primeiro acesso.
 5. Após criar a conta, remova PORTAL_ADMIN_SETUP_TOKEN do painel da Netlify e publique novamente.
 

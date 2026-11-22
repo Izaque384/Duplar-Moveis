@@ -30,3 +30,18 @@ test('build não publica o backend nem os segredos',()=>{
  assert.equal(existsSync('dist/server/admin-auth.mjs'),false);
  assert.equal(existsSync('dist/database/migrations'),false);
 });
+
+test('rota /admin preserva a tela administrativa sem criar outra página',()=>{
+  const config=readFileSync('netlify.toml','utf8');
+  const html=readFileSync('equipe.html','utf8');
+  const js=readFileSync('equipe.js','utf8');
+  assert.match(config,/from = "\/admin"\s+to = "\/equipe\.html"\s+status = 200/);
+  assert.match(config,/from = "\/admin\/"\s+to = "\/equipe\.html"\s+status = 200/);
+  assert.match(html,/<link rel="stylesheet" href="\/equipe\.css">/);
+  assert.match(html,/<script src="\/equipe\.js" defer>/);
+  assert.ok(!html.includes('Administradores entram com e-mail e senha próprios.'));
+  assert.ok(!html.includes('Não possui acesso? Solicite um convite'));
+  assert.ok(js.includes("window.location.replace('/admin')"));
+  assert.ok(js.includes("location.origin+'/admin#convite='"));
+  assert.ok(readFileSync('equipe.css','utf8').includes('body:has(#accessDenied:not([hidden]))'));
+});

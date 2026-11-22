@@ -152,3 +152,96 @@ textarea { min-height: 110px; resize: vertical; }
 .invitation-result input { margin: 10px 0; }
 .invitation-result p { font-size: 12px; color: var(--muted); margin: 0; }
 @media(max-width:800px) { .admin-password-form,.admin-invite-form { grid-template-columns: 1fr; } }
+
+
+/* Acesso /admin: login inteiramente enquadrado na altura da janela. O
+   painel autenticado mantém sua rolagem natural. */
+body:has(#accessDenied:not([hidden])) {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+body:has(#accessDenied:not([hidden])) .portal-header { flex: 0 0 auto; }
+body:has(#accessDenied:not([hidden])) .portal-main {
+  flex: 1 0 auto;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: clamp(24px, 4vh, 44px) clamp(22px, 5vw, 64px);
+  display: flex;
+  align-items: center;
+}
+body:has(#accessDenied:not([hidden])) .portal-footer { display: none; }
+body:has(#accessDenied:not([hidden])) .login-layout {
+  width: 100%;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr) minmax(0, .94fr);
+  gap: clamp(35px, 6vw, 88px);
+}
+body:has(#accessDenied:not([hidden])) .login-intro h1 {
+  font-size: clamp(38px, 4.2vw, 64px);
+  line-height: 1.09;
+  margin-bottom: 0;
+}
+body:has(#accessDenied:not([hidden])) .login-intro .overline {
+  margin-bottom: clamp(18px, 3vh, 28px);
+}
+body:has(#accessDenied:not([hidden])) .security-note {
+  margin-top: clamp(24px, 4vh, 44px);
+  padding-top: 18px;
+}
+body:has(#accessDenied:not([hidden])) .login-card {
+  padding: clamp(22px, 3vw, 38px);
+  max-width: 510px;
+  width: 100%;
+  margin-left: auto;
+}
+body:has(#accessDenied:not([hidden])) .login-card form {
+  margin-top: 0;
+  gap: clamp(3px, .6vh, 7px);
+}
+body:has(#accessDenied:not([hidden])) .login-card .overline { margin-bottom: 12px; }
+body:has(#accessDenied:not([hidden])) .login-card h2 {
+  font-size: clamp(26px, 2.2vw, 32px);
+  line-height: 1.18;
+  margin-bottom: 6px;
+}
+body:has(#accessDenied:not([hidden])) .login-card form > p {
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+body:has(#accessDenied:not([hidden])) .login-card label { margin-bottom: 3px; }
+body:has(#accessDenied:not([hidden])) .login-card form input {
+  min-height: 46px;
+  padding: 10px 13px;
+  margin-bottom: 8px;
+}
+body:has(#accessDenied:not([hidden])) .login-card form button[type="submit"] {
+  min-height: 46px;
+  margin-top: 10px;
+}
+body:has(#accessDenied:not([hidden])) #authMessage:empty { display: none; }
+body:has(#accessDenied:not([hidden])) .login-card input:-webkit-autofill,
+body:has(#accessDenied:not([hidden])) .login-card input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--white);
+  -webkit-box-shadow: 0 0 0 1000px #17191b inset;
+  transition: background-color 9999s;
+}
+@media (max-width: 900px) {
+  body:has(#accessDenied:not([hidden])) .login-layout {
+    grid-template-columns: 1fr;
+    max-width: 500px;
+    margin: auto;
+  }
+  body:has(#accessDenied:not([hidden])) .login-intro { display: none; }
+  body:has(#accessDenied:not([hidden])) .login-card { margin: 0; max-width: none; }
+}
+@media (max-height: 660px) and (min-width: 901px) {
+  body:has(#accessDenied:not([hidden])) .portal-main { padding-block: 14px; }
+  body:has(#accessDenied:not([hidden])) .login-card { padding: 20px 28px; }
+  body:has(#accessDenied:not([hidden])) .login-card form > p { margin-bottom: 3px; }
+  body:has(#accessDenied:not([hidden])) .login-card .overline { margin-bottom: 7px; }
+  body:has(#accessDenied:not([hidden])) .login-card form input { min-height: 40px; margin-bottom: 2px; }
+  body:has(#accessDenied:not([hidden])) .login-card form button[type="submit"] { min-height: 40px; margin-top: 4px; }
+}
