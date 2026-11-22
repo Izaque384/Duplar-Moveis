@@ -94,3 +94,12 @@ test('navegação, filtros e contagem administrativa usam os dados atuais sem AP
  const api=readFileSync('netlify/functions/duplar-portal.mjs','utf8');
  assert.ok(api.includes("if (!user.admin) return response({ error: 'acesso_negado' }, 403)"));
 });
+
+test('admin preserva um único landmark main e mantém login distinto do painel',()=>{
+ const html=readFileSync('equipe.html','utf8');
+ assert.equal((html.match(/<main\b/g)||[]).length,1);
+ assert.match(html,/<main class="portal-main">/);
+ assert.match(html,/<div class="admin-page" id="adminPage">/);
+ assert.match(html,/<section id="accessDenied" class="login-layout" hidden/);
+ assert.match(html,/<section id="staffView" class="admin-shell" hidden/);
+});
