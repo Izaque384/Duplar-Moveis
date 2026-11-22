@@ -103,3 +103,15 @@ test('admin preserva um único landmark main e mantém login distinto do painel'
  assert.match(html,/<section id="accessDenied" class="login-layout" hidden/);
  assert.match(html,/<section id="staffView" class="admin-shell" hidden/);
 });
+
+test('entrada do cliente sem lista numerada de benefícios, preservando quatro áreas internas',()=>{
+ const html=readFileSync('cliente/index.html','utf8');
+ const screen=html.slice(html.indexOf('<div id="entryScreen"'),html.indexOf('<div id="dashboard"'));
+ assert.ok(!screen.includes('entry-values'));
+ for(const phrase of ['Contratos privados','Notas fiscais para download','Orçamento e serviços contratados','Atendimento pelo WhatsApp']){
+  assert.ok(!screen.includes(phrase),'Texto antigo da entrada: '+phrase);
+ }
+ assert.ok(html.includes('id="phoneForm"'));
+ assert.ok(html.includes('id="codeForm"'));
+ assert.deepEqual([...html.matchAll(/class="portal-view" data-panel="([^"]+)"/g)].map(m=>m[1]),['contratos','notas','projeto','atendimento']);
+});
