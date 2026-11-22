@@ -1,12 +1,9 @@
 import { randomBytes, randomInt, randomUUID, createHash, createHmac, timingSafeEqual } from 'node:crypto';
-import pg from 'pg';
-const { Pool } = pg;
-const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 5, connectionTimeoutMillis: 8000 });
-const getDatabase = () => ({ pool });
+import { getDatabase } from '@netlify/database';
 import { getStore, getDeployStore } from '@netlify/blobs';
 
 const COOKIE = 'duplar_sid';
-const MAX_FILE_BYTES = 4 * 1024 * 1024;
+const MAX_FILE_BYTES = 10 * 1024 * 1024;
 const MAX_SESSION_SECONDS = 3 * 24 * 60 * 60;
 
 function env(key) {

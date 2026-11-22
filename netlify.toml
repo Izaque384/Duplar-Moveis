@@ -7,13 +7,20 @@
   node_bundler = "esbuild"
 
 [[headers]]
-  for = "/cliente/*"
+  for = "/cliente.html"
   [headers.values]
     Cache-Control = "no-store"
     X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
 
 [[headers]]
   for = "/equipe.html"
   [headers.values]
     Cache-Control = "no-store"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
     X-Content-Type-Options = "nosniff"

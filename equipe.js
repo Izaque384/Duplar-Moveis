@@ -88,7 +88,7 @@ $('documentForm').addEventListener('submit', async e => {
   e.preventDefault(); buttonBusy(e.currentTarget, true); note('documentMessage', '');
   try {
     const file = $('documentFile').files[0];
-    if (!file || !file.name.toLowerCase().endsWith('.pdf') || file.size > 4 * 1024 * 1024) {
+    if (!file || !file.name.toLowerCase().endsWith('.pdf') || file.size > 10 * 1024 * 1024) {
       throw new Error('invalid');
     }
     const form = new FormData();
@@ -98,7 +98,7 @@ $('documentForm').addEventListener('submit', async e => {
     await api('admin/documents', { method: 'POST', body: form });
     $('documentFile').value = '';
     note('documentMessage', 'Documento enviado. O cliente já poderá baixá-lo na área dele.');
-  } catch { note('documentMessage', 'Não foi possível enviar. Verifique o projeto e o PDF (até 4 MB).', true); }
+  } catch { note('documentMessage', 'Não foi possível enviar. Verifique o projeto e o PDF (até 10 MB).', true); }
   finally { buttonBusy(e.currentTarget, false); }
 });
 $('logout').addEventListener('click', async () => {

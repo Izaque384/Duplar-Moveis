@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="equipe.css">
+<link rel="stylesheet" href="cliente.css">
 <script src="equipe.js" defer></script>
 </head>
 <body>
@@ -54,7 +54,7 @@
           <div><label for="documentClient">Cliente</label><select id="documentClient" required></select></div>
           <div><label for="documentProject">Projeto</label><select id="documentProject" required></select></div>
           <div><label for="documentType">Tipo de documento</label><select id="documentType"><option value="contract">Contrato</option><option value="invoice">Nota fiscal</option></select></div>
-          <div><label for="documentFile">Arquivo PDF (até 4 MB)</label><input id="documentFile" type="file" accept=".pdf,application/pdf" required></div>
+          <div><label for="documentFile">Arquivo PDF (até 10 MB)</label><input id="documentFile" type="file" accept=".pdf,application/pdf" required></div>
           <button class="primary-button" type="submit">Enviar documento</button>
         </form>
         <p id="documentMessage" class="form-message" role="status"></p>
