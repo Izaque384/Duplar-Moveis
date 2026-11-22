@@ -1,9 +1,13 @@
 import { randomBytes, randomInt, randomUUID, createHash, createHmac, timingSafeEqual } from 'node:crypto';
-import { getDatabase } from '@netlify/database';
-import { getStore, getDeployStore } from '@netlify/blobs';
+import pg from 'pg';
+const { Pool } = pg;
+const pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 5, connectionTimeoutMillis: 8000 });
+const getDatabase = () => ({ pool });
+import { getStore } from '@netlify/blobs';
+import { handleAdminAuth } from '../../server/admin-auth.mjs';
 
 const COOKIE = 'duplar_sid';
-const MAX_FILE_BYTES = 10 * 1024 * 1024;
+const MAX_FILE_BYTES = 4 * 1024 * 1024;
 const MAX_SESSION_SECONDS = 3 * 24 * 60 * 60;
 
 function env(key) {
@@ -26,9 +30,6 @@ function normalizePhone(input) {
   if (digits.length === 10 || digits.length === 11) digits = '55' + digits;
   return /^55[0-9]{10,11}$/.test(digits) ? digits : null;
 }
-function isAdminPhone(phone) {
-  return env('PORTAL_ADMIN_PHONES').split(',').some(value => normalizePhone(value.trim()) === phone);
-}
 function sha(value) {
   return createHash('sha256').update(value).digest('hex');
 }
@@ -43,9 +44,9 @@ function cookieToken(req) {
   const match = (req.headers.get('cookie') || '').match(/(?:^|;\s*)duplar_sid=([0-9a-f]{64})(?:;|$)/);
   return match ? match[1] : null;
 }
-function sessionCookie(token, req) {
+function sessionCookie(token, req, maxAge = MAX_SESSION_SECONDS) {
   const secure = new URL(req.url).protocol === 'https:' ? '; Secure' : '';
-  return COOKIE + '=' + token + '; Path=/; HttpOnly; SameSite=Strict; Max-Age=' + MAX_SESSION_SECONDS + secure;
+  return COOKIE + '=' + token + '; Path=/; HttpOnly; SameSite=Strict; Max-Age=' + maxAge + secure;
 }
 function clearCookie(req) {
   const secure = new URL(req.url).protocol === 'https:' ? '; Secure' : '';
@@ -66,17 +67,18 @@ function errorMessage(code) {
   return response({ error: code }, 400);
 }
 async function currentUser(db, req) {
-  const token = cookieToken(req);
-  if (!token) return null;
-  const { rows } = await db.pool.query(
-    "SELECT s.phone, s.client_id, s.is_admin, c.name, c.active FROM portal_sessions s LEFT JOIN portal_clients c ON c.id = s.client_id WHERE s.token_hash = $1 AND s.expires_at > now() LIMIT 1",
+  const token=cookieToken(req);
+  if(!token)return null;
+  const { rows }=await db.pool.query(
+    "SELECT s.client_id,s.admin_id,c.name AS client_name,c.active AS client_active,a.name AS admin_name,a.email AS admin_email,a.role AS admin_role,a.active AS admin_active FROM portal_sessions s LEFT JOIN portal_clients c ON c.id=s.client_id LEFT JOIN portal_admin_users a ON a.id=s.admin_id WHERE s.token_hash=$1 AND s.expires_at>now() LIMIT 1",
     [sha(token)]
   );
-  const s = rows[0];
-  if (!s || (s.client_id && !s.active)) return null;
-  const admin = s.is_admin && isAdminPhone(s.phone);
-  if (!admin && !s.client_id) return null;
-  return { phone: s.phone, clientId: s.client_id, name: s.name || 'Equipe Duplar', admin };
+  const s=rows[0];
+  if(!s)return null;
+  const admin=Boolean(s.admin_id && s.admin_active);
+  const clientId=s.client_id && s.client_active ? s.client_id : null;
+  if(!admin && !clientId)return null;
+  return { clientId, admin, adminId:admin?s.admin_id:null, name:admin?s.admin_name:s.client_name, email:admin?s.admin_email:null, role:admin?s.admin_role:null };
 }
 async function sendOtp(phone, code) {
   const token = env('META_WHATSAPP_TOKEN');
@@ -123,7 +125,7 @@ async function requestCode(db, req, context) {
   }
   await db.pool.query('INSERT INTO portal_otp_requests (phone, requester_ip) VALUES ($1, $2)', [phone, ip]);
   const client = await db.pool.query('SELECT id FROM portal_clients WHERE phone = $1 AND active = true LIMIT 1', [phone]);
-  if (!client.rowCount && !isAdminPhone(phone)) {
+  if (!client.rowCount) {
     return response({ ok: true, message: 'Se o número estiver cadastrado, o código será enviado.' });
   }
   const id = randomUUID();
@@ -167,8 +169,7 @@ async function verifyCode(db, req) {
       return response({ error: 'codigo_invalido_ou_expirado' }, 401);
     }
     const customer = await client.query('SELECT id FROM portal_clients WHERE phone = $1 AND active = true LIMIT 1', [phone]);
-    const admin = isAdminPhone(phone);
-    if (!customer.rowCount && !admin) {
+    if (!customer.rowCount) {
       await client.query('COMMIT');
       return response({ error: 'acesso_indisponivel' }, 403);
     }
@@ -176,10 +177,10 @@ async function verifyCode(db, req) {
     const token = randomBytes(32).toString('hex');
     await client.query(
       "INSERT INTO portal_sessions (token_hash, phone, client_id, is_admin, expires_at) VALUES ($1, $2, $3, $4, now() + interval '3 days')",
-      [sha(token), phone, customer.rows[0]?.id || null, admin]
+      [sha(token), phone, customer.rows[0]?.id || null, false]
     );
     await client.query('COMMIT');
-    session = { token, admin };
+    session = { token, admin: false };
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;
@@ -207,7 +208,8 @@ async function clientData(db, user) {
 }
 function storeFor(context) {
   const production = context.deploy?.context === 'production' || process.env.CONTEXT === 'production';
-  return production ? getStore('duplar-private-documents') : getDeployStore('duplar-private-documents');
+  const branch = (process.env.BRANCH || 'develop').replace(/[^a-z0-9-]/gi, '-').slice(0, 32).toLowerCase();
+  return getStore(production ? 'duplar-private-production' : 'duplar-private-' + branch);
 }
 async function documentDownload(db, user, documentId, context) {
   if (!/^[0-9a-f-]{36}$/i.test(documentId)) return response({ error: 'nao_encontrado' }, 404);
@@ -315,8 +317,9 @@ export default async function handler(req, context) {
     if (method === 'POST' && route === 'auth/verify') return await verifyCode(db, req);
     if (method === 'POST' && route === 'auth/logout') return await logout(db, req);
     const user = await currentUser(db, req);
+    if (route.startsWith('admin-auth/')) return await handleAdminAuth({req,context,db,route,user,helpers:{response,jsonBody,cookieToken,sessionCookie,clearCookie,sha,env}});
     if (method === 'GET' && route === 'session') return user ?
-      response({ authenticated: true, name: user.name, admin: user.admin }) :
+      response({ authenticated: true, name: user.name, admin: user.admin, email: user.email, role: user.role }) :
       response({ authenticated: false }, 401);
     if (!user) return response({ error: 'nao_autorizado' }, 401);
     if (method === 'GET' && route === 'projects') return await clientData(db, user);
