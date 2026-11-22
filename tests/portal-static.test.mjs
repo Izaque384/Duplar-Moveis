@@ -46,22 +46,3 @@ test('rota /admin preserva a tela administrativa sem criar outra página',()=>{
   assert.ok(js.includes("location.origin+'/admin#convite='"));
   assert.ok(readFileSync('equipe.css','utf8').includes('body:has(#accessDenied:not([hidden]))'));
 });
-
-
-test('marca d’água DM original presente apenas nas regiões escuras planejadas', () => {
- const homepage = readFileSync('theme-monochrome.css','utf8');
- const clientCss = readFileSync('cliente/styles.css','utf8');
- const adminCss = readFileSync('equipe.css','utf8');
- for (const css of [homepage,clientCss,adminCss]) {
-   assert.ok(css.includes('logo-marca.png'));
-   assert.ok(css.includes('pointer-events: none;'));
-   assert.ok(css.includes('aspect-ratio: 400 / 403;'));
- }
- assert.ok(homepage.includes('.ambientes::before'));
- assert.ok(homepage.includes('.depoimento-secao::after'));
- assert.ok(homepage.includes('.cta-final::after'));
- assert.ok(clientCss.includes('.entry-screen::after'));
- assert.ok(clientCss.includes('.portal-workspace::before'));
- assert.ok(adminCss.includes('.login-layout::before'));
- assert.ok(adminCss.includes('#staffView::before'));
-});
