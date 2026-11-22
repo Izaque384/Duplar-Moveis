@@ -9,20 +9,50 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="cliente.css">
+<link rel="stylesheet" href="equipe.css">
 <script src="equipe.js" defer></script>
 </head>
 <body>
 <header class="portal-header">
   <a class="brand" href="index.html" aria-label="Duplar Móveis — site"><img src="assets/img/logo-marca.png" alt="" width="44" height="44"><span>DUPLAR <small>MÓVEIS</small></span></a>
-  <div class="header-end"><a href="cliente.html" class="header-link">Portal do cliente</a><button class="text-button" id="logout" hidden>Sair</button></div>
+  <div class="header-end"><a href="cliente/" class="header-link">Portal do cliente</a><button class="text-button" id="logout" hidden>Sair</button></div>
 </header>
 <main class="portal-main">
-  <div id="accessDenied" class="login-card" hidden>
-    <h1>Área restrita à equipe</h1>
-    <p>Entre com o WhatsApp autorizado para gerenciar clientes, projetos e documentos.</p>
-    <a class="primary-button" href="cliente.html">Fazer login</a>
-  </div>
+  <section id="accessDenied" class="login-layout" hidden aria-label="Acesso administrativo">
+    <div class="login-intro">
+      <span class="overline">DUPLAR · EQUIPE</span>
+      <h1>A gestão dos projetos começa aqui.</h1>
+      <p>Administradores entram com e-mail e senha próprios. Os clientes continuam acessando pelo código enviado ao WhatsApp.</p>
+      <div class="security-note">Acesso restrito à equipe cadastrada pela Duplar.</div>
+    </div>
+    <div class="login-card">
+      <form id="adminLoginForm" hidden>
+        <span class="overline">ÁREA ADMINISTRATIVA</span><h2>Entrar na minha conta</h2>
+        <p>Utilize seu e-mail de administrador e sua senha.</p>
+        <label for="adminEmail">E-mail</label><input id="adminEmail" type="email" autocomplete="username" required maxlength="254">
+        <label for="adminPassword">Senha</label><input id="adminPassword" type="password" autocomplete="current-password" required>
+        <button type="submit" class="primary-button">Entrar na administração</button>
+      </form>
+      <form id="adminBootstrapForm" hidden>
+        <span class="overline">PRIMEIRO ACESSO</span><h2>Ativar administração</h2>
+        <p>Somente o responsável pela Duplar pode criar a primeira conta. Use a chave de ativação cadastrada no servidor.</p>
+        <label for="bootstrapName">Nome</label><input id="bootstrapName" required minlength="2" maxlength="160" autocomplete="name">
+        <label for="bootstrapEmail">E-mail</label><input id="bootstrapEmail" type="email" required autocomplete="username">
+        <label for="bootstrapPassword">Criar senha (mínimo 12 caracteres)</label><input id="bootstrapPassword" type="password" minlength="12" maxlength="128" required autocomplete="new-password">
+        <label for="bootstrapToken">Chave de ativação</label><input id="bootstrapToken" type="password" required autocomplete="off">
+        <button type="submit" class="primary-button">Criar responsável principal</button>
+      </form>
+      <form id="adminInviteAcceptForm" hidden>
+        <span class="overline">CONVITE PRIVADO</span><h2>Ativar minha conta</h2>
+        <p>Para aceitar o convite, informe o e-mail indicado pelo responsável e crie sua senha.</p>
+        <label for="invitedEmail">E-mail convidado</label><input id="invitedEmail" type="email" required autocomplete="username">
+        <label for="invitedPassword">Criar senha (mínimo 12 caracteres)</label><input id="invitedPassword" type="password" minlength="12" maxlength="128" required autocomplete="new-password">
+        <button class="primary-button" type="submit">Ativar acesso</button>
+      </form>
+      <p id="authMessage" class="form-message" role="status" aria-live="polite"></p>
+      <p class="login-help">Não possui acesso? Solicite um convite ao responsável principal da Duplar. Não há cadastro público de administradores.</p>
+    </div>
+  </section>
   <section id="staffView" hidden>
     <div class="dashboard-heading"><div><span class="overline">DUPLAR · ADMINISTRAÇÃO</span><h1>Gestão de clientes</h1><p>Cadastre clientes, projetos e disponibilize contratos e notas fiscais.</p></div></div>
     <div class="staff-grid">
@@ -54,7 +84,7 @@
           <div><label for="documentClient">Cliente</label><select id="documentClient" required></select></div>
           <div><label for="documentProject">Projeto</label><select id="documentProject" required></select></div>
           <div><label for="documentType">Tipo de documento</label><select id="documentType"><option value="contract">Contrato</option><option value="invoice">Nota fiscal</option></select></div>
-          <div><label for="documentFile">Arquivo PDF (até 10 MB)</label><input id="documentFile" type="file" accept=".pdf,application/pdf" required></div>
+          <div><label for="documentFile">Arquivo PDF (até 4 MB)</label><input id="documentFile" type="file" accept=".pdf,application/pdf" required></div>
           <button class="primary-button" type="submit">Enviar documento</button>
         </form>
         <p id="documentMessage" class="form-message" role="status"></p>
@@ -63,6 +93,28 @@
         <span class="overline">04 / CLIENTES</span><h2>Clientes cadastrados</h2>
         <div class="staff-data" id="clientsList"></div>
         <p class="secondary-text">Cadastros e documentos reais são armazenados no banco de dados e no armazenamento privado da Netlify, não no código do site.</p>
+      </section>
+
+      <section class="staff-card staff-wide" id="accountPanel">
+        <span class="overline">ACESSO À EQUIPE</span><h2>Segurança da minha conta</h2>
+        <p id="adminIdentity"></p>
+        <form id="changePasswordForm" class="admin-password-form">
+          <div><label for="oldPassword">Senha atual</label><input id="oldPassword" type="password" autocomplete="current-password" required></div>
+          <div><label for="newPassword">Nova senha (mínimo 12 caracteres)</label><input id="newPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128" required></div>
+          <button type="submit" class="primary-button">Alterar minha senha</button>
+        </form><p id="changePasswordMessage" class="form-message" role="status"></p>
+      </section>
+      <section class="staff-card staff-wide" id="ownerPanel" hidden>
+        <span class="overline">RESPONSÁVEL PRINCIPAL</span><h2>Administradores autorizados</h2>
+        <p>Convide integrantes da equipe por um link individual de 24 horas. Cada pessoa define a própria senha.</p>
+        <form id="inviteAdminForm" class="admin-invite-form">
+          <div><label for="inviteName">Nome do administrador</label><input id="inviteName" required minlength="2" maxlength="160"></div>
+          <div><label for="inviteEmail">E-mail do administrador</label><input id="inviteEmail" type="email" required maxlength="254"></div>
+          <button type="submit" class="primary-button">Gerar convite privado</button>
+        </form>
+        <div id="invitationResult" class="invitation-result" hidden><label for="invitationLink">Link privado para compartilhar com o convidado</label><input id="invitationLink" readonly aria-label="Link de convite"><button id="copyInvitation" class="text-button" type="button">Copiar link</button><p>O link dá acesso à criação de senha. Compartilhe somente com a pessoa convidada.</p></div>
+        <p id="inviteAdminMessage" class="form-message" role="status"></p>
+        <h3>Equipe cadastrada</h3><div id="adminUsers" class="staff-data"></div>
       </section>
     </div>
   </section>
