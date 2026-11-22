@@ -1,6 +1,8 @@
 const root = '/api/duplar/';
 const $ = id => document.getElementById(id);
 let clients = [];
+const ADMIN_VIEW_LABELS = {overview: 'Visão geral', clients: 'Clientes', projects: 'Projetos', documents: 'Documentos', account: 'Equipe e acesso'};
+let adminCurrentView = 'overview';
 async function api(path, options = {}) {
   const config = { method: options.method || 'GET', credentials: 'same-origin', headers: { 'x-duplar-request': '1' } };
   if (options.body instanceof FormData) config.body = options.body;
@@ -17,29 +19,137 @@ function note(id, text, error = false) {
 }
 function buttonBusy(form, busy) { form.querySelector('button[type="submit"]').disabled = busy; }
 function option(value, label) { const o = document.createElement('option'); o.value = value; o.textContent = label; return o; }
+function showAdminView(view, updateHash = true) {
+  if (!Object.hasOwn(ADMIN_VIEW_LABELS, view)) view = 'overview';
+  adminCurrentView = view;
+  document.querySelectorAll('[data-admin-panel]').forEach(panel => {
+    panel.hidden = panel.dataset.adminPanel !== view;
+  });
+  document.querySelectorAll('[data-admin-view]').forEach(button => {
+    const active = button.dataset.adminView === view;
+    button.classList.toggle('is-current', active);
+    if (active) button.setAttribute('aria-current', 'page');
+    else button.removeAttribute('aria-current');
+  });
+  $('adminBreadcrumb').textContent = ADMIN_VIEW_LABELS[view];
+  if (updateHash) history.replaceState(null, '', location.pathname + location.search + '#' + view);
+  window.scrollTo({top: 0, behavior: 'instant'});
+}
+document.querySelectorAll('[data-admin-view], [data-admin-goto]').forEach(button => {
+  button.addEventListener('click', () => showAdminView(button.dataset.adminView || button.dataset.adminGoto));
+});
+function emptyContent(message) {
+  const element = document.createElement('p');
+  element.className = 'admin-empty';
+  element.textContent = message;
+  return element;
+}
+function adminRecord(name, meta, state = '', actionLabel = '', onAction = null) {
+  const row = document.createElement('div');
+  row.className = 'admin-row';
+  const main = document.createElement('div');
+  main.className = 'admin-row-main';
+  const title = document.createElement('strong');
+  title.className = 'admin-row-name';
+  title.textContent = name;
+  const subtitle = document.createElement('small');
+  subtitle.className = 'admin-row-meta';
+  subtitle.textContent = meta;
+  main.append(title,subtitle);
+  row.append(main);
+  if(actionLabel && onAction){
+    const button=document.createElement('button');
+    button.type='button';
+    button.className='admin-row-action';
+    button.textContent=actionLabel;
+    button.addEventListener('click',onAction);
+    row.append(button);
+  } else if(state){
+    const label=document.createElement('span');
+    label.className='admin-row-state'+(state==='Inativo'?' is-muted':'');
+    label.textContent=state;
+    row.append(label);
+  }
+  return row;
+}
+function openClientProjects(client) {
+  if (!client.active) return;
+  $('projectClient').value = client.id;
+  $('documentClient').value = client.id;
+  showAdminView('projects');
+  refreshClientProjects().catch(()=> {
+    $('projectsList').replaceChildren(emptyContent('Não foi possível carregar os projetos. Tente novamente.'));
+  });
+}
+function renderClients() {
+  const total=clients.length;
+  const active=clients.filter(c=>c.active).length;
+  $('statClients').textContent=String(total);
+  $('statProjects').textContent=String(clients.reduce((sum,c)=>sum+Number(c.project_count||0),0));
+  $('statActiveClients').textContent=String(active);
+  $('clientCountLabel').textContent=total===1?'1 cliente cadastrado':total+' clientes cadastrados';
+  const recent=$('recentClientsList');
+  recent.replaceChildren();
+  if(!total) recent.append(emptyContent('Ainda não há clientes. Cadastre o primeiro para iniciar.'));
+  else clients.slice(0,5).forEach(c=>{
+    recent.append(adminRecord(c.name,'+'+c.phone+' · '+c.project_count+' projeto(s)',c.active?'Ativo':'Inativo'));
+  });
+  const list=$('clientsList');
+  const search=$('clientSearch').value.trim().toLocaleLowerCase('pt-BR');
+  const filtered=clients.filter(c=>(c.name+' '+c.phone).toLocaleLowerCase('pt-BR').includes(search));
+  list.replaceChildren();
+  if(!filtered.length) {
+    list.append(emptyContent(total?'Nenhum cliente corresponde à pesquisa.':'Nenhum cliente cadastrado até agora.'));
+    return;
+  }
+  filtered.forEach(c=>{
+    list.append(adminRecord(c.name,'+'+c.phone+' · '+c.project_count+' projeto(s)',
+      c.active?'Ativo':'Inativo',c.active?'Ver projetos':'',c.active?()=>openClientProjects(c):null));
+  });
+}
+$('clientSearch').addEventListener('input',renderClients);
 async function refreshClients() {
   const data = await api('admin/clients');
   clients = data.clients;
   ['projectClient', 'documentClient'].forEach(id => {
     const selected = $(id).value;
     $(id).replaceChildren(option('', 'Selecione um cliente'));
-    clients.filter(c => c.active).forEach(c => $(id).append(option(c.id, c.name + ' · ' + c.phone)));
-    $(id).value = clients.some(c => c.id === selected) ? selected : '';
+    clients.filter(c=>c.active).forEach(c=>$(id).append(option(c.id,c.name+' · '+c.phone)));
+    $(id).value=clients.some(c=>c.id===selected && c.active)?selected:'';
   });
-  const list = $('clientsList');
+  renderClients();
+}
+async function refreshClientProjects() {
+  const id=$('projectClient').value;
+  const list=$('projectsList');
+  const hint=$('projectsClientHint');
+  if(!id) {
+    hint.textContent='Selecione um cliente ao lado para consultar os projetos vinculados.';
+    list.replaceChildren(emptyContent('Escolha um cliente para ver seus projetos.'));
+    return;
+  }
+  const selected=clients.find(c=>c.id===id);
+  hint.textContent=selected?'Projetos de '+selected.name:'Projetos cadastrados';
+  list.replaceChildren(emptyContent('Carregando projetos...'));
+  const result=await api('admin/projects?client='+encodeURIComponent(id));
+  if($('projectClient').value!==id)return;
   list.replaceChildren();
-  if (!clients.length) { list.textContent = 'Ainda não há clientes cadastrados.'; return; }
-  clients.forEach(c => {
-    const row = document.createElement('div');
-    row.className = 'staff-row';
-    const title = document.createElement('strong');
-    title.textContent = c.name;
-    const detail = document.createElement('small');
-    detail.textContent = '+' + c.phone + ' · ' + c.project_count + ' projeto(s)';
-    row.append(title, detail);
-    list.append(row);
+  if(!result.projects.length){
+    list.append(emptyContent('Este cliente ainda não possui projetos.'));
+    return;
+  }
+  result.projects.forEach(p=>{
+    const budget=p.budget_cents!==null && p.budget_cents!==undefined
+      ? ' · '+new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(p.budget_cents)/100)
+      : '';
+    list.append(adminRecord(p.title,(p.status||'Sem etapa')+budget));
   });
 }
+$('projectClient').addEventListener('change',()=>{
+  refreshClientProjects().catch(()=>{
+    $('projectsList').replaceChildren(emptyContent('Não foi possível carregar os projetos.'));
+  });
+});
 async function refreshProjects() {
   const id = $('documentClient').value;
   const select = $('documentProject');
@@ -80,6 +190,8 @@ $('projectForm').addEventListener('submit', async e => {
     await refreshProjects();
     e.currentTarget.reset();
     await refreshClients();
+    $('projectClient').value = data.clientId;
+    await refreshClientProjects();
     note('projectMessage', 'Projeto cadastrado. Já pode enviar contrato e nota fiscal.');
   } catch { note('projectMessage', 'Não foi possível salvar este projeto.', true); }
   finally { buttonBusy(e.currentTarget, false); }
@@ -141,10 +253,20 @@ async function loadAdmin() {
   const session=await api('session');
   if(!session.admin)throw new Error('unauthorized');
   $('staffView').hidden=false;$('accessDenied').hidden=true;$('logout').hidden=false;
+  $('adminTopUser').textContent=session.name||'Administrador';
   $('adminIdentity').textContent=(session.name||'Administrador')+' · '+(session.email||'')+' · '+(session.role==='owner'?'Responsável principal':'Administrador');
   $('ownerPanel').hidden=session.role!=='owner';
-  await refreshClients();
-  if(session.role==='owner')await refreshAdminUsers();
+  const requested=location.hash.slice(1);
+  showAdminView(Object.hasOwn(ADMIN_VIEW_LABELS,requested)?requested:'overview',false);
+  try { await refreshClients(); } catch {
+    $('recentClientsList').replaceChildren(emptyContent('Não foi possível carregar os clientes. Atualize a página para tentar novamente.'));
+    $('clientsList').replaceChildren(emptyContent('Não foi possível carregar os cadastros.'));
+    $('statClients').textContent='—';$('statProjects').textContent='—';$('statActiveClients').textContent='—';
+  }
+  if(session.role==='owner') {
+    try { await refreshAdminUsers(); }
+    catch { note('inviteAdminMessage','Não foi possível carregar a equipe. Atualize a página para tentar novamente.',true); }
+  }
 }
 $('changePasswordForm').addEventListener('submit',async e=>{
   e.preventDefault();buttonBusy(e.currentTarget,true);note('changePasswordMessage','');
