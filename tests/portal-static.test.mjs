@@ -62,3 +62,35 @@ test('hero não carrega fotografias antigas durante inicialização',()=>{
  assert.ok(css.includes('animation: none'));
  assert.ok(existsSync('dist/assets/video/hero-duplar-poster-v2.jpg'));
 });
+
+
+test('admin possui cinco áreas claras, com IDs únicos e navegação associada',()=>{
+ const html=readFileSync('equipe.html','utf8');
+ const panels=[...html.matchAll(/<section class="admin-view" id="([^"]+)" data-admin-panel="([^"]+)"/g)]
+   .map(match=>({id:match[1],view:match[2]}));
+ const links=[...html.matchAll(/<button[^>]+data-admin-view="([^"]+)" aria-controls="([^"]+)"/g)]
+   .map(match=>({view:match[1],id:match[2]}));
+ assert.deepEqual(panels.map(p=>p.view),['overview','clients','projects','documents','account']);
+ assert.deepEqual(links,panels.map(p=>({view:p.view,id:p.id})));
+ const ids=[...html.matchAll(/\bid="([^"]+)"/g)].map(match=>match[1]);
+ assert.equal(new Set(ids).size,ids.length,'Nenhum ID duplicado na página');
+ for(const required of ['adminLoginForm','adminBootstrapForm','adminInviteAcceptForm',
+  'clientForm','projectForm','documentForm','changePasswordForm',
+  'inviteAdminForm','ownerPanel','adminUsers','logout','clientSearch',
+  'recentClientsList','projectsList','statClients','statProjects','statActiveClients']){
+   assert.ok(ids.includes(required),'ID ausente: '+required);
+ }
+});
+test('navegação, filtros e contagem administrativa usam os dados atuais sem API nova',()=>{
+ const code=readFileSync('equipe.js','utf8');
+ assert.ok(code.includes("document.querySelectorAll('[data-admin-view], [data-admin-goto]')"));
+ assert.ok(code.includes("adminCurrentView = view"));
+ assert.ok(code.includes("data.clients"));
+ assert.ok(code.includes("Number(c.project_count||0)"));
+ assert.ok(code.includes("clientSearch"));
+ assert.ok(code.includes("async function refreshClientProjects()"));
+ assert.ok(code.includes("admin/projects?client="));
+ assert.ok(code.includes("async function loadAdmin()"));
+ const api=readFileSync('netlify/functions/duplar-portal.mjs','utf8');
+ assert.ok(api.includes("if (!user.admin) return response({ error: 'acesso_negado' }, 403)"));
+});
