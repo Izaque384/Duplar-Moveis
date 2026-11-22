@@ -12,7 +12,7 @@
 
 <meta property="og:title" content="Duplar Móveis — Marcenaria sob medida">
 <meta property="og:description" content="Ambientes pensados para a sua vida. Descubra os projetos de móveis sob medida da Duplar Móveis.">
-<meta property="og:image" content="https://duplarmoveis.netlify.app/assets/img/hero.jpg">
+<meta property="og:image" content="https://duplarmoveis.netlify.app/assets/video/hero-duplar-poster-v2.jpg">
 <meta property="og:image:alt" content="Cozinha projetada com marcenaria sob medida Duplar Móveis">
 <meta property="og:type" content="website">
 
@@ -53,11 +53,9 @@
   <!-- HERO -->
   <section class="hero" id="topo">
     <div class="hero-media" aria-hidden="true">
-      <picture>
-        <source srcset="assets/img/hero-cozinha-ajustada.avif" type="image/avif">
-        <source srcset="assets/img/hero.webp" type="image/webp">
-        <img src="assets/img/hero.jpg" alt="" width="1280" height="960" fetchpriority="high" decoding="async">
-      </picture>
+      <!-- Mesmo fotograma do vídeo atual: não exibe mais a fotografia antiga durante o carregamento. -->
+      <img class="hero-poster" src="assets/video/hero-duplar-poster-v2.jpg"
+           alt="" width="1920" height="1080" loading="eager" fetchpriority="high" decoding="async">
       <video id="heroVideo" class="hero-video" muted loop playsinline preload="none"
              poster="assets/video/hero-duplar-poster-v2.jpg" disablepictureinpicture
              data-src-desktop="assets/video/hero-duplar-wide-v2.mp4"

@@ -46,3 +46,19 @@ test('rota /admin preserva a tela administrativa sem criar outra página',()=>{
   assert.ok(js.includes("location.origin+'/admin#convite='"));
   assert.ok(readFileSync('equipe.css','utf8').includes('body:has(#accessDenied:not([hidden]))'));
 });
+
+test('hero não carrega fotografias antigas durante inicialização',()=>{
+ const html=readFileSync('index.html','utf8');
+ const css=readFileSync('theme-monochrome.css','utf8');
+ assert.ok(html.includes('class="hero-poster" src="assets/video/hero-duplar-poster-v2.jpg"'));
+ assert.ok(html.includes('poster="assets/video/hero-duplar-poster-v2.jpg"'));
+ assert.ok(html.includes('data-src-desktop="assets/video/hero-duplar-wide-v2.mp4"'));
+ assert.ok(html.includes('data-src-mobile="assets/video/hero-duplar-mobile-v2.mp4"'));
+ for(const name of ['assets/img/hero.jpg','assets/img/hero.webp','assets/img/hero-cozinha-ajustada.avif']){
+   assert.equal(html.includes(name),false);
+   assert.equal(existsSync('dist/'+name),false);
+ }
+ assert.ok(css.includes('.hero-media .hero-poster'));
+ assert.ok(css.includes('animation: none'));
+ assert.ok(existsSync('dist/assets/video/hero-duplar-poster-v2.jpg'));
+});

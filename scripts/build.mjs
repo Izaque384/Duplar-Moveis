@@ -1,6 +1,8 @@
-import { cpSync, mkdirSync, copyFileSync, existsSync } from 'node:fs';
+import { cpSync, mkdirSync, copyFileSync, existsSync, rmSync } from 'node:fs';
 import { resolve } from 'node:path';
 const out = resolve('dist');
+// Limpa o destino para evitar republicar imagens removidas de builds anteriores.
+rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
 for(const file of ['index.html','styles.css','theme-monochrome.css','script.js','equipe.html','equipe.css','equipe.js']){
   if(existsSync(file))copyFileSync(resolve(file),resolve(out,file));
