@@ -26,6 +26,7 @@ test('build não publica o backend nem os segredos',()=>{
  execFileSync(process.execPath,['scripts/build.mjs']);
  assert.ok(existsSync('dist/cliente/index.html'));
  assert.ok(existsSync('dist/equipe.html'));
+ assert.ok(existsSync('dist/admin/index.html'));
  assert.equal(existsSync('dist/netlify/functions/duplar-portal.mjs'),false);
  assert.equal(existsSync('dist/server/admin-auth.mjs'),false);
  assert.equal(existsSync('dist/database/migrations'),false);
