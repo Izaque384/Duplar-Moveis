@@ -69,7 +69,7 @@ Todas as fotos foram otimizadas de 3–4 MB para 22–200 KB, em **WebP com fall
 
 | Arquivo | Conteúdo |
 |---|---|
-| `hero.jpg/.webp` | cozinha em fendi com ripado iluminado — fundo do hero |
+| `assets/video/hero-duplar-poster-v2.jpg` | fotograma do vídeo atual — fundo do hero durante o carregamento |
 | `cozinha-planejada.*` | mesma cozinha, card da galeria (única foto em paisagem) |
 | `cozinha-gourmet.*` | ilha em mármore, marcenaria amadeirada — usada na seção Sobre e na galeria |
 | `sala-integrada.*` | painel ripado verde separando estar e cozinha |

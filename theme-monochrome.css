@@ -563,11 +563,21 @@ h3 { font-size: clamp(1.2rem, 1.8vw, 1.5rem); }
   }
 }
 
-/* Hero cinematografico: imagem de fundo permanece como fallback.
-   A camada de video so aparece apos o primeiro frame decodificado. */
-.hero-media { isolation: isolate; }
-.hero-media picture { position: absolute; inset: 0; display: block; z-index: 0; }
-.hero-media picture img { width: 100%; height: 100%; object-fit: cover; }
+/* Hero cinematografico: fallback sempre utiliza o poster do video atual.
+   A camada de video so aparece apos iniciar a reproducao. */
+.hero-media { isolation: isolate; background: #101113; }
+.hero-media .hero-poster {
+  position: absolute;
+  inset: 0;
+  display: block;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 58% 50%;
+  animation: none;
+  filter: none;
+}
 .hero-media .hero-video {
   display: block;
   position: absolute;
@@ -632,7 +642,7 @@ h3 { font-size: clamp(1.2rem, 1.8vw, 1.5rem); }
   align-items: center;
 }
 .hero-media,
-.hero-media picture,
+.hero-media .hero-poster,
 .hero-media .hero-video {
   height: 100%;
 }
@@ -1438,3 +1448,8 @@ h3 { font-size: clamp(1.2rem, 1.8vw, 1.5rem); }
 /* Internal navigation uses precise JS framing; avoid double native anchor insets.
    The existing html scroll-padding remains a fallback if JS is unavailable. */
 section[id] { scroll-margin-top: 0; }
+
+/* Mesmo enquadramento do vídeo atual no celular: evita saltos visuais. */
+@media (max-width: 600px) {
+  .hero-media .hero-poster { object-position: 53% center; }
+}
