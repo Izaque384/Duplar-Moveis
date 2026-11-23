@@ -115,3 +115,14 @@ test('entrada do cliente sem lista numerada de benefícios, preservando quatro �
  assert.ok(html.includes('id="codeForm"'));
  assert.deepEqual([...html.matchAll(/class="portal-view" data-panel="([^"]+)"/g)].map(m=>m[1]),['contratos','notas','projeto','atendimento']);
 });
+
+test('entrada do cliente sem título e instrução removidos, preservando login',()=>{
+ const html=readFileSync('cliente/index.html','utf8');
+ const entry=html.slice(html.indexOf('<div id="entryScreen"'),html.indexOf('<div id="dashboard"'));
+ assert.ok(!entry.includes('Seu projeto, em <em>cada detalhe.'));
+ assert.ok(!entry.includes('Receba um código temporário no WhatsApp cadastrado com a Duplar.'));
+ assert.ok(entry.includes('Consulte seus contratos, notas fiscais'));
+ assert.ok(entry.includes('id="phoneForm"'));
+ assert.ok(entry.includes('id="codeForm"'));
+ assert.ok(readFileSync('cliente/styles.css','utf8').includes('#entryScreen .entry-copy .entry-lead'));
+});

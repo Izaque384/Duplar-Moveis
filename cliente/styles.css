@@ -264,3 +264,40 @@
 
 /* Sem lista de benefícios na entrada: texto principal respira sem espaço residual. */
 .entry-copy .entry-lead { margin-bottom: 0; }
+
+
+/* Entrada enxuta: texto introdutório com proporção editorial, sem espaços residuais. */
+#entryScreen .entry-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(18px, 3.2svh, 32px);
+}
+#entryScreen .entry-copy .eyebrow { margin: 0; }
+#entryScreen .entry-copy .entry-lead {
+  max-width: 540px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.65rem, 2.6vw, 2.9rem);
+  line-height: 1.32;
+  font-weight: 300;
+  letter-spacing: -.028em;
+  color: var(--cream);
+}
+#entryScreen .entry-card h2 { margin-bottom: clamp(9px, 1.6svh, 16px); }
+#entryScreen .entry-card .portal-login-form { margin-top: clamp(14px, 2.4svh, 24px); }
+@media (max-width: 760px) {
+  #entryScreen .entry-copy { gap: 12px; }
+  #entryScreen .entry-copy .entry-lead {
+    font-size: clamp(1.45rem, 5.6vw, 2rem);
+    max-width: 32ch;
+    line-height: 1.27;
+  }
+}
+@media (max-height: 650px) {
+  #entryScreen .entry-copy { gap: 9px; }
+  #entryScreen .entry-copy .entry-lead {
+    font-size: clamp(1.2rem, min(3vw, 3.5svh), 1.85rem);
+    line-height: 1.22;
+  }
+}
