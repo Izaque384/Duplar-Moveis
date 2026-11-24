@@ -272,3 +272,51 @@
 #dashboard .sidebar-brand{margin-bottom:18px}
 #dashboard .sidebar-nav{padding-top:12px}
 @media(max-width:600px){#dashboard .top-home{font-size:.56rem;padding:8px 9px;gap:7px}}
+
+
+/* Identificação do cliente no rodapé do menu lateral. */
+.sidebar-client-profile {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  margin-top: auto;
+  padding: 17px 22px 20px;
+  border-top: 1px solid var(--hair);
+  background: #1b1c1e;
+}
+.sidebar-client-avatar {
+  display: grid;
+  flex: 0 0 39px;
+  width: 39px;
+  height: 39px;
+  place-items: center;
+  border: 1px solid var(--hair-strong);
+  border-radius: 50%;
+  background: rgba(244,242,238,.055);
+  color: var(--cream);
+  font: 500 .78rem/1 var(--mono);
+  letter-spacing: .04em;
+}
+.sidebar-client-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.sidebar-client-name {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--cream);
+  font: 500 .8rem/1.4 var(--body);
+}
+.sidebar-client-label {
+  color: var(--soft);
+  font: .61rem/1.5 var(--body);
+}
+@media (max-width: 1080px) {
+  .sidebar-client-profile { padding: 17px 19px 22px; }
+}
