@@ -1143,17 +1143,14 @@ h3 { font-size: clamp(1.2rem, 1.8vw, 1.5rem); }
   display: flex;
   flex-direction: column;
 }
-.cine-media, .cine-overlay, .cine-video,
-.cine-still, .cine-still img {
+.cine-media, .cine-overlay, .cine-video {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
 }
-.cine-media { z-index: 0; overflow: hidden; background: #191a1d; }
-.cine-still { display: block; }
-.cine-still[hidden] { display: none !important; }
-.cine-still img { display: block; object-fit: cover; filter: brightness(.75) saturate(.82); }
+/* Antes do primeiro frame (ou sem autoplay), nenhuma fotografia antiga é exibida. */
+.cine-media { z-index: 0; overflow: hidden; background: #111315; }
 .cine-video {
   z-index: 1;
   object-fit: cover;

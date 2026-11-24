@@ -126,3 +126,24 @@ test('entrada do cliente sem título e instrução removidos, preservando login'
  assert.ok(entry.includes('id="codeForm"'));
  assert.ok(readFileSync('cliente/styles.css','utf8').includes('#entryScreen .entry-copy .entry-lead'));
 });
+
+
+test('seção Diferenciais não mostra fotos antigas enquanto vídeo carrega',()=>{
+ const html=readFileSync('index.html','utf8');
+ const script=readFileSync('script.js','utf8');
+ const css=readFileSync('theme-monochrome.css','utf8');
+ const section=html.slice(html.indexOf('<section class="diferenciais cine-section"'),html.indexOf('<!-- ATENDIMENTO / CONVERSÃO FINAL -->'));
+ assert.ok(section.includes('id="cineVideo"'));
+ assert.ok(section.includes('data-src-desktop="assets/video/duplar-detalhes-wide.mp4"'));
+ assert.ok(section.includes('data-src-mobile="assets/video/duplar-detalhes-mobile.mp4"'));
+ assert.equal((section.match(/data-cine-scene=/g)||[]).length,4);
+ assert.ok(!section.includes('data-cine-still'));
+ assert.ok(!section.includes('cozinha-planejada-full'));
+ assert.ok(!section.includes('cozinha-gourmet-full'));
+ assert.ok(!section.includes('cozinha-bancada-full'));
+ assert.ok(!section.includes('sala-integrada-full'));
+ assert.ok(!section.includes('poster="assets/video/duplar-detalhes-poster.jpg"'));
+ assert.ok(!script.includes("querySelectorAll('[data-cine-still]')"));
+ assert.ok(!css.includes('.cine-still'));
+ assert.ok(css.includes('.cine-media { z-index: 0; overflow: hidden; background: #111315; }'));
+});
