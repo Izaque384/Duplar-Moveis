@@ -150,3 +150,14 @@ test('seção Diferenciais não mostra fotos antigas enquanto vídeo carrega',()
  assert.ok(!css.includes('.cine-still'));
  assert.ok(css.includes('.cine-media { z-index: 0; overflow: hidden; background: #111315; }'));
 });
+
+test('identificador e texto de entrada têm espaço apropriado sem mudar fonte',()=>{
+ const css=readFileSync('cliente/styles.css','utf8');
+ const html=readFileSync('cliente/index.html','utf8');
+ const entry=html.slice(html.indexOf('<div id="entryScreen"'),html.indexOf('<div id="dashboard"'));
+ assert.ok(entry.includes('DUPLAR / ÁREA DO CLIENTE'));
+ assert.ok(entry.includes('Consulte seus contratos, notas fiscais, informações do projeto e converse diretamente com a Duplar.'));
+ assert.ok(css.includes('.entry-copy .entry-lead { margin-top: clamp(18px, 3svh, 30px); margin-bottom: 0; }'));
+ assert.ok(css.includes('.entry-copy .entry-lead { margin-top: clamp(14px, 2.5svh, 22px); }'));
+ assert.ok(!css.includes('#entryScreen .entry-copy .entry-lead'));
+});

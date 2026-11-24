@@ -262,5 +262,8 @@
 .project-services{white-space:pre-line;margin:22px 0 0;overflow-wrap:anywhere}
 @media(max-width:680px){.project-switcher{display:block}.project-switcher select{margin-top:12px}.docs-list .document-row{grid-template-columns:45px minmax(0,1fr);gap:12px}.docs-list .document-row button{grid-column:2;justify-self:start}.entry-copy h1{font-size:clamp(3rem,11vw,4.3rem)}}
 
-/* Sem lista de benefícios na entrada: texto principal respira sem espaço residual. */
-.entry-copy .entry-lead { margin-bottom: 0; }
+/* Respiro entre o identificador e a descrição, mantendo a tipografia original. */
+.entry-copy .entry-lead { margin-top: clamp(18px, 3svh, 30px); margin-bottom: 0; }
+@media (max-width: 760px) {
+  .entry-copy .entry-lead { margin-top: clamp(14px, 2.5svh, 22px); }
+}
