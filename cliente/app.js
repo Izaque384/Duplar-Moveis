@@ -49,8 +49,24 @@ function renderProject(){
  $('projectServices').textContent=p?.services||'Ainda não há serviços cadastrados para este projeto.';
  $('projectBudget').textContent=p?.budget_cents!=null?(Number(p.budget_cents)/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'Não informado';
 }
+function clientInitials(name) {
+ const words = String(name || '').trim().split(/\s+/u).filter(Boolean);
+ if (!words.length) return 'CL';
+ const first = Array.from(words[0])[0] || 'C';
+ const last = words.length > 1 ? (Array.from(words[words.length - 1])[0] || '') : '';
+ return (first + last).toLocaleUpperCase('pt-BR');
+}
+function renderClientProfile() {
+ // Apenas o nome já autorizado pela API; não expõe telefone nem dados de outros clientes.
+ const name = demo ? 'Visitante' : (typeof portal.name === 'string' && portal.name.trim() ? portal.name.trim() : 'Cliente Duplar');
+ $('clientProfileName').textContent = name;
+ $('clientProfileName').title = name;
+ $('clientProfileInitials').textContent = clientInitials(name);
+ $('clientProfileLabel').textContent = demo ? 'Prévia ilustrativa' : 'Cliente Duplar';
+}
 function showDashboard(){
  $('entryScreen').hidden=true;$('dashboard').hidden=false;
+ renderClientProfile();
  $('projectSwitch').hidden=demo||!portal.projects.length;
  $('projectSelect').replaceChildren();
  portal.projects.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.title;$('projectSelect').append(o);});

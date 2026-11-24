@@ -181,3 +181,24 @@ test('interior do portal sem avisos e blocos de demonstração redundantes',()=>
  assert.ok(js.includes("$('topExit').addEventListener('click',exit)"));
  assert.deepEqual([...html.matchAll(/class="portal-view" data-panel="([^"]+)"/g)].map(x=>x[1]),['contratos','notas','projeto','atendimento']);
 });
+
+
+test('rodapé lateral identifica cliente real ou visitante em demonstração sem inventar dados',()=>{
+ const html=readFileSync('cliente/index.html','utf8');
+ const js=readFileSync('cliente/app.js','utf8');
+ const css=readFileSync('cliente/styles.css','utf8');
+ const sidebar=html.slice(html.indexOf('<aside class="sidebar"'),html.indexOf('</aside>'));
+ assert.match(sidebar,/<div class="sidebar-client-profile" role="group" aria-label="Identificação do cliente">/);
+ for(const id of ['clientProfileInitials','clientProfileName','clientProfileLabel']){
+   assert.ok(sidebar.includes('id="'+id+'"'));
+   assert.ok(js.includes("$('"+id+"')"));
+ }
+ assert.ok(sidebar.indexOf('sidebar-client-profile')>sidebar.indexOf('</nav>'));
+ assert.ok(js.includes("const name = demo ? 'Visitante'"));
+ assert.ok(js.includes("portal.name.trim()"));
+ assert.ok(js.includes("renderClientProfile();"));
+ assert.ok(js.includes("demo ? 'Prévia ilustrativa' : 'Cliente Duplar'"));
+ assert.ok(css.includes('margin-top: auto;'));
+ assert.ok(css.includes('text-overflow: ellipsis;'));
+ assert.deepEqual([...html.matchAll(/class="portal-view" data-panel="([^"]+)"/g)].map(m=>m[1]),['contratos','notas','projeto','atendimento']);
+});
