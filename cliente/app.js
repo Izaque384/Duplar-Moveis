@@ -50,9 +50,7 @@ function renderProject(){
  $('projectBudget').textContent=p?.budget_cents!=null?(Number(p.budget_cents)/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'Não informado';
 }
 function showDashboard(){
- $('entryScreen').hidden=true;$('dashboard').hidden=false;$('demoIndicator').hidden=!demo;$('demoNotice').hidden=!demo;
- $('portalGreeting').textContent=demo?'Ambiente de demonstração':(portal.name||'Área privada');
- $('exitPortal').textContent=demo?'Encerrar demonstração ↗':'Sair da minha conta ↗';
+ $('entryScreen').hidden=true;$('dashboard').hidden=false;
  $('projectSwitch').hidden=demo||!portal.projects.length;
  $('projectSelect').replaceChildren();
  portal.projects.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.title;$('projectSelect').append(o);});
@@ -78,7 +76,7 @@ $('sidebarToggle').addEventListener('click',()=>{const opened=sidebar.classList.
 $('drawerBackdrop').addEventListener('click',closeMenu);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu();});
 async function exit(){if(!demo){try{await request('auth/logout','POST',{});}catch{}}location.href='./';}
-$('exitPortal').addEventListener('click',exit);$('topExit').addEventListener('click',exit);
+$('topExit').addEventListener('click',exit);
 (async()=>{const q=new URLSearchParams(location.search);if(q.get('demo')==='1'){demo=true;portal={name:'Prévia ilustrativa',projects:[],documents:[],supportWhatsapp:'558881734015'};showDashboard();return;}
  try{const s=await request('session');if(s.admin){location.href='../equipe.html';return;}portal=await request('projects');showDashboard();}catch{}
 })();
