@@ -155,7 +155,6 @@ if ('IntersectionObserver' in window && !prefersReducedMotion) {
   if (!section || !video) return;
 
   const scenes = Array.from(section.querySelectorAll('[data-cine-scene]'));
-  const stills = Array.from(section.querySelectorAll('[data-cine-still]'));
   const announcement = document.getElementById('cineAnnouncement');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const mobile = window.matchMedia('(max-width: 600px)');
@@ -168,7 +167,7 @@ if ('IntersectionObserver' in window && !prefersReducedMotion) {
     'Do projeto à instalação'
   ];
 
-  if (scenes.length !== 4 || stills.length !== 4) return;
+  if (scenes.length !== 4) return;
 
   let index = 0;
   let mediaLoaded = false;
@@ -187,10 +186,6 @@ if ('IntersectionObserver' in window && !prefersReducedMotion) {
   function showScene(newIndex, manual = false) {
     index = (newIndex + scenes.length) % scenes.length;
     scenes.forEach((element, i) => {
-      element.hidden = i !== index;
-      element.classList.toggle('is-current', i === index);
-    });
-    stills.forEach((element, i) => {
       element.hidden = i !== index;
       element.classList.toggle('is-current', i === index);
     });
@@ -217,7 +212,7 @@ if ('IntersectionObserver' in window && !prefersReducedMotion) {
       const attempt = video.play();
       if (attempt && typeof attempt.catch === 'function') {
         attempt.catch(() => {
-          // Caso o navegador bloqueie o vídeo, a imagem de reserva continua.
+          // Se a reprodução for bloqueada, mantemos o fundo escuro e os textos legíveis.
           section.classList.remove('is-video-ready');
         });
       }
