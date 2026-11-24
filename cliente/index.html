@@ -28,7 +28,6 @@
  <div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
  <aside class="sidebar" id="sidebar" aria-label="Menu da área do cliente">
    <a class="brand-lockup sidebar-brand" href="../"><img src="../assets/img/logo-marca.png" alt="" width="41" height="41"><span class="brand-name">Duplar<small>MÓVEIS PROJETADOS</small></span></a>
-   <div class="sidebar-project"><span>PORTAL DO CLIENTE</span><strong>Seu espaço, em construção.</strong><small id="portalGreeting">Suas informações</small></div>
    <nav class="sidebar-nav" aria-label="Quatro áreas do cliente">
      <span class="sidebar-label">SEU ESPAÇO</span>
      <button type="button" data-view="contratos" class="side-link is-active"><span class="nav-symbol" aria-hidden="true">▤</span> Contratos <span class="side-arrow">↗</span></button>
@@ -36,12 +35,10 @@
      <button type="button" data-view="projeto" class="side-link"><span class="nav-symbol" aria-hidden="true">⌗</span> Meu projeto <span class="side-arrow">↗</span></button>
      <button type="button" data-view="atendimento" class="side-link"><span class="nav-symbol" aria-hidden="true">◎</span> Atendimento <span class="side-arrow">↗</span></button>
    </nav>
-   <div class="sidebar-bottom"><p>ÁREAS DO CLIENTE <span>04 / 04</span></p><button class="secondary-action side-exit" id="exitPortal" type="button">Sair da área do cliente ↗</button><a href="../" class="sidebar-home">Voltar ao site da Duplar</a></div>
  </aside>
  <div class="portal-workspace">
-  <header class="portal-header"><button id="sidebarToggle" class="mobile-nav-toggle" aria-controls="sidebar" aria-expanded="false" type="button">☰ <span>Menu</span></button><div class="portal-breadcrumb"><span>ÁREA DO CLIENTE</span><span>/</span><strong id="currentSection">Contratos</strong></div><div class="portal-header-actions"><span class="demo-indicator" id="demoIndicator" hidden><span></span>DADOS ILUSTRATIVOS</span><button class="top-exit" id="topExit" type="button">Sair ↗</button></div></header>
+  <header class="portal-header"><button id="sidebarToggle" class="mobile-nav-toggle" aria-controls="sidebar" aria-expanded="false" type="button">☰ <span>Menu</span></button><div class="portal-breadcrumb"><span>ÁREA DO CLIENTE</span><span>/</span><strong id="currentSection">Contratos</strong></div><div class="portal-header-actions"><a href="../" class="top-home" aria-label="Voltar ao site da Duplar">Voltar ao site <span aria-hidden="true">↗</span></a><button class="top-exit" id="topExit" type="button">Sair ↗</button></div></header>
   <main class="portal-content" id="portalMain">
-   <div id="demoNotice" class="demo-notice" hidden><span class="notice-symbol">i</span><p><strong>Prévia visual.</strong> Os dados e documentos são ilustrativos. Nenhuma informação de cliente está sendo exibida.</p></div>
    <div id="projectSwitch" class="project-switcher" hidden><label for="projectSelect">PROJETO</label><select id="projectSelect"></select></div>
    <section class="portal-view" data-panel="contratos" aria-labelledby="contratos-title">
     <div class="view-heading"><div><span class="eyebrow">DOCUMENTAÇÃO / 01</span><h1 id="contratos-title">Seus contratos, <em>organizados.</em></h1><p>Consulte seus contratos e baixe os documentos disponibilizados pela Duplar.</p></div><span class="page-index">01 / 04</span></div>

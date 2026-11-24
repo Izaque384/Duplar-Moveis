@@ -161,3 +161,23 @@ test('identificador e texto de entrada têm espaço apropriado sem mudar fonte',
  assert.ok(css.includes('.entry-copy .entry-lead { margin-top: clamp(14px, 2.5svh, 22px); }'));
  assert.ok(!css.includes('#entryScreen .entry-copy .entry-lead'));
 });
+
+
+test('interior do portal sem avisos e blocos de demonstração redundantes',()=>{
+ const html=readFileSync('cliente/index.html','utf8');
+ const js=readFileSync('cliente/app.js','utf8');
+ const css=readFileSync('cliente/styles.css','utf8');
+ const dashboard=html.slice(html.indexOf('<div id="dashboard"'));
+ for(const phrase of ['Seu espaço, em construção.','PORTAL DO CLIENTE','ÁREAS DO CLIENTE',
+    'Encerrar demonstração','DADOS ILUSTRATIVOS','Prévia visual.','Nenhuma informação de cliente está sendo exibida.']){
+   assert.equal(dashboard.includes(phrase),false,phrase);
+ }
+ for(const id of ['demoNotice','demoIndicator','portalGreeting','exitPortal']){
+   assert.equal(js.includes("$('"+id+"')"),false,'Referência JS obsoleta: '+id);
+ }
+ assert.match(dashboard,/<a href="\.\.\/" class="top-home" aria-label="Voltar ao site da Duplar">Voltar ao site/);
+ assert.ok(css.includes('.top-home{display:inline-flex;'));
+ assert.ok(html.includes('id="topExit"'));
+ assert.ok(js.includes("$('topExit').addEventListener('click',exit)"));
+ assert.deepEqual([...html.matchAll(/class="portal-view" data-panel="([^"]+)"/g)].map(x=>x[1]),['contratos','notas','projeto','atendimento']);
+});
