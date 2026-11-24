@@ -124,7 +124,10 @@ test('entrada do cliente sem título e instrução removidos, preservando login'
  assert.ok(entry.includes('Consulte seus contratos, notas fiscais'));
  assert.ok(entry.includes('id="phoneForm"'));
  assert.ok(entry.includes('id="codeForm"'));
- assert.ok(readFileSync('cliente/styles.css','utf8').includes('#entryScreen .entry-copy .entry-lead'));
+ const css=readFileSync('cliente/styles.css','utf8');
+ assert.ok(css.includes('.entry-lead{font-size:clamp(1rem,1.5vw,1.2rem)'));
+ assert.ok(!css.includes('#entryScreen .entry-copy .entry-lead'));
+ assert.ok(css.includes('.entry-copy .entry-lead { margin-bottom: 0; }'));
 });
 
 
