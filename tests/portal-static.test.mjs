@@ -202,3 +202,57 @@ test('rodapé lateral identifica cliente real ou visitante em demonstração sem
  assert.ok(css.includes('text-overflow: ellipsis;'));
  assert.deepEqual([...html.matchAll(/class="portal-view" data-panel="([^"]+)"/g)].map(m=>m[1]),['contratos','notas','projeto','atendimento']);
 });
+
+
+test('quatro telas do cliente priorizam arquivos e ações sem banners repetitivos',()=>{
+ const html=readFileSync('cliente/index.html','utf8');
+ const dashboard=html.slice(html.indexOf('<div id="dashboard"'));
+ const sections=[...dashboard.matchAll(/class="portal-view" data-panel="([^"]+)"/g)].map(m=>m[1]);
+ assert.deepEqual(sections,['contratos','notas','projeto','atendimento']);
+ for(const id of ['contractsCount','invoicesCount','contractsList','invoicesList','projectName',
+   'projectStatus','projectBudget','projectServices','supportLink']){
+   assert.ok(dashboard.includes('id="'+id+'"'),'Campo do portal: '+id);
+ }
+ assert.ok(!dashboard.includes('class="details-banner"'));
+ assert.ok(!dashboard.includes('class="financial-grid"'));
+ assert.ok(!dashboard.includes('class="support-grid"'));
+ assert.ok(!dashboard.includes('projectStatusCard'));
+ assert.ok(!dashboard.includes('projectTitleCard'));
+ assert.equal((dashboard.match(/class="client-files-panel"/g)||[]).length,2);
+ assert.equal((dashboard.match(/data-client-goto=/g)||[]).length,5);
+ assert.match(dashboard,/<a id="supportLink"[^>]+target="_blank" rel="noopener noreferrer">Abrir WhatsApp/);
+});
+test('downloads protegidos, contadores dinâmicos e ações rápidas funcionam pelo mesmo backend',()=>{
+ const html=readFileSync('cliente/index.html','utf8');
+ const js=readFileSync('cliente/app.js','utf8');
+ const ids=new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]));
+ assert.ok(js.includes("function updateDocumentCount(kind,count)"));
+ assert.ok(js.includes("count===1?'arquivo':'arquivos'"));
+ assert.ok(js.includes("portal.documents.filter(d=>d.kind===kind && d.project_id===projectId)"));
+ assert.ok(js.includes("fetch('/api/duplar/document/'+encodeURIComponent(id)"));
+ assert.ok(js.includes("button.disabled=true"));
+ assert.ok(js.includes("textContent='Baixar PDF ↗'"));
+ assert.ok(js.includes("data-client-goto"));
+ assert.ok(js.includes("button.addEventListener('click',()=>setView(button.dataset.clientGoto))"));
+ assert.ok(js.includes("portal.projects.length<=1"));
+ assert.ok(js.includes("demo||!projectId?[]"));
+ for(const match of js.matchAll(/\$\('([^']+)'\)/g)){
+  assert.ok(ids.has(match[1]),'ID referenciado pelo JS: '+match[1]);
+ }
+ assert.equal(ids.size,[...html.matchAll(/\bid="([^"]+)"/g)].length);
+});
+test('telas internas responsivas com botões e estados vazios, sem alterar login',()=>{
+ const css=readFileSync('cliente/styles.css','utf8');
+ const html=readFileSync('cliente/index.html','utf8');
+ const entry=html.slice(html.indexOf('<div id="entryScreen"'),html.indexOf('<div id="dashboard"'));
+ assert.ok(entry.includes('id="phoneForm"'));
+ assert.ok(entry.includes('id="codeForm"'));
+ for(const selector of ['#dashboard .client-page-heading','#dashboard .client-files-panel',
+ '#dashboard .client-document-info','#dashboard .client-download-action',
+ '#dashboard .client-empty-state','#dashboard .client-project-overview',
+ '#dashboard .client-project-details','#dashboard .client-whatsapp-action']){
+  assert.ok(css.includes(selector),'Estilo ausente: '+selector);
+ }
+ assert.ok(css.includes('@media (max-width: 480px)'));
+ assert.ok(css.includes('grid-column: 1 / -1;'));
+});
