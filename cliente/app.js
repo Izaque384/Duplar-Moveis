@@ -23,31 +23,95 @@ function setView(key){
  if(demo){const u=new URL(location.href);u.searchParams.set('demo','1');u.searchParams.set('secao',key);history.replaceState(null,'',u.pathname+u.search);}
  window.scrollTo(0,0);
 }
-function empty(id,label){const p=document.createElement('p');p.className='empty-state';p.textContent=label;$(id).replaceChildren(p);}
-async function downloadDoc(id,name,button){
+function empty(id,kind) {
+ const isContract = kind === 'contract';
+ const item = document.createElement('div');
+ item.className = 'client-empty-state';
+ const icon = document.createElement('span');
+ icon.className = 'client-empty-icon';
+ icon.textContent = 'PDF';
+ icon.setAttribute('aria-hidden','true');
+ const title = document.createElement('h3');
+ title.textContent = isContract ? 'Nenhum contrato disponível' : 'Nenhuma nota fiscal disponível';
+ const detail = document.createElement('p');
+ detail.textContent = 'Quando a Duplar adicionar um arquivo, ele aparecerá aqui.';
+ const action = document.createElement('button');
+ action.type='button';
+ action.className='client-empty-action';
+ action.textContent='Falar com a Duplar ↗';
+ action.addEventListener('click',()=>setView('atendimento'));
+ item.append(icon,title,detail,action);
+ $(id).replaceChildren(item);
+}
+function updateDocumentCount(kind,count) {
+ const prefix=kind==='contract'?'contracts':'invoices';
+ $(prefix+'Count').textContent=String(count);
+ $(prefix+'CountLabel').textContent=count===1?'arquivo':'arquivos';
+}
+async function downloadDoc(id,name,button) {
  button.disabled=true;
- try {const r=await fetch('/api/duplar/document/'+encodeURIComponent(id),{credentials:'same-origin'});if(!r.ok)throw Error();
- const url=URL.createObjectURL(await r.blob());const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),5000);}
- catch{$('dashboardMessage').textContent='Não foi possível baixar o documento. Entre em contato com a Duplar.';}
- finally{button.disabled=false;}
+ button.setAttribute('aria-busy','true');
+ const originalText=button.textContent;
+ button.textContent='Baixando…';
+ $('dashboardMessage').textContent='';
+ try {
+  const res=await fetch('/api/duplar/document/'+encodeURIComponent(id),{credentials:'same-origin'});
+  if(!res.ok)throw new Error('download-failed');
+  const url=URL.createObjectURL(await res.blob());
+  const link=document.createElement('a');
+  link.href=url;link.download=name;link.click();
+  setTimeout(()=>URL.revokeObjectURL(url),5000);
+ } catch {
+  $('dashboardMessage').textContent='Não foi possível baixar o arquivo. Tente novamente ou fale com a Duplar.';
+ } finally {
+  button.textContent=originalText;
+  button.disabled=false;
+  button.removeAttribute('aria-busy');
+ }
 }
-function documents(id,kind,projectId){
- $(id).replaceChildren();
- if(demo){empty(id,kind==='contract'?'Nenhum contrato real nesta demonstração.':'Nenhuma nota fiscal real nesta demonstração.');return;}
- const docs=portal.documents.filter(d=>d.kind===kind&&d.project_id===projectId);
- if(!docs.length){empty(id,kind==='contract'?'Nenhum contrato disponibilizado para este projeto.':'Nenhuma nota fiscal disponibilizada para este projeto.');return;}
- docs.forEach(d=>{const row=document.createElement('div');row.className='document-row';const icon=document.createElement('div');icon.className='doc-icon';icon.textContent='PDF';const info=document.createElement('div');const title=document.createElement('strong');title.textContent=d.filename;const when=document.createElement('span');when.textContent=new Date(d.created_at).toLocaleDateString('pt-BR');info.append(title,when);const btn=document.createElement('button');btn.type='button';btn.textContent='Baixar ↗';btn.addEventListener('click',()=>downloadDoc(d.id,d.filename,btn));row.append(icon,info,btn);$(id).append(row);});
+function documents(id,kind,projectId) {
+ const docs=demo||!projectId?[]:portal.documents.filter(d=>d.kind===kind && d.project_id===projectId);
+ updateDocumentCount(kind,docs.length);
+ const container=$(id);
+ container.replaceChildren();
+ if(!docs.length){empty(id,kind);return;}
+ const dateFormat=new Intl.DateTimeFormat('pt-BR',{day:'2-digit',month:'short',year:'numeric'});
+ docs.forEach(d=>{
+  const row=document.createElement('article');
+  row.className='document-row client-document-row';
+  const icon=document.createElement('div');
+  icon.className='doc-icon client-doc-icon';
+  icon.textContent='PDF';
+  icon.setAttribute('aria-hidden','true');
+  const info=document.createElement('div');
+  info.className='client-document-info';
+  const name=document.createElement('strong');
+  name.textContent=d.filename||'Documento PDF';
+  const meta=document.createElement('span');
+  const when=d.created_at?new Date(d.created_at):null;
+  meta.textContent='PDF'+(when && !Number.isNaN(when.getTime())?' · '+dateFormat.format(when):'');
+  info.append(name,meta);
+  const action=document.createElement('button');
+  action.className='client-download-action';
+  action.type='button';
+  action.textContent='Baixar PDF ↗';
+  action.setAttribute('aria-label','Baixar '+(d.filename||'documento')+' em PDF');
+  action.addEventListener('click',()=>downloadDoc(d.id,d.filename||'documento.pdf',action));
+  row.append(icon,info,action);
+  container.append(row);
+ });
 }
-function renderProject(){
- const p=portal.projects.find(p=>p.id===$('projectSelect').value);
- documents('contractsList','contract',p?.id);documents('invoicesList','invoice',p?.id);
+function renderProject() {
+ const p=portal.projects.find(project=>project.id===$('projectSelect').value);
+ documents('contractsList','contract',p?.id);
+ documents('invoicesList','invoice',p?.id);
  $('projectName').textContent=p?.title||'Nenhum projeto cadastrado';
- $('projectTitleCard').textContent=p?.title||'—';
  $('projectStatus').textContent=p?.status||'Aguardando cadastro';
- $('projectStatusCard').textContent=p?.status||'Aguardando cadastro';
- $('projectDescription').textContent=p?.description||'Assim que a Duplar cadastrar o projeto, seus detalhes aparecerão aqui.';
- $('projectServices').textContent=p?.services||'Ainda não há serviços cadastrados para este projeto.';
- $('projectBudget').textContent=p?.budget_cents!=null?(Number(p.budget_cents)/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}):'Não informado';
+ $('projectDescription').textContent=p?.description||'O projeto aparecerá aqui quando for cadastrado pela Duplar.';
+ $('projectServices').textContent=p?.services||'Nenhum serviço informado ainda.';
+ $('projectBudget').textContent=p?.budget_cents!=null
+  ?(Number(p.budget_cents)/100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})
+  :'Não informado';
 }
 function clientInitials(name) {
  const words = String(name || '').trim().split(/\s+/u).filter(Boolean);
@@ -67,7 +131,7 @@ function renderClientProfile() {
 function showDashboard(){
  $('entryScreen').hidden=true;$('dashboard').hidden=false;
  renderClientProfile();
- $('projectSwitch').hidden=demo||!portal.projects.length;
+ $('projectSwitch').hidden=demo||portal.projects.length<=1;
  $('projectSelect').replaceChildren();
  portal.projects.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.title;$('projectSelect').append(o);});
  $('supportLink').href='https://wa.me/'+(portal.supportWhatsapp||'558881734015')+'?text='+encodeURIComponent('Olá, sou cliente da Duplar e gostaria de falar sobre meu projeto.');
@@ -87,6 +151,7 @@ $('codeForm').addEventListener('submit',async e=>{
  finally{button.disabled=false;}
 });
 buttons.forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
+document.querySelectorAll('[data-client-goto]').forEach(button=>button.addEventListener('click',()=>setView(button.dataset.clientGoto)));
 $('projectSelect').addEventListener('change',renderProject);
 $('sidebarToggle').addEventListener('click',()=>{const opened=sidebar.classList.toggle('is-open');$('drawerBackdrop').hidden=!opened;$('sidebarToggle').setAttribute('aria-expanded',String(opened));});
 $('drawerBackdrop').addEventListener('click',closeMenu);
