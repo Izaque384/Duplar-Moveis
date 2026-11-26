@@ -290,6 +290,8 @@ async function createProject(db, req) {
   const budget = data.budgetCents === null || data.budgetCents === '' ? null : Number(data.budgetCents);
   if (!/^[0-9a-f-]{36}$/i.test(clientId) || title.length < 2 || !status ||
       (budget !== null && (!Number.isSafeInteger(budget) || budget < 0))) return errorMessage('dados_invalidos');
+  const client = await db.pool.query('SELECT id FROM portal_clients WHERE id = $1 AND active = true LIMIT 1', [clientId]);
+  if (!client.rowCount) return response({ error: 'cliente_nao_encontrado' }, 404);
   const { rows } = await db.pool.query(
     'INSERT INTO portal_projects (client_id, title, description, services, status, budget_cents) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, title',
     [clientId, title, description, services, status, budget]
@@ -301,16 +303,24 @@ async function uploadDocument(db, req, context) {
   if (length > MAX_FILE_BYTES + 1024 * 100) return response({ error: 'arquivo_muito_grande' }, 413);
   const form = await req.formData();
   const file = form.get('file');
+  const clientId = String(form.get('clientId') || '');
   const projectId = String(form.get('projectId') || '');
   const kind = String(form.get('kind') || '');
-  if (!(file instanceof File) || !/^[0-9a-f-]{36}$/i.test(projectId) || !['contract', 'invoice'].includes(kind)) {
+  if (!(file instanceof File) || !/^[0-9a-f-]{36}$/i.test(clientId) ||
+      !/^[0-9a-f-]{36}$/i.test(projectId) || !['contract', 'invoice'].includes(kind)) {
     return errorMessage('dados_invalidos');
   }
   if (file.size === 0 || file.size > MAX_FILE_BYTES) return response({ error: 'arquivo_invalido_ou_grande' }, 413);
+  // O nome deve ser PDF também; não entregar conteúdo com extensão executável ao cliente.
+  if (!/\.pdf$/i.test(file.name || '')) return errorMessage('somente_pdf');
   const bytes = await file.arrayBuffer();
   const magic = new TextDecoder().decode(bytes.slice(0, 5));
   if (magic !== '%PDF-') return errorMessage('somente_pdf');
-  const project = await db.pool.query('SELECT id FROM portal_projects WHERE id = $1 LIMIT 1', [projectId]);
+  // Confirma no servidor a associação cliente/projeto antes de armazenar um arquivo privado.
+  const project = await db.pool.query(
+    'SELECT id FROM portal_projects WHERE id = $1 AND client_id = $2 LIMIT 1',
+    [projectId, clientId]
+  );
   if (!project.rowCount) return response({ error: 'projeto_nao_encontrado' }, 404);
   const key = randomUUID() + '.pdf';
   const store = storeFor(context);
