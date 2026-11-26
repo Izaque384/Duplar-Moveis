@@ -169,20 +169,20 @@ async function refreshProjects() {
 }
 $('documentClient').addEventListener('change', () => refreshProjects().catch(() => note('documentMessage', 'Não foi possível carregar os projetos.', true)));
 $('clientForm').addEventListener('submit', async e => {
-  e.preventDefault(); buttonBusy(e.currentTarget, true); note('clientMessage', '');
+  e.preventDefault(); const form=e.currentTarget; buttonBusy(form, true); note('clientMessage', '');
   try {
     const result = await api('admin/clients', { method: 'POST', body: { name: $('clientName').value, phone: $('clientPhone').value } });
     await refreshClients();
     $('projectClient').value = result.client.id;
     $('documentClient').value = result.client.id;
     await refreshProjects();
-    e.currentTarget.reset();
+    form.reset();
     note('clientMessage', 'Cliente cadastrado com sucesso.');
   } catch { note('clientMessage', 'Não foi possível salvar. Confira os dados e tente novamente.', true); }
-  finally { buttonBusy(e.currentTarget, false); }
+  finally { buttonBusy(form, false); }
 });
 $('projectForm').addEventListener('submit', async e => {
-  e.preventDefault(); buttonBusy(e.currentTarget, true); note('projectMessage', '');
+  e.preventDefault(); const form=e.currentTarget; buttonBusy(form, true); note('projectMessage', '');
   try {
     const budgetText = $('projectBudget').value.trim();
     const budgetCents = budgetText ? Math.round(Number(budgetText) * 100) : null;
@@ -197,16 +197,16 @@ $('projectForm').addEventListener('submit', async e => {
     await api('admin/projects', { method: 'POST', body: data });
     $('documentClient').value = data.clientId;
     await refreshProjects();
-    e.currentTarget.reset();
+    form.reset();
     await refreshClients();
     $('projectClient').value = data.clientId;
     await refreshClientProjects();
     note('projectMessage', 'Projeto cadastrado. Já pode enviar contrato e nota fiscal.');
   } catch { note('projectMessage', 'Não foi possível salvar este projeto.', true); }
-  finally { buttonBusy(e.currentTarget, false); }
+  finally { buttonBusy(form, false); }
 });
 $('documentForm').addEventListener('submit', async e => {
-  e.preventDefault(); buttonBusy(e.currentTarget, true); note('documentMessage', '');
+  e.preventDefault(); const form=e.currentTarget; buttonBusy(form, true); note('documentMessage', '');
   try {
     const file = $('documentFile').files[0];
     if (!file || !file.name.toLowerCase().endsWith('.pdf') || file.size > 4 * 1024 * 1024) {
@@ -221,7 +221,7 @@ $('documentForm').addEventListener('submit', async e => {
     $('documentFile').value = '';
     note('documentMessage', 'Documento enviado. O cliente já poderá baixá-lo na área dele.');
   } catch { note('documentMessage', 'Não foi possível enviar. Verifique o projeto e o PDF (até 4 MB).', true); }
-  finally { buttonBusy(e.currentTarget, false); }
+  finally { buttonBusy(form, false); }
 });
 
 let invitationToken = null;
@@ -232,32 +232,32 @@ function showAuthScreen(formId) {
 }
 function authNote(message, error=false) { note('authMessage',message,error); }
 $('adminLoginForm').addEventListener('submit',async e=>{
-  e.preventDefault();buttonBusy(e.currentTarget,true);authNote('');
+  e.preventDefault();const form=e.currentTarget;buttonBusy(form,true);authNote('');
   try{
     await api('admin-auth/login',{method:'POST',body:{email:$('adminEmail').value,password:$('adminPassword').value}});
     $('adminPassword').value='';
     await loadAdmin();
   }catch(err){
     authNote(err.message==='acesso_temporariamente_bloqueado'?'Muitas tentativas. Tente novamente após 15 minutos.':err.message==='erro_interno'?'O serviço ainda não está configurado.':'E-mail ou senha incorretos.',true);
-  }finally{buttonBusy(e.currentTarget,false);}
+  }finally{buttonBusy(form,false);}
 });
 $('adminBootstrapForm').addEventListener('submit',async e=>{
-  e.preventDefault();buttonBusy(e.currentTarget,true);authNote('');
+  e.preventDefault();const form=e.currentTarget;buttonBusy(form,true);authNote('');
   try {
     await api('admin-auth/bootstrap',{method:'POST',body:{name:$('bootstrapName').value,email:$('bootstrapEmail').value,password:$('bootstrapPassword').value,setupToken:$('bootstrapToken').value}});
     $('adminBootstrapForm').reset();showAuthScreen('adminLoginForm');authNote('Conta principal criada. Faça login com o e-mail e a senha cadastrados.');
   }catch(err){authNote(err.message==='ativacao_nao_configurada'?'A chave do primeiro acesso ainda não foi configurada no servidor.':'Não foi possível ativar. Verifique a chave e os dados.',true);}
-  finally{buttonBusy(e.currentTarget,false);}
+  finally{buttonBusy(form,false);}
 });
 $('adminInviteAcceptForm').addEventListener('submit',async e=>{
-  e.preventDefault();buttonBusy(e.currentTarget,true);authNote('');
+  e.preventDefault();const form=e.currentTarget;buttonBusy(form,true);authNote('');
   try{
     await api('admin-auth/accept',{method:'POST',body:{email:$('invitedEmail').value,password:$('invitedPassword').value,token:invitationToken}});
     invitationToken=null;
     $('adminInviteAcceptForm').reset();showAuthScreen('adminLoginForm');
     authNote('Sua senha foi cadastrada. Faça login para acessar a administração.');
   }catch{authNote('Convite inválido, expirado ou já utilizado. Solicite um novo ao responsável.',true);}
-  finally{buttonBusy(e.currentTarget,false);}
+  finally{buttonBusy(form,false);}
 });
 
 async function refreshClientAccessStatus() {
@@ -310,17 +310,17 @@ async function loadAdmin() {
   }
 }
 $('changePasswordForm').addEventListener('submit',async e=>{
-  e.preventDefault();buttonBusy(e.currentTarget,true);note('changePasswordMessage','');
+  e.preventDefault();const form=e.currentTarget;buttonBusy(form,true);note('changePasswordMessage','');
   try{
     await api('admin-auth/change-password',{method:'POST',body:{currentPassword:$('oldPassword').value,newPassword:$('newPassword').value}});
     $('changePasswordForm').reset();
     $('staffView').hidden=true;$('logout').hidden=true;showAuthScreen('adminLoginForm');
     authNote('Senha alterada. Faça login novamente com a nova senha.');
   }catch{note('changePasswordMessage','Não foi possível trocar a senha. Confira a senha atual e o mínimo de 12 caracteres.',true);}
-  finally{buttonBusy(e.currentTarget,false);}
+  finally{buttonBusy(form,false);}
 });
 $('inviteAdminForm').addEventListener('submit',async e=>{
-  e.preventDefault();buttonBusy(e.currentTarget,true);note('inviteAdminMessage','');
+  e.preventDefault();const form=e.currentTarget;buttonBusy(form,true);note('inviteAdminMessage','');
   try{
     const created=await api('admin-auth/invite',{method:'POST',body:{name:$('inviteName').value,email:$('inviteEmail').value}});
     $('invitationLink').value=location.origin+'/admin#convite='+created.invitationToken;
@@ -328,7 +328,7 @@ $('inviteAdminForm').addEventListener('submit',async e=>{
     $('inviteAdminForm').reset();
     note('inviteAdminMessage','Convite individual gerado. Válido por 24 horas. Envie o link em um canal privado.');
   }catch{note('inviteAdminMessage','Não foi possível criar o convite. Confira os dados.',true);}
-  finally{buttonBusy(e.currentTarget,false);}
+  finally{buttonBusy(form,false);}
 });
 $('copyInvitation').addEventListener('click',async()=>{
   try{await navigator.clipboard.writeText($('invitationLink').value);note('inviteAdminMessage','Link copiado. Compartilhe somente com o destinatário.');}
