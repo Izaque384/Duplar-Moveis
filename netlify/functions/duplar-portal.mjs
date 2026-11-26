@@ -30,6 +30,29 @@ function normalizePhone(input) {
   if (digits.length === 10 || digits.length === 11) digits = '55' + digits;
   return /^55[0-9]{10,11}$/.test(digits) ? digits : null;
 }
+
+/* Diagnóstico sem valores sensíveis, visível somente ao responsável principal. */
+function clientAccessReadiness() {
+  const otpSecret = env('PORTAL_OTP_SECRET');
+  const accessToken = env('META_WHATSAPP_TOKEN');
+  const phoneNumberId = env('META_PHONE_NUMBER_ID');
+  const templateName = env('META_AUTH_TEMPLATE') || 'duplar_codigo_acesso';
+  const supportPhone = normalizePhone(env('PORTAL_SUPPORT_WHATSAPP'));
+  const checks = {
+    otpSecret: otpSecret.length >= 32,
+    metaToken: Boolean(accessToken.trim()),
+    phoneNumberId: /^[0-9]{5,25}$/.test(phoneNumberId),
+    supportPhone: Boolean(supportPhone)
+  };
+  return {
+    checks,
+    templateName: /^[a-z0-9_]{1,512}$/.test(templateName) ? templateName : 'Nome inválido',
+    configurationComplete: checks.otpSecret && checks.metaToken && checks.phoneNumberId,
+    templateApprovalVerified: false,
+    deliveryTested: false
+  };
+}
+
 function sha(value) {
   return createHash('sha256').update(value).digest('hex');
 }
@@ -325,6 +348,10 @@ export default async function handler(req, context) {
     if (method === 'GET' && route === 'projects') return await clientData(db, user);
     if (method === 'GET' && route.startsWith('document/')) return await documentDownload(db, user, route.slice(9), context);
     if (!user.admin) return response({ error: 'acesso_negado' }, 403);
+    if (method === 'GET' && route === 'admin/client-access-status') {
+      if (user.role !== 'owner') return response({ error: 'acesso_negado' }, 403);
+      return response(clientAccessReadiness());
+    }
     if (method === 'GET' && route === 'admin/clients') return await adminClients(db);
     if (method === 'GET' && route === 'admin/projects') return await adminProjects(db, req);
     if (method === 'POST' && route === 'admin/clients') return await createClient(db, req);
