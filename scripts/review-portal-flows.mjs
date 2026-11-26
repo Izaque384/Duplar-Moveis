@@ -23,6 +23,7 @@ async function adminFlow(browser) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   const errors = [];
   const receivedUploads = [];
+  const requests = [];
   let signedIn = false;
   page.on('pageerror', e => errors.push(e.message));
   await page.route('**/api/duplar/**', async route => {
@@ -30,6 +31,7 @@ async function adminFlow(browser) {
     const url = new URL(req.url());
     const path = url.pathname.replace('/api/duplar/', '');
     const method = req.method();
+    requests.push(method+' '+path);
     if (path === 'session') return json(route, signedIn ? {authenticated:true, admin:true, name:'Responsável de teste', email:'teste@example.org', role:'owner'} : {authenticated:false}, signedIn ? 200 : 401);
     if (path === 'admin-auth/status') return json(route, { initialized:true });
     if (path === 'admin-auth/login' && method === 'POST') { signedIn = true; return json(route, {ok:true}); }
@@ -69,7 +71,10 @@ async function adminFlow(browser) {
   await page.locator('#clientName').fill('Cliente Teste C');
   await page.locator('#clientPhone').fill('88993333333');
   await page.locator('#clientForm button[type="submit"]').click();
-  await page.waitForFunction(() => document.querySelector('#clientMessage')?.textContent?.includes('sucesso'));
+  await page.waitForTimeout(1200);
+  const clientMessage = await page.locator('#clientMessage').textContent();
+  const clientValid = await page.locator('#clientForm').evaluate(form=>form.checkValidity());
+  ensure(clientMessage?.includes('sucesso'), 'Admin: failed client registration; msg='+JSON.stringify(clientMessage)+' valid='+clientValid+' requests='+JSON.stringify(requests)+' browserErrors='+JSON.stringify(errors));
   ensure(clients.length === 3,'Admin: client creation did not reach API');
   await page.locator('[data-admin-view="projects"]').click();
   await page.locator('#projectName').fill('Novo projeto de teste');
