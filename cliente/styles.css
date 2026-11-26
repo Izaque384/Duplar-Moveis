@@ -758,3 +758,22 @@
     overflow-wrap: anywhere;
   }
 }
+
+
+/* Em telas estreitas, o breadcrumb cede espaço aos botões reais do cabeçalho. */
+@media (max-width: 480px) {
+  #dashboard .portal-header { padding-inline: 12px; gap: 7px; }
+  #dashboard .portal-breadcrumb { min-width: 0; gap: 0; }
+  #dashboard .portal-breadcrumb > span { display: none; }
+  #dashboard .portal-breadcrumb strong {
+    display: block; min-width: 0; font-size: .66rem;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  #dashboard .portal-header-actions { flex: 0 0 auto; gap: 8px; }
+  #dashboard .top-home { padding-inline: 8px; }
+}
+@media (max-width: 360px) {
+  #dashboard .portal-breadcrumb { display: none; }
+  #dashboard .portal-header { justify-content: space-between; }
+  #dashboard .portal-header-actions { margin-left: auto; }
+}
