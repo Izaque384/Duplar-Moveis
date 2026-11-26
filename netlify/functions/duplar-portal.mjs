@@ -84,7 +84,13 @@ async function jsonBody(req, maximum = 5000) {
   if (Number(req.headers.get('content-length') || '0') > maximum) throw new Error('body-too-large');
   const str = await req.text();
   if (str.length > maximum) throw new Error('body-too-large');
-  return JSON.parse(str);
+  try {
+    const data = JSON.parse(str);
+    if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('json_invalido');
+    return data;
+  } catch {
+    throw new Error('json_invalido');
+  }
 }
 function errorMessage(code) {
   return response({ error: code }, 400);
@@ -369,6 +375,8 @@ export default async function handler(req, context) {
     if (method === 'POST' && route === 'admin/documents') return await uploadDocument(db, req, context);
     return response({ error: 'nao_encontrado' }, 404);
   } catch (error) {
+    if (error?.message === 'body-too-large') return response({ error: 'requisicao_muito_grande' }, 413);
+    if (error?.message === 'json_invalido') return errorMessage('json_invalido');
     console.error('Duplar portal: falha interna', error?.name || 'unknown');
     return response({ error: 'erro_interno' }, 500);
   }
