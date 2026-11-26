@@ -297,3 +297,47 @@ test('botão WhatsApp é responsivo sem rolagem horizontal em celulares',()=>{
  assert.ok(css.includes('white-space: normal;'));
  assert.ok(css.includes('max-width: 100%;'));
 });
+
+test('upload privado exige cliente e projeto associados no servidor',()=>{
+ const api=readFileSync('netlify/functions/duplar-portal.mjs','utf8');
+ const js=readFileSync('equipe.js','utf8');
+ assert.ok(api.includes("String(form.get('clientId') || '')"),'Falta vincular cliente no payload');
+ assert.ok(api.includes("'SELECT id FROM portal_projects WHERE id = $1 AND client_id = $2 LIMIT 1'"),'Associação cliente/projeto não validada');
+ assert.ok(api.includes('[projectId, clientId]'),'Parâmetros do vínculo ausentes');
+ assert.ok(api.includes("if (!/\\.pdf$/i.test(file.name || ''))"),'Extensão PDF não validada');
+ assert.ok(js.includes("form.append('clientId', $('documentClient').value)"),'Frontend não envia cliente');
+ assert.ok(js.includes("requestId !== documentProjectsRequest"),'Respostas atrasadas podem misturar clientes');
+ assert.ok(js.includes("select.disabled = true"),'Seleção de projeto deve aguardar nova consulta');
+});
+
+test('fluxos privados filtram documentos por cliente e impedem projetos de clientes inativos',()=>{
+ const api=readFileSync('netlify/functions/duplar-portal.mjs','utf8');
+ assert.ok(api.includes('WHERE p.client_id = $1 ORDER BY d.created_at DESC'),'Documentos da sessão não filtrados');
+ assert.ok(api.includes('WHERE d.id = $1 AND ($2::boolean OR p.client_id = $3::uuid)'),'Download não verifica o proprietário');
+ assert.ok(api.includes("SELECT id FROM portal_clients WHERE id = $1 AND active = true LIMIT 1"),'Projetos não devem ser criados para cliente inativo');
+ assert.ok(api.includes("if (!user.admin) return response({ error: 'acesso_negado' }, 403)"),'Ações administrativas devem exigir sessão');
+ assert.ok(api.includes("if (user.role !== 'owner') return response({ error: 'acesso_negado' }, 403)"),'Diagnóstico Meta deve exigir responsável');
+});
+
+test('páginas privadas recusam enquadramento em outros sites e não enviam referer',()=>{
+ const config=readFileSync('netlify.toml','utf8');
+ for(const path of ['/cliente/*','/equipe.html','/admin','/admin/']){
+   const section=config.split('for = "'+path+'"')[1]?.split('[[headers]]')[0] || '';
+   assert.ok(section.includes('X-Frame-Options = "DENY"'),'Proteção de iframe ausente em '+path);
+   assert.ok(section.includes('Referrer-Policy = "no-referrer"'),'Referrer ausente em '+path);
+   assert.ok(section.includes('Content-Security-Policy = "frame-ancestors \'none\'"'),'CSP ausente em '+path);
+ }
+});
+
+test('todos os formulários assíncronos guardam a referência antes de await',()=>{
+ const admin=readFileSync('equipe.js','utf8');
+ const submitHandlers=(admin.match(/addEventListener\('submit',\s*async e\s*=>/g)||[]).length;
+ const captured=(admin.match(/const form=e\.currentTarget;/g)||[]).length;
+ assert.equal(submitHandlers,8);
+ assert.equal(captured,submitHandlers,'Todos os 8 formulários precisam reter o formulário');
+ assert.equal((admin.match(/e\.currentTarget/g)||[]).length,submitHandlers,'Não acessar currentTarget depois de await');
+ assert.ok(!admin.includes('e.currentTarget.reset()'));
+ assert.ok(!admin.includes('buttonBusy(e.currentTarget'));
+ assert.ok(admin.includes('form.reset()'));
+ assert.ok(admin.includes('buttonBusy(form,false)'));
+});
