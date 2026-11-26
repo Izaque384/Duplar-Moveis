@@ -6,8 +6,13 @@ on:
     paths:
       - cliente/**
       - .github/workflows/client-portal-review.yml
-      - index.html
-      - theme-monochrome.css
+      - netlify/functions/duplar-portal.mjs
+  pull_request:
+    branches: [develop]
+    paths:
+      - cliente/**
+      - .github/workflows/client-portal-review.yml
+      - netlify/functions/duplar-portal.mjs
   workflow_dispatch:
 
 permissions:
@@ -18,131 +23,73 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - name: Check JavaScript syntax and required files
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify portal syntax and source
         run: |
           node --check cliente/app.js
-          test -f cliente/index.html
-          test -f cliente/styles.css
-          test -f cliente/README.md
-          grep -q 'name="robots" content="noindex, nofollow"' cliente/index.html
-      - name: Install visual testing browser
+          node --check netlify/functions/duplar-portal.mjs
+          node --test tests/portal-static.test.mjs
+      - name: Install browser for smoke tests
         run: |
           npm install --no-save --silent playwright@1.56.1
           npx playwright install --with-deps chromium
-      - name: Inspect customer experience across devices
+      - name: Test the four client screens at common viewport sizes
         run: |
           python3 -m http.server 4173 > /tmp/duplar-client-http.log 2>&1 &
           mkdir -p portal-review
           node <<'NODE'
           const { chromium } = require('playwright');
-          (async () => {
-            const browser = await chromium.launch({headless: true});
-            const sizes = [
-              {name:'desktop',w:1440,h:900},
-              {name:'laptop',w:1024,h:768},
-              {name:'tablet',w:768,h:1024},
-              {name:'mobile',w:390,h:844},
-              {name:'compact',w:320,h:568},
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const variants=[
+              {label:'desktop',width:1440,height:900},
+              {label:'laptop',width:1024,height:768},
+              {label:'tablet',width:768,height:1024},
+              {label:'phone',width:390,height:844},
+              {label:'compact',width:320,height:568},
             ];
-            const base = 'http://127.0.0.1:4173/cliente/';
-            for (const config of sizes) {
-              const page = await browser.newPage({viewport:{width:config.w,height:config.h},deviceScaleFactor:1});
+            const views=['contratos','notas','projeto','atendimento'];
+            for(const size of variants){
+              const page=await browser.newPage({viewport:{width:size.width,height:size.height},deviceScaleFactor:1});
               const errors=[];
               page.on('pageerror',e=>errors.push(e.message));
               await page.emulateMedia({reducedMotion:'reduce'});
-              await page.goto(base,{waitUntil:'domcontentloaded'});
-              await page.locator('[data-show-demo]').waitFor({state:'visible'});
-              if(await page.locator('#dashboard').isVisible()) throw Error(config.name+' demo unexpectedly shown');
-              const checkOverflow=async (label) => {
-                const dims=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,client:innerWidth}));
-                if(dims.scroll>dims.client+2) throw Error(config.name+' '+label+' overflow: '+JSON.stringify(dims));
-              };
-              await checkOverflow('entry');
-              const entryFrame=await page.evaluate(()=>{
-                const rect=selector=>document.querySelector(selector).getBoundingClientRect();
-                const entry=rect('#entryScreen');
-                const header=rect('.entry-header');
-                const copy=rect('.entry-copy');
-                const card=rect('.entry-card');
-                const cta=rect('.entry-card [data-show-demo]');
-                const footer=rect('.entry-footer');
-                return {
-                  viewport:innerHeight,
-                  entryHeight:entry.height,
-                  pageHeight:document.documentElement.scrollHeight,
-                  headerBottom:header.bottom,
-                  copyTop:copy.top,
-                  copyBottom:copy.bottom,
-                  cardTop:card.top,
-                  cardBottom:card.bottom,
-                  ctaTop:cta.top,
-                  ctaBottom:cta.bottom,
-                  footerTop:footer.top,
-                  footerBottom:footer.bottom
-                };
-              });
-              if(Math.abs(entryFrame.entryHeight-entryFrame.viewport)>2 ||
-                 entryFrame.pageHeight>entryFrame.viewport+2 ||
-                 entryFrame.copyTop<entryFrame.headerBottom-2 ||
-                 entryFrame.cardTop<entryFrame.headerBottom-2 ||
-                 entryFrame.copyBottom>entryFrame.footerTop+2 ||
-                 entryFrame.cardBottom>entryFrame.footerTop+2 ||
-                 entryFrame.ctaBottom>entryFrame.footerTop+2 ||
-                 entryFrame.footerBottom>entryFrame.viewport+2)
-                throw Error(config.name+' entry should fit exactly one viewport without clipped content: '+JSON.stringify(entryFrame));
-              console.log('PASS single-screen client entry '+config.name+' '+JSON.stringify(entryFrame));
-              await page.screenshot({path:'portal-review/'+config.name+'-entrada.png',fullPage:true,animations:'disabled'});
-              await page.locator('[data-show-demo]').click();
-              if(!await page.locator('[data-panel="inicio"]').isVisible())throw Error(config.name+' overview not shown');
-              if(!page.url().includes('demo=1'))throw Error(config.name+' no demo url');
-              await checkOverflow('overview');
-              await page.screenshot({path:'portal-review/'+config.name+'-geral.png',fullPage:true,animations:'disabled'});
-              const views=['inicio','projeto','documentos','financeiro','atendimento','conta'];
-              for (const view of views) {
-                if(config.w<=1080) {
+              await page.goto('http://127.0.0.1:4173/cliente/?demo=1',{waitUntil:'domcontentloaded'});
+              await page.locator('#dashboard').waitFor({state:'visible'});
+              if(await page.locator('#entryScreen').isVisible())throw Error(size.label+': demo entry still visible');
+              if((await page.locator('#clientProfileName').textContent()).trim()!=='Visitante')throw Error(size.label+': demo profile must be anonymous');
+              if(await page.locator('.portal-view').count()!==4)throw Error(size.label+': expected four areas');
+              for(const key of views){
+                if(size.width<=1080){
                   await page.locator('#sidebarToggle').click();
-                  if(await page.locator('#sidebarToggle').getAttribute('aria-expanded')!=='true')throw Error('Drawer did not open');
+                  if(await page.locator('#sidebarToggle').getAttribute('aria-expanded')!=='true')throw Error(size.label+': mobile menu not expanded');
                 }
-                await page.locator('.side-link[data-view="'+view+'"]').click();
-                if(!await page.locator('[data-panel="'+view+'"]').isVisible()) throw Error(config.name+' '+view+' panel hidden');
-                if(await page.locator('.portal-view:not([hidden])').count()!==1) throw Error(config.name+' multiple panels visible');
-                if(await page.locator('.side-link[aria-current="page"]').count()!==1) throw Error(config.name+' active navigation missing');
-                if(!page.url().includes('secao='+view))throw Error(config.name+' '+view+' url incorrect');
-                await checkOverflow(view);
-                if(view==='documentos') {
-                  const button=page.locator('[data-detail-button]').first();
-                  await button.click();
-                  if(await button.getAttribute('aria-expanded')!=='true')throw Error('Document accordion did not expand');
-                  if(!await page.locator('#doc-one').isVisible())throw Error('Document details hidden');
-                  await page.screenshot({path:'portal-review/'+config.name+'-documentos.png',fullPage:true,animations:'disabled'});
-                }
-                if(view==='atendimento'){
-                  const href=await page.locator('.support-primary .primary-action').getAttribute('href');
-                  if(!href.startsWith('https://wa.me/558881734015?text='))throw Error('Wrong support WhatsApp');
-                }
+                await page.locator('.side-link[data-view="'+key+'"]').click();
+                if(!await page.locator('.portal-view[data-panel="'+key+'"]').isVisible())throw Error(size.label+': hidden view '+key);
+                if(await page.locator('.portal-view:visible').count()!==1)throw Error(size.label+': more than one active view');
+                const dimensions=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,width:innerWidth}));
+                if(dimensions.scroll>dimensions.width+2)throw Error(size.label+': horizontal overflow in '+key+' '+JSON.stringify(dimensions));
+                await page.screenshot({path:'portal-review/'+size.label+'-'+key+'.png',fullPage:true,animations:'disabled'});
               }
-              await page.locator('.top-exit').click();
-              if(!await page.locator('#entryScreen').isVisible())throw Error('Exit demo failed');
-              if(page.url().includes('demo=1'))throw Error('Demo query was not removed');
-              if(errors.length)throw Error(config.name+' browser errors: '+errors.join('; '));
-              console.log('PASS '+config.name+' entry + 6 views + docs + support + exit');
+              if((await page.locator('#contractsCount').textContent()).trim()!=='0')throw Error(size.label+': demo should have no actual documents');
+              if(await page.locator('.client-download-action').count()!==0)throw Error(size.label+': demo exposed document download');
+              const destination=await page.locator('#supportLink').getAttribute('href');
+              if(!destination.startsWith('https://wa.me/'))throw Error(size.label+': support WhatsApp not configured as a link');
+              await page.locator('#topExit').click();
+              await page.locator('#entryScreen').waitFor({state:'visible'});
+              if(errors.length)throw Error(size.label+': JavaScript errors '+errors.join('; '));
+              console.log('PASS '+size.label+' four areas and logout');
               await page.close();
             }
-            const direct=await browser.newPage();
-            await direct.goto(base+'?demo=1&secao=financeiro',{waitUntil:'domcontentloaded'});
-            if(!await direct.locator('[data-panel="financeiro"]').isVisible())throw Error('Direct demo link failed');
-            if(!await direct.locator('.demo-notice').isVisible())throw Error('Sample data disclaimer missing');
-            await direct.goto('http://127.0.0.1:4173/',{waitUntil:'domcontentloaded'});
-            const nav=await direct.locator('a.nav-client').getAttribute('href');
-            if(nav!=='cliente/')throw Error('Institutional navigation to client portal missing');
-            console.log('PASS direct links and main-site navigation');
             await browser.close();
-          })().catch(e=>{console.error(e);process.exit(1)});
+          })().catch(err=>{console.error(err);process.exit(1);});
           NODE
-      - name: Publish interface review screenshots
+      - name: Upload portal visual review screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: duplar-client-portal-preview
+          name: duplar-client-portal-visual
           path: portal-review/
-          retention-days: 14
+          if-no-files-found: ignore
