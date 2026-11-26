@@ -466,3 +466,35 @@ body:has(#staffView:not([hidden])) > .portal-main {
   .admin-shell .staff-card { padding: 20px 17px; }
   .admin-workspace-footer { padding-inline: 17px; }
 }
+
+
+/* Diagnóstico de ativação do WhatsApp — apenas responsável principal. */
+.admin-otp-panel { grid-column: 1 / -1; }
+.admin-shell .otp-summary {
+  margin: 0 0 18px;
+  padding: 15px 18px;
+  border: 1px solid #474c50;
+  border-radius: 6px;
+  background: #272a2e;
+  color: #e3e4e1;
+  font-size: 13px;
+}
+.admin-shell .otp-status-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0 24px; }
+.admin-shell .otp-status-list > div {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 12px; min-width: 0;
+  padding: 16px 2px; border-bottom: 1px solid #414548;
+}
+.admin-shell .otp-status-list > div > span { color: #c4c7c6; font-size: 12px; }
+.admin-shell .otp-status-list strong {
+  color: #b2b6b7; font: 11px/1.45 var(--mono); text-align: right;
+  overflow-wrap: anywhere;
+}
+.admin-shell .otp-status-list strong.is-configured { color: #f3f1ee; }
+.admin-shell .otp-footer-actions { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-top: 25px; }
+.admin-shell .otp-footer-actions > span { max-width: 570px; font-size: 12px; color: #a6abac; line-height: 1.6; }
+.admin-shell .otp-footer-actions button:disabled { opacity: .55; cursor: progress; }
+@media(max-width:650px) {
+  .admin-shell .otp-status-list { grid-template-columns: 1fr; }
+  .admin-shell .otp-status-list > div { flex-wrap: wrap; }
+}

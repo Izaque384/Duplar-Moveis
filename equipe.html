@@ -220,6 +220,27 @@
               <div class="admin-subsection-title">Equipe cadastrada</div>
               <div id="adminUsers" class="staff-data"></div>
             </section>
+            <section class="staff-card admin-otp-panel" id="otpPanel" hidden aria-labelledby="otpTitle">
+              <div class="admin-card-heading">
+                <div>
+                  <span class="overline">PORTAL DO CLIENTE</span>
+                  <h2 id="otpTitle">Acesso pelo WhatsApp</h2>
+                  <p>Confira se o envio de códigos está configurado para os clientes.</p>
+                </div>
+              </div>
+              <p id="otpSummary" class="otp-summary" role="status" aria-live="polite">Verificando configuração...</p>
+              <div class="otp-status-list" aria-label="Configurações necessárias">
+                <div><span>Chave de autenticação</span><strong id="otpSecretState">Verificando...</strong></div>
+                <div><span>Token de envio da Meta</span><strong id="otpMetaTokenState">Verificando...</strong></div>
+                <div><span>Número remetente da Meta</span><strong id="otpPhoneIdState">Verificando...</strong></div>
+                <div><span>WhatsApp de atendimento</span><strong id="otpSupportState">Verificando...</strong></div>
+                <div><span>Modelo de mensagem</span><strong id="otpTemplateState">Verificando...</strong></div>
+              </div>
+              <div class="otp-footer-actions">
+                <button type="button" class="admin-small-button" id="refreshOtpStatus">Verificar novamente</button>
+                <span>O status não confirma aprovação do modelo na Meta nem entrega de mensagens. Faça um teste com um cliente autorizado antes de liberar o acesso.</span>
+              </div>
+            </section>
           </div>
         </section>
       </div>
