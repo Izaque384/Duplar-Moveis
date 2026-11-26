@@ -741,3 +741,20 @@
   #dashboard .project-switcher { align-items: flex-start; flex-direction: column; gap: 9px; padding: 15px; }
   #dashboard .project-switcher select { max-width: 100%; width: 100%; }
 }
+
+
+/* Evita que o CTA do WhatsApp alargue a tela em celulares compactos. */
+@media (max-width: 480px) {
+  #dashboard .client-contact-panel,
+  #dashboard .client-contact-main,
+  #dashboard .client-contact-main > div { min-width: 0; max-width: 100%; }
+  #dashboard .client-contact-panel { overflow-wrap: anywhere; }
+  #dashboard .client-whatsapp-action {
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+    gap: 12px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
