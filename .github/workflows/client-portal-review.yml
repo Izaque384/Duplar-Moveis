@@ -92,6 +92,7 @@ jobs:
             await browser.close();
           })().catch(err=>{console.error(err);process.exit(1);});
           NODE
+          node scripts/review-portal-flows.mjs
       - name: Upload portal visual review screenshots
         if: always()
         uses: actions/upload-artifact@v4
