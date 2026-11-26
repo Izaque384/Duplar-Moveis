@@ -328,3 +328,16 @@ test('páginas privadas recusam enquadramento em outros sites e não enviam refe
    assert.ok(section.includes('Content-Security-Policy = "frame-ancestors \'none\'"'),'CSP ausente em '+path);
  }
 });
+
+test('todos os formulários assíncronos guardam a referência antes de await',()=>{
+ const admin=readFileSync('equipe.js','utf8');
+ const submitHandlers=(admin.match(/addEventListener\('submit',\s*async e\s*=>/g)||[]).length;
+ const captured=(admin.match(/const form=e\.currentTarget;/g)||[]).length;
+ assert.equal(submitHandlers,8);
+ assert.equal(captured,submitHandlers,'Todos os 8 formulários precisam reter o formulário');
+ assert.equal((admin.match(/e\.currentTarget/g)||[]).length,submitHandlers,'Não acessar currentTarget depois de await');
+ assert.ok(!admin.includes('e.currentTarget.reset()'));
+ assert.ok(!admin.includes('buttonBusy(e.currentTarget'));
+ assert.ok(admin.includes('form.reset()'));
+ assert.ok(admin.includes('buttonBusy(form,false)'));
+});
