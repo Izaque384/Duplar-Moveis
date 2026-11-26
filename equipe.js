@@ -150,13 +150,22 @@ $('projectClient').addEventListener('change',()=>{
     $('projectsList').replaceChildren(emptyContent('Não foi possível carregar os projetos.'));
   });
 });
+let documentProjectsRequest = 0;
 async function refreshProjects() {
+  const requestId = ++documentProjectsRequest;
   const id = $('documentClient').value;
   const select = $('documentProject');
   select.replaceChildren(option('', 'Selecione um projeto'));
+  select.disabled = true;
   if (!id) return;
-  const data = await api('admin/projects?client=' + encodeURIComponent(id));
-  data.projects.forEach(p => select.append(option(p.id, p.title)));
+  try {
+    const data = await api('admin/projects?client=' + encodeURIComponent(id));
+    // Ignora respostas antigas: nunca mostrar projeto de outro cliente no formulário.
+    if (requestId !== documentProjectsRequest || $('documentClient').value !== id) return;
+    data.projects.forEach(p => select.append(option(p.id, p.title)));
+  } finally {
+    if (requestId === documentProjectsRequest && $('documentClient').value === id) select.disabled = false;
+  }
 }
 $('documentClient').addEventListener('change', () => refreshProjects().catch(() => note('documentMessage', 'Não foi possível carregar os projetos.', true)));
 $('clientForm').addEventListener('submit', async e => {
@@ -204,6 +213,7 @@ $('documentForm').addEventListener('submit', async e => {
       throw new Error('invalid');
     }
     const form = new FormData();
+    form.append('clientId', $('documentClient').value);
     form.append('projectId', $('documentProject').value);
     form.append('kind', $('documentType').value);
     form.append('file', file, file.name);
