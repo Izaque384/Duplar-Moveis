@@ -14,6 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate application, secure portal and build
+        run: |
+          npm test
+          npm run build
       - name: Validate JavaScript syntax
         run: |
           node --check script.js
@@ -73,7 +80,7 @@ jobs:
           assert 'href="#processo"' not in html, 'Broken process navigation link'
           assert 'class="diferenciais cine-section"' in html, 'Full-screen cinematic section missing'
           assert html.count('class="cine-scene') == 4, 'Four cinematic moments required'
-          assert html.count('data-cine-still=') == 4, 'Four static fallback photos required'
+          assert 'data-cine-still=' not in html, 'Old cinematic fallback pictures should not return'
           assert 'data-cine-go=' not in html, 'Numbered cinematic indicators should be removed'
           assert 'id="cinePrevious"' not in html and 'id="cineNext"' not in html, 'Old navigation buttons should be absent'
           assert 'id="cineVideo"' in html and 'id="cinePlayToggle"' not in html, 'Video must not display a pause control'
@@ -89,7 +96,7 @@ jobs:
           assert 'font-size: clamp(1.35rem, 2.05vw, 1.9rem);' in cinematic_css, 'Cinematic question needs editorial prominence'
           assert 'cine-play-toggle' not in html and '.cine-play-toggle' not in cinematic_css, 'Pause UI still present'
           assert 'duplar-detalhes-wide.mp4' in html and 'duplar-detalhes-mobile.mp4' in html, 'Responsive video sources absent'
-          assert 'duplar-detalhes-poster.jpg' in html, 'Cinematic poster absent'
+          assert 'poster="assets/video/duplar-detalhes-poster.jpg"' not in html, 'Old cinematic poster should not flash'
           assert 'data-cine-scene=' in html and 'sceneStart = [0, 5.25, 10.25, 15.25]' in js, 'Cinematic subtitles missing synchronization'
           assert 'prefers-reduced-motion' in js and 'navigator.connection' in js, 'Reduced-motion and data-saver fallbacks missing'
           assert 'SEÇÃO 03 / EXPERIÊNCIA CINEMATOGRÁFICA' in Path('theme-monochrome.css').read_text(encoding='utf-8'), 'Cinematic styles absent'
@@ -126,12 +133,12 @@ jobs:
           portal_css=Path('cliente/styles.css').read_text(encoding='utf-8')
           portal_js=Path('cliente/app.js').read_text(encoding='utf-8')
           assert 'href="cliente/"' in html, 'Client portal navigation missing'
-          assert 'name="robots" content="noindex, nofollow"' in portal_html, 'Client demo must not be indexed'
-          assert 'demo' in portal_js and 'showDemo' in portal_js, 'Client experience unavailable'
-          assert 'autenticação' in portal_html.lower(), 'Demo must not imply real login'
+          assert 'name="robots" content="noindex,nofollow"' in portal_html, 'Client demo must not be indexed'
+          assert 'demo' in portal_js and 'showDashboard' in portal_js, 'Client experience unavailable'
+          assert 'id="phoneForm"' in portal_html and 'id="codeForm"' in portal_html, 'OTP login elements missing'
           assert 'assets/img/' in portal_html, 'Client portal must share Duplar branding'
-          assert all('data-panel="'+p+'"' in portal_html for p in ('inicio','projeto','documentos','financeiro','atendimento','conta')), 'Client sections incomplete'
-          assert 'data-detail-button' in portal_html, 'Document preview controls missing'
+          assert all('data-panel="'+p+'"' in portal_html for p in ('contratos','notas','projeto','atendimento')), 'Four client screens incomplete'
+          assert 'id="contractsList"' in portal_html and 'id="invoicesList"' in portal_html, 'Private document lists missing'
           assert 'https://wa.me/558881734015' in portal_html, 'Client support link missing'
           assert 'cor' in portal_css, 'Stylesheet missing or malformed'
           assert 'whatsappReady' in js, 'WhatsApp activation script missing'

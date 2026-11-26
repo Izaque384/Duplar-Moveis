@@ -249,6 +249,34 @@ $('adminInviteAcceptForm').addEventListener('submit',async e=>{
   }catch{authNote('Convite inválido, expirado ou já utilizado. Solicite um novo ao responsável.',true);}
   finally{buttonBusy(e.currentTarget,false);}
 });
+
+async function refreshClientAccessStatus() {
+  $('refreshOtpStatus').disabled=true;
+  try {
+    const status=await api('admin/client-access-status');
+    const rows=[
+      ['otpSecretState',status.checks?.otpSecret],
+      ['otpMetaTokenState',status.checks?.metaToken],
+      ['otpPhoneIdState',status.checks?.phoneNumberId],
+      ['otpSupportState',status.checks?.supportPhone]
+    ];
+    rows.forEach(([id,present])=>{
+      const element=$(id);
+      element.textContent=present?'Configurado':'Pendente';
+      element.classList.toggle('is-configured',Boolean(present));
+    });
+    $('otpTemplateState').textContent=status.templateName||'duplar_codigo_acesso';
+    $('otpSummary').textContent=status.configurationComplete
+      ? 'Credenciais presentes. Falta confirmar a aprovação do modelo e testar o envio real.'
+      : 'Configuração incompleta. O código por WhatsApp ainda não pode ser considerado ativo.';
+  } catch {
+    $('otpSummary').textContent='Não foi possível verificar a configuração. Atualize a página ou tente novamente.';
+  } finally {
+    $('refreshOtpStatus').disabled=false;
+  }
+}
+$('refreshOtpStatus').addEventListener('click',refreshClientAccessStatus);
+
 async function loadAdmin() {
   const session=await api('session');
   if(!session.admin)throw new Error('unauthorized');
@@ -256,6 +284,7 @@ async function loadAdmin() {
   $('adminTopUser').textContent=session.name||'Administrador';
   $('adminIdentity').textContent=(session.name||'Administrador')+' · '+(session.email||'')+' · '+(session.role==='owner'?'Responsável principal':'Administrador');
   $('ownerPanel').hidden=session.role!=='owner';
+  $('otpPanel').hidden=session.role!=='owner';
   const requested=location.hash.slice(1);
   showAdminView(Object.hasOwn(ADMIN_VIEW_LABELS,requested)?requested:'overview',false);
   try { await refreshClients(); } catch {
@@ -264,8 +293,10 @@ async function loadAdmin() {
     $('statClients').textContent='—';$('statProjects').textContent='—';$('statActiveClients').textContent='—';
   }
   if(session.role==='owner') {
-    try { await refreshAdminUsers(); }
-    catch { note('inviteAdminMessage','Não foi possível carregar a equipe. Atualize a página para tentar novamente.',true); }
+    await Promise.all([
+      refreshAdminUsers().catch(()=>note('inviteAdminMessage','Não foi possível carregar a equipe. Atualize a página para tentar novamente.',true)),
+      refreshClientAccessStatus()
+    ]);
   }
 }
 $('changePasswordForm').addEventListener('submit',async e=>{
