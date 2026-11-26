@@ -127,7 +127,7 @@ test('entrada do cliente sem título e instrução removidos, preservando login'
  const css=readFileSync('cliente/styles.css','utf8');
  assert.ok(css.includes('.entry-lead{font-size:clamp(1rem,1.5vw,1.2rem)'));
  assert.ok(!css.includes('#entryScreen .entry-copy .entry-lead'));
- assert.ok(css.includes('.entry-copy .entry-lead { margin-bottom: 0; }'));
+ assert.ok(css.includes('.entry-copy .entry-lead { margin-top: clamp(18px, 3svh, 30px); margin-bottom: 0; }'));
 });
 
 
