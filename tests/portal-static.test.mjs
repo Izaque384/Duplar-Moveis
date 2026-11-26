@@ -256,3 +256,35 @@ test('telas internas responsivas com botões e estados vazios, sem alterar login
  assert.ok(css.includes('@media (max-width: 480px)'));
  assert.ok(css.includes('grid-column: 1 / -1;'));
 });
+
+
+test('diagnóstico do acesso WhatsApp não expõe segredos e exige responsável principal',()=>{
+ const api=readFileSync('netlify/functions/duplar-portal.mjs','utf8');
+ const js=readFileSync('equipe.js','utf8');
+ const html=readFileSync('equipe.html','utf8');
+ const css=readFileSync('equipe.css','utf8');
+ const route="if (method === 'GET' && route === 'admin/client-access-status')";
+ const ownerCheck="if (user.role !== 'owner') return response({ error: 'acesso_negado' }, 403)";
+ assert.ok(api.includes(route));
+ assert.ok(api.includes(ownerCheck));
+ assert.ok(api.indexOf("if (!user.admin)")<api.indexOf(route));
+ assert.ok(api.indexOf(route)<api.indexOf("if (method === 'GET' && route === 'admin/clients')"));
+ const source=api.slice(api.indexOf('function clientAccessReadiness()'),api.indexOf('function sha(value)'));
+ for(const key of ['PORTAL_OTP_SECRET','META_WHATSAPP_TOKEN','META_PHONE_NUMBER_ID','PORTAL_SUPPORT_WHATSAPP']){
+   assert.ok(source.includes(key));
+ }
+ assert.ok(source.includes('templateApprovalVerified: false'));
+ assert.ok(source.includes('deliveryTested: false'));
+ assert.ok(source.includes('configurationComplete:'));
+ assert.ok(!source.includes('accessToken: accessToken'));
+ assert.ok(!source.includes('otpSecret: otpSecret,'));
+ for(const id of ['otpPanel','otpSummary','otpSecretState','otpMetaTokenState','otpPhoneIdState',
+  'otpSupportState','otpTemplateState','refreshOtpStatus']){
+   assert.match(html,new RegExp('id="'+id+'"'));
+ }
+ assert.ok(html.includes('id="otpPanel" hidden'));
+ assert.ok(js.includes("$('otpPanel').hidden=session.role!=='owner'"));
+ assert.ok(js.includes("await api('admin/client-access-status')"));
+ assert.ok(js.includes("refreshClientAccessStatus()"));
+ assert.ok(css.includes('.admin-otp-panel { grid-column: 1 / -1; }'));
+});
