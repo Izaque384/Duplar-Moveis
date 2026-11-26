@@ -288,3 +288,12 @@ test('diagnóstico do acesso WhatsApp não expõe segredos e exige responsável 
  assert.ok(js.includes("refreshClientAccessStatus()"));
  assert.ok(css.includes('.admin-otp-panel { grid-column: 1 / -1; }'));
 });
+
+
+test('botão WhatsApp é responsivo sem rolagem horizontal em celulares',()=>{
+ const css=readFileSync('cliente/styles.css','utf8');
+ assert.ok(css.includes('#dashboard .client-contact-panel { overflow-wrap: anywhere; }'));
+ assert.ok(css.includes('#dashboard .client-whatsapp-action {'));
+ assert.ok(css.includes('white-space: normal;'));
+ assert.ok(css.includes('max-width: 100%;'));
+});
