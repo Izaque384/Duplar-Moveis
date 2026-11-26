@@ -318,3 +318,13 @@ test('fluxos privados filtram documentos por cliente e impedem projetos de clien
  assert.ok(api.includes("if (!user.admin) return response({ error: 'acesso_negado' }, 403)"),'Ações administrativas devem exigir sessão');
  assert.ok(api.includes("if (user.role !== 'owner') return response({ error: 'acesso_negado' }, 403)"),'Diagnóstico Meta deve exigir responsável');
 });
+
+test('páginas privadas recusam enquadramento em outros sites e não enviam referer',()=>{
+ const config=readFileSync('netlify.toml','utf8');
+ for(const path of ['/cliente/*','/equipe.html','/admin','/admin/']){
+   const section=config.split('for = "'+path+'"')[1]?.split('[[headers]]')[0] || '';
+   assert.ok(section.includes('X-Frame-Options = "DENY"'),'Proteção de iframe ausente em '+path);
+   assert.ok(section.includes('Referrer-Policy = "no-referrer"'),'Referrer ausente em '+path);
+   assert.ok(section.includes('Content-Security-Policy = "frame-ancestors \'none\'"'),'CSP ausente em '+path);
+ }
+});
