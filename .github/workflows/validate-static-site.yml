@@ -1,0 +1,146 @@
+name: Validate Duplar static site
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [develop, main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate application, secure portal and build
+        run: |
+          npm test
+          npm run build
+      - name: Validate JavaScript syntax
+        run: |
+          node --check script.js
+          node --check cliente/app.js
+      - name: Validate links, media and placeholder safety
+        run: |
+          python3 - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          from urllib.parse import urlparse
+          import re
+
+          class SiteParser(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.ids=set()
+                  self.links=[]
+                  self.assets=[]
+                  self.images=0
+              def handle_starttag(self,tag,attrs):
+                  a=dict(attrs)
+                  if a.get('id'): self.ids.add(a['id'])
+                  if tag=='img': self.images += 1
+                  for key in ('src','data-full','data-webp','srcset'):
+                      if a.get(key): self.assets.extend(a[key].split(','))
+                  if tag=='a' and a.get('href','').startswith('#'): self.links.append(a['href'][1:])
+
+          html=Path('index.html').read_text(encoding='utf-8')
+          css=Path('styles.css').read_text(encoding='utf-8')
+          js=Path('script.js').read_text(encoding='utf-8')
+          p=SiteParser()
+          p.feed(html)
+          missing=[]
+          for entry in p.assets:
+              name=entry.strip().split(' ')[0]
+              if name.startswith('assets/') and not Path(name).is_file(): missing.append(name)
+          assert not missing, f'Missing images: {missing}'
+          bad=[a for a in p.links if a and a not in p.ids]
+          assert not bad, f'Broken section anchors: {bad}'
+          assert p.images >= 8, f'Unexpected image count: {p.images}'
+          assert '<!-- DEPOIMENTOS -->' not in html, 'Placeholder testimonials may not be published'
+          assert 'https://wa.me/55"' not in html, 'Incomplete WhatsApp link'
+          assert html.count('data-contact-cta') >= 4, 'Missing CTA entry points'
+          assert p.ids.issuperset({'topo','ambientes','depoimentos','diferenciais','contato'}), 'Missing essential sections'
+          assert 'Enquadramento editorial da navegação interna' in js, 'Section anchor framing handler missing'
+          assert "ambientes: { selector: '#ambientes .section-heading-row', mode: 'portfolio' }" in js, 'Portfolio must align its introduction'
+          assert "depoimentos: { selector: '#depoimentos .depoimento-grid', mode: 'center' }" in js, 'Testimonial framing missing'
+          assert "diferenciais: { selector: '#diferenciais', mode: 'full' }" in js, 'Cinema must retain full-viewport alignment'
+          assert "contato: { selector: '#contato .atendimento-grid', mode: 'center' }" in js, 'Contact framing missing'
+          assert "document.addEventListener('click', event =>" in js and 'window.history.pushState' in js, 'Native anchor interception and hash history missing'
+          assert "window.addEventListener('popstate', followHash)" in js and "window.addEventListener('hashchange', followHash)" in js, 'Navigation history handling missing'
+          assert 'section[id] { scroll-margin-top: 0; }' in Path('theme-monochrome.css').read_text(encoding='utf-8'), 'Compounded native anchor offsets still present'
+          assert '02 / DEPOIMENTOS' in html and '@fernando_prado31' in html, 'Instagram testimonial missing'
+          assert html.count('class="depoimento-citacao"') == 1, 'Expected one fixed testimonial only'
+          assert 'id="sobre"' not in html and 'href="#sobre"' not in html, 'Old about section reference'
+          assert 'id="processo"' not in html, 'Removed process section is still present'
+          assert 'href="#processo"' not in html, 'Broken process navigation link'
+          assert 'class="diferenciais cine-section"' in html, 'Full-screen cinematic section missing'
+          assert html.count('class="cine-scene') == 4, 'Four cinematic moments required'
+          assert 'data-cine-still=' not in html, 'Old cinematic fallback pictures should not return'
+          assert 'data-cine-go=' not in html, 'Numbered cinematic indicators should be removed'
+          assert 'id="cinePrevious"' not in html and 'id="cineNext"' not in html, 'Old navigation buttons should be absent'
+          assert 'id="cineVideo"' in html and 'id="cinePlayToggle"' not in html, 'Video must not display a pause control'
+          assert 'id="cineInstructions"' in html, 'Click-zone navigation instructions missing'
+          assert '<span class="cine-signature">Por que projetar em vez de comprar pronto?</span>' in html, 'Original question not restored'
+          assert "section.addEventListener('click', event =>" in js and "event.clientX - bounds.left" in js, 'Click-half navigation missing'
+          assert "event.key === 'ArrowLeft'" in js and "event.key === 'ArrowRight'" in js, 'Keyboard navigation missing'
+          assert 'hoverPaused' not in js, 'Hover must not pause the video'
+          assert 'refreshToggle' not in js and 'userPaused' not in js, 'Removed video pause logic still present'
+          cinematic_css=Path('theme-monochrome.css').read_text(encoding='utf-8')
+          assert '.cine-section { cursor: auto; }' in cinematic_css, 'Normal mouse cursor should be restored'
+          assert 'max-height: 100svh;' in cinematic_css, 'Cinematic section must fit one viewport'
+          assert 'font-size: clamp(1.35rem, 2.05vw, 1.9rem);' in cinematic_css, 'Cinematic question needs editorial prominence'
+          assert 'cine-play-toggle' not in html and '.cine-play-toggle' not in cinematic_css, 'Pause UI still present'
+          assert 'duplar-detalhes-wide.mp4' in html and 'duplar-detalhes-mobile.mp4' in html, 'Responsive video sources absent'
+          assert 'poster="assets/video/duplar-detalhes-poster.jpg"' not in html, 'Old cinematic poster should not flash'
+          assert 'data-cine-scene=' in html and 'sceneStart = [0, 5.25, 10.25, 15.25]' in js, 'Cinematic subtitles missing synchronization'
+          assert 'prefers-reduced-motion' in js and 'navigator.connection' in js, 'Reduced-motion and data-saver fallbacks missing'
+          assert 'SEÇÃO 03 / EXPERIÊNCIA CINEMATOGRÁFICA' in Path('theme-monochrome.css').read_text(encoding='utf-8'), 'Cinematic styles absent'
+          assert Path('VIDEO-DIFERENCIAIS-FONTES.md').is_file(), 'Licensed video source document missing'
+          assert Path('assets/video/duplar-detalhes-wide.mp4').is_file(), 'Desktop cinematic video missing'
+          assert Path('assets/video/duplar-detalhes-mobile.mp4').is_file(), 'Mobile cinematic video missing'
+          assert Path('assets/video/duplar-detalhes-poster.jpg').is_file(), 'Cinematic poster missing'
+          assert Path('assets/video/duplar-detalhes-wide.mp4').stat().st_size > 1_000_000, 'Desktop video too small'
+          assert Path('assets/video/duplar-detalhes-mobile.mp4').stat().st_size > 500_000, 'Mobile video too small'
+          assert '04 / ATENDIMENTO' in html, 'Contact section number missing'
+          assert 'class="atendimento-painel"' in html, 'Contact panel missing'
+          assert 'id="whatsBtn"' in html, 'Contact activation element missing'
+          assert 'contactNote' not in html, 'Removed contact note still present'
+          assert 'Vamos entender o seu espaço.' not in html, 'Removed headline still present'
+          assert 'O número oficial de atendimento será disponibilizado em breve.' not in html, 'Removed helper copy still present'
+          contact_section=html.split('<!-- ATENDIMENTO / CONVERSÃO FINAL -->',1)[1].split('</section>',1)[0]
+          assert '>DM<' not in contact_section and 'class="cta-marca"' not in contact_section, 'DM icons should be absent in contact section'
+          assert 'DUPLAR 2026 - PRIMEIRA REVISAO' in css, 'Visual revision CSS missing'
+          assert '<body data-whatsapp-number="558881734015">' in html, 'Provided WhatsApp number missing'
+          assert 'https://wa.me/558881734015' in html, 'Footer WhatsApp link missing'
+          assert 'https://www.instagram.com/duplar_moveis/' in html, 'Official Instagram link missing'
+          assert html.count('https://maps.app.goo.gl/RKPxFfgDnBxY4xmz5') == 1, 'Google Maps must appear only in footer'
+          assert 'Como chegar à Duplar' not in html and 'atendimento-localizacao' not in html, 'Old directions link still appears under WhatsApp'
+          assert html.count('class="footer-icon-link"') == 4, 'Footer must contain four icon-and-label links'
+          assert html.count('class="footer-link-label"') == 4, 'Every footer icon must have a visible label'
+          assert all('class="footer-link-label">'+label+'</span>' in html for label in ('WhatsApp','Instagram','Localização','Área do cliente')), 'Footer labels incomplete'
+          assert '<nav class="footer-socials"' in html, 'Compact social navigation missing'
+          assert all('aria-label="'+x in html for x in ('WhatsApp da Duplar Móveis','Instagram da Duplar Móveis','Localização da Duplar Móveis no Google Maps','Acessar área do cliente da Duplar Móveis')), 'Footer links need accessible names'
+          assert 'footer-contact-link' not in html and '<h4>Contato</h4>' not in html and '<h4>Redes</h4>' not in html, 'Old verbose footer remains'
+          assert 'Compact monochrome footer' in Path('theme-monochrome.css').read_text(encoding='utf-8'), 'Compact footer styles missing'
+          assert 'Atendimento no Ceará</p>' not in html, 'Old generic footer placeholder remains'
+          assert 'WhatsApp: aguardando confirmação' not in html and 'Instagram: aguardando confirmação' not in html, 'Old placeholders left in footer'
+          portal_html=Path('cliente/index.html').read_text(encoding='utf-8')
+          portal_css=Path('cliente/styles.css').read_text(encoding='utf-8')
+          portal_js=Path('cliente/app.js').read_text(encoding='utf-8')
+          assert 'href="cliente/"' in html, 'Client portal navigation missing'
+          assert 'name="robots" content="noindex,nofollow"' in portal_html, 'Client demo must not be indexed'
+          assert 'demo' in portal_js and 'showDashboard' in portal_js, 'Client experience unavailable'
+          assert 'id="phoneForm"' in portal_html and 'id="codeForm"' in portal_html, 'OTP login elements missing'
+          assert 'assets/img/' in portal_html, 'Client portal must share Duplar branding'
+          assert all('data-panel="'+p+'"' in portal_html for p in ('contratos','notas','projeto','atendimento')), 'Four client screens incomplete'
+          assert 'id="contractsList"' in portal_html and 'id="invoicesList"' in portal_html, 'Private document lists missing'
+          assert 'https://wa.me/558881734015' in portal_html, 'Client support link missing'
+          assert 'cor' in portal_css, 'Stylesheet missing or malformed'
+          assert 'whatsappReady' in js, 'WhatsApp activation script missing'
+          print('OK: all images, page sections, CTA links and revisions are present')
+          PY

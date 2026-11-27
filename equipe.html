@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Gestão de clientes | Duplar Móveis</title>
+<link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/equipe.css">
+<script src="/equipe.js" defer></script>
+</head>
+<body>
+<header class="portal-header">
+  <a class="brand" href="/" aria-label="Duplar Móveis — site"><img src="/assets/img/logo-marca.png" alt="" width="44" height="44"><span>DUPLAR <small>MÓVEIS</small></span></a>
+  <div class="header-end"><a href="/cliente/" class="header-link">Portal do cliente</a></div>
+</header>
+<main class="portal-main">
+  <section id="accessDenied" class="login-layout" hidden aria-label="Acesso administrativo">
+    <div class="login-intro">
+      <span class="overline">DUPLAR · EQUIPE</span>
+      <h1>A gestão dos projetos começa aqui.</h1>
+      <div class="security-note">Acesso restrito à equipe cadastrada pela Duplar.</div>
+    </div>
+    <div class="login-card">
+      <form id="adminLoginForm" hidden>
+        <span class="overline">ÁREA ADMINISTRATIVA</span><h2>Entrar na minha conta</h2>
+        <p>Utilize seu e-mail de administrador e sua senha.</p>
+        <label for="adminEmail">E-mail</label><input id="adminEmail" type="email" autocomplete="username" required maxlength="254">
+        <label for="adminPassword">Senha</label><input id="adminPassword" type="password" autocomplete="current-password" required>
+        <button type="submit" class="primary-button">Entrar na administração</button>
+      </form>
+      <form id="adminBootstrapForm" hidden>
+        <span class="overline">PRIMEIRO ACESSO</span><h2>Ativar administração</h2>
+        <p>Somente o responsável pela Duplar pode criar a primeira conta. Use a chave de ativação cadastrada no servidor.</p>
+        <label for="bootstrapName">Nome</label><input id="bootstrapName" required minlength="2" maxlength="160" autocomplete="name">
+        <label for="bootstrapEmail">E-mail</label><input id="bootstrapEmail" type="email" required autocomplete="username">
+        <label for="bootstrapPassword">Criar senha (mínimo 12 caracteres)</label><input id="bootstrapPassword" type="password" minlength="12" maxlength="128" required autocomplete="new-password">
+        <label for="bootstrapToken">Chave de ativação</label><input id="bootstrapToken" type="password" required autocomplete="off">
+        <button type="submit" class="primary-button">Criar responsável principal</button>
+      </form>
+      <form id="adminInviteAcceptForm" hidden>
+        <span class="overline">CONVITE PRIVADO</span><h2>Ativar minha conta</h2>
+        <p>Para aceitar o convite, informe o e-mail indicado pelo responsável e crie sua senha.</p>
+        <label for="invitedEmail">E-mail convidado</label><input id="invitedEmail" type="email" required autocomplete="username">
+        <label for="invitedPassword">Criar senha (mínimo 12 caracteres)</label><input id="invitedPassword" type="password" minlength="12" maxlength="128" required autocomplete="new-password">
+        <button class="primary-button" type="submit">Ativar acesso</button>
+      </form>
+      <p id="authMessage" class="form-message" role="status" aria-live="polite"></p>
+    </div>
+  </section>
+  <section id="staffView" class="admin-shell" hidden aria-label="Painel administrativo Duplar">
+    <aside class="admin-sidebar" aria-label="Menu lateral de administração">
+      <div class="admin-sidebar-head">
+        <a class="admin-sidebar-brand" href="/" aria-label="Duplar Móveis — site institucional">
+          <img src="/assets/img/logo-marca.png" alt="" width="42" height="42">
+          <span>DUPLAR<small>MÓVEIS PROJETADOS</small></span>
+        </a>
+        <span class="admin-sidebar-caption">ESPAÇO DE GESTÃO</span>
+      </div>
+      <nav class="admin-navigation" aria-label="Seções da administração">
+        <span class="admin-navigation-title">PAINEL</span>
+        <button type="button" class="admin-nav-item is-current" data-admin-view="overview" aria-controls="adminOverview" aria-current="page"><span class="admin-nav-number">01</span>Visão geral</button>
+        <button type="button" class="admin-nav-item" data-admin-view="clients" aria-controls="adminClients"><span class="admin-nav-number">02</span>Clientes</button>
+        <button type="button" class="admin-nav-item" data-admin-view="projects" aria-controls="adminProjects"><span class="admin-nav-number">03</span>Projetos</button>
+        <button type="button" class="admin-nav-item" data-admin-view="documents" aria-controls="adminDocuments"><span class="admin-nav-number">04</span>Documentos</button>
+        <span class="admin-navigation-title admin-navigation-second">CONFIGURAÇÕES</span>
+        <button type="button" class="admin-nav-item" data-admin-view="account" aria-controls="adminAccount"><span class="admin-nav-number">05</span>Equipe e acesso</button>
+      </nav>
+      <div class="admin-sidebar-bottom">
+        <span class="admin-sidebar-micro">DUPLAR · ÁREA RESTRITA</span>
+        <a href="/cliente/" class="admin-sidebar-link">Abrir portal do cliente <span aria-hidden="true">↗</span></a>
+        <a href="/" class="admin-sidebar-link">Voltar ao site <span aria-hidden="true">↗</span></a>
+      </div>
+    </aside>
+    <div class="admin-workspace">
+      <header class="admin-topbar">
+        <div class="admin-breadcrumb"><span>ADMINISTRAÇÃO</span><span class="admin-breadcrumb-divider" aria-hidden="true">/</span><strong id="adminBreadcrumb">Visão geral</strong></div>
+        <div class="admin-topbar-actions"><span id="adminTopUser" class="admin-top-user"></span><button class="admin-exit-button" id="logout" type="button" hidden>Sair <span aria-hidden="true">↗</span></button></div>
+      </header>
+      <div class="admin-page" id="adminPage">
+        <section class="admin-view" id="adminOverview" data-admin-panel="overview" aria-labelledby="overviewTitle">
+          <div class="admin-section-heading">
+            <span class="overline">01 / VISÃO GERAL</span>
+            <h1 id="overviewTitle">Tudo em seu devido lugar.</h1>
+            <p>Uma visão rápida dos clientes cadastrados e projetos da Duplar.</p>
+          </div>
+          <div class="admin-stats" aria-label="Indicadores de cadastros">
+            <div class="admin-stat"><span>CLIENTES CADASTRADOS</span><strong id="statClients">—</strong><small>Total de registros</small></div>
+            <div class="admin-stat"><span>PROJETOS CADASTRADOS</span><strong id="statProjects">—</strong><small>Projetos vinculados aos clientes</small></div>
+            <div class="admin-stat"><span>CLIENTES ATIVOS</span><strong id="statActiveClients">—</strong><small>Com acesso permitido</small></div>
+          </div>
+          <div class="admin-overview-grid">
+            <section class="staff-card admin-surface">
+              <div class="admin-card-heading"><div><span class="overline">ACOMPANHAMENTO</span><h2>Clientes recentes</h2><p>Acompanhe os últimos cadastros da equipe.</p></div><button type="button" class="admin-small-button" data-admin-goto="clients">Ver todos <span aria-hidden="true">↗</span></button></div>
+              <div id="recentClientsList" class="admin-list" aria-live="polite"><p class="admin-empty">Carregando clientes...</p></div>
+            </section>
+            <section class="staff-card admin-surface">
+              <div class="admin-card-heading"><div><span class="overline">FLUXO DE TRABALHO</span><h2>Próximas ações</h2><p>Organize o atendimento em etapas.</p></div></div>
+              <div class="admin-quick-actions">
+                <button type="button" data-admin-goto="clients"><span class="admin-quick-index">01</span><span><strong>Cadastrar cliente</strong><small>Registre o contato e o WhatsApp</small></span><span aria-hidden="true">↗</span></button>
+                <button type="button" data-admin-goto="projects"><span class="admin-quick-index">02</span><span><strong>Criar projeto</strong><small>Informe orçamento, serviço e etapa</small></span><span aria-hidden="true">↗</span></button>
+                <button type="button" data-admin-goto="documents"><span class="admin-quick-index">03</span><span><strong>Anexar documento</strong><small>Disponibilize contrato ou nota fiscal</small></span><span aria-hidden="true">↗</span></button>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="admin-view" id="adminClients" data-admin-panel="clients" aria-labelledby="clientsTitle" hidden>
+          <div class="admin-section-heading">
+            <span class="overline">02 / CLIENTES</span><h1 id="clientsTitle">Gestão de clientes.</h1>
+            <p>Cadastre novos contatos e acompanhe quem já possui projetos com a Duplar.</p>
+          </div>
+          <div class="admin-content-grid admin-clients-grid">
+            <section class="staff-card">
+              <div class="admin-card-heading"><div><span class="overline">NOVO CADASTRO</span><h2>Adicionar cliente</h2><p>Use o número de WhatsApp que será autorizado no portal.</p></div></div>
+              <form id="clientForm" class="admin-managed-form">
+                <div><label for="clientName">Nome completo</label><input id="clientName" maxlength="160" autocomplete="name" placeholder="Nome do cliente" required></div>
+                <div><label for="clientPhone">WhatsApp com DDD</label><input id="clientPhone" type="tel" autocomplete="off" placeholder="(88) 99999-9999" required></div>
+                <button class="primary-button" type="submit">Salvar cliente</button>
+              </form>
+              <p id="clientMessage" class="form-message" role="status" aria-live="polite"></p>
+            </section>
+            <section class="staff-card">
+              <div class="admin-card-heading"><div><span class="overline">CARTEIRA</span><h2>Clientes cadastrados</h2><p id="clientCountLabel">Buscando cadastros...</p></div></div>
+              <label class="admin-search-label" for="clientSearch">Pesquisar por nome ou WhatsApp</label>
+              <input id="clientSearch" type="search" placeholder="Buscar cliente" autocomplete="off">
+              <div id="clientsList" class="admin-list admin-client-list" aria-live="polite"><p class="admin-empty">Carregando clientes...</p></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="admin-view" id="adminProjects" data-admin-panel="projects" aria-labelledby="projectsTitle" hidden>
+          <div class="admin-section-heading">
+            <span class="overline">03 / PROJETOS</span><h1 id="projectsTitle">Projetos sob controle.</h1>
+            <p>Centralize os serviços, orçamentos e etapas de cada projeto.</p>
+          </div>
+          <div class="admin-content-grid admin-projects-grid">
+            <section class="staff-card">
+              <div class="admin-card-heading"><div><span class="overline">CADASTRO DE PROJETO</span><h2>Novo projeto</h2><p>Vincule o projeto a um cliente já cadastrado.</p></div></div>
+              <form id="projectForm" class="admin-managed-form">
+                <div><label for="projectClient">Cliente</label><select id="projectClient" required></select></div>
+                <div class="admin-form-columns">
+                  <div><label for="projectName">Nome do projeto</label><input id="projectName" placeholder="Ex.: Cozinha planejada" maxlength="160" required></div>
+                  <div><label for="projectStatus">Etapa atual</label><select id="projectStatus"><option>Em planejamento</option><option>Orçamento apresentado</option><option>Contrato assinado</option><option>Em produção</option><option>Instalação agendada</option><option>Concluído</option></select></div>
+                </div>
+                <div><label for="projectBudget">Orçamento em reais (opcional)</label><input id="projectBudget" type="number" min="0" step="0.01" placeholder="Ex.: 12500.00"></div>
+                <div><label for="projectDescription">Descrição do projeto</label><textarea id="projectDescription" maxlength="4000" placeholder="Detalhes e escopo do projeto"></textarea></div>
+                <div><label for="projectServices">Serviços contratados</label><textarea id="projectServices" maxlength="4000" placeholder="Serviços e entregas acordados"></textarea></div>
+                <button class="primary-button" type="submit">Salvar projeto</button>
+              </form>
+              <p id="projectMessage" class="form-message" role="status" aria-live="polite"></p>
+            </section>
+            <aside class="staff-card admin-related-panel">
+              <div class="admin-card-heading"><div><span class="overline">ACOMPANHAMENTO</span><h2>Projetos deste cliente</h2><p id="projectsClientHint">Selecione um cliente ao lado para consultar os projetos vinculados.</p></div></div>
+              <div id="projectsList" class="admin-list" aria-live="polite"><p class="admin-empty">Escolha um cliente para ver seus projetos.</p></div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="admin-view" id="adminDocuments" data-admin-panel="documents" aria-labelledby="documentsTitle" hidden>
+          <div class="admin-section-heading">
+            <span class="overline">04 / DOCUMENTOS</span><h1 id="documentsTitle">Documentos organizados.</h1>
+            <p>Envie contratos e notas fiscais diretamente para o projeto certo.</p>
+          </div>
+          <div class="admin-content-grid admin-documents-grid">
+            <section class="staff-card">
+              <div class="admin-card-heading"><div><span class="overline">ARQUIVO PRIVADO</span><h2>Enviar documento</h2><p>Somente a equipe autorizada e o cliente vinculado poderão acessar o PDF.</p></div></div>
+              <form id="documentForm" class="admin-managed-form">
+                <div><label for="documentClient">Cliente</label><select id="documentClient" required></select></div>
+                <div><label for="documentProject">Projeto</label><select id="documentProject" required></select></div>
+                <div><label for="documentType">Tipo de documento</label><select id="documentType"><option value="contract">Contrato</option><option value="invoice">Nota fiscal</option></select></div>
+                <div><label for="documentFile">Arquivo PDF (até 4 MB)</label><input id="documentFile" type="file" accept=".pdf,application/pdf" required></div>
+                <button class="primary-button" type="submit">Enviar documento</button>
+              </form>
+              <p id="documentMessage" class="form-message" role="status" aria-live="polite"></p>
+            </section>
+            <aside class="staff-card admin-instruction-panel">
+              <span class="overline">COMO FUNCIONA</span><h2>Do painel ao cliente.</h2>
+              <div class="admin-instruction-list">
+                <div><span>01</span><p><strong>Escolha o cliente.</strong> Selecione o cadastro já existente.</p></div>
+                <div><span>02</span><p><strong>Defina o projeto.</strong> Cada documento pertence a um projeto.</p></div>
+                <div><span>03</span><p><strong>Envie o PDF.</strong> O arquivo ficará disponível no portal do cliente.</p></div>
+              </div>
+              <p class="admin-security-note">Os documentos são guardados de forma privada. O portal não publica os PDFs como arquivos abertos do site.</p>
+            </aside>
+          </div>
+        </section>
+
+        <section class="admin-view" id="adminAccount" data-admin-panel="account" aria-labelledby="accountTitle" hidden>
+          <div class="admin-section-heading">
+            <span class="overline">05 / EQUIPE E ACESSO</span><h1 id="accountTitle">Sua equipe, seu controle.</h1>
+            <p>Gerencie sua senha e os acessos administrativos autorizados.</p>
+          </div>
+          <div class="admin-account-grid">
+            <section class="staff-card" id="accountPanel">
+              <div class="admin-card-heading"><div><span class="overline">MINHA CONTA</span><h2>Segurança da conta</h2><p id="adminIdentity"></p></div></div>
+              <form id="changePasswordForm" class="admin-managed-form admin-password-form">
+                <div><label for="oldPassword">Senha atual</label><input id="oldPassword" type="password" autocomplete="current-password" required></div>
+                <div><label for="newPassword">Nova senha (mínimo 12 caracteres)</label><input id="newPassword" type="password" autocomplete="new-password" minlength="12" maxlength="128" required></div>
+                <button type="submit" class="primary-button">Alterar minha senha</button>
+              </form>
+              <p id="changePasswordMessage" class="form-message" role="status" aria-live="polite"></p>
+            </section>
+            <section class="staff-card" id="ownerPanel" hidden>
+              <div class="admin-card-heading"><div><span class="overline">RESPONSÁVEL PRINCIPAL</span><h2>Administradores autorizados</h2><p>Convide integrantes da equipe por um link individual de 24 horas.</p></div></div>
+              <form id="inviteAdminForm" class="admin-managed-form admin-invite-form">
+                <div><label for="inviteName">Nome do administrador</label><input id="inviteName" required minlength="2" maxlength="160"></div>
+                <div><label for="inviteEmail">E-mail do administrador</label><input id="inviteEmail" type="email" required maxlength="254"></div>
+                <button type="submit" class="primary-button">Gerar convite privado</button>
+              </form>
+              <div id="invitationResult" class="invitation-result" hidden>
+                <label for="invitationLink">Link privado para compartilhar com o convidado</label><input id="invitationLink" readonly aria-label="Link de convite">
+                <button id="copyInvitation" class="text-button" type="button">Copiar link</button>
+                <p>O link dá acesso à criação de senha. Compartilhe somente com a pessoa convidada.</p>
+              </div>
+              <p id="inviteAdminMessage" class="form-message" role="status" aria-live="polite"></p>
+              <div class="admin-subsection-title">Equipe cadastrada</div>
+              <div id="adminUsers" class="staff-data"></div>
+            </section>
+            <section class="staff-card admin-otp-panel" id="otpPanel" hidden aria-labelledby="otpTitle">
+              <div class="admin-card-heading">
+                <div>
+                  <span class="overline">PORTAL DO CLIENTE</span>
+                  <h2 id="otpTitle">Acesso pelo WhatsApp</h2>
+                  <p>Confira se o envio de códigos está configurado para os clientes.</p>
+                </div>
+              </div>
+              <p id="otpSummary" class="otp-summary" role="status" aria-live="polite">Verificando configuração...</p>
+              <div class="otp-status-list" aria-label="Configurações necessárias">
+                <div><span>Chave de autenticação</span><strong id="otpSecretState">Verificando...</strong></div>
+                <div><span>Token de envio da Meta</span><strong id="otpMetaTokenState">Verificando...</strong></div>
+                <div><span>Número remetente da Meta</span><strong id="otpPhoneIdState">Verificando...</strong></div>
+                <div><span>WhatsApp de atendimento</span><strong id="otpSupportState">Verificando...</strong></div>
+                <div><span>Modelo de mensagem</span><strong id="otpTemplateState">Verificando...</strong></div>
+              </div>
+              <div class="otp-footer-actions">
+                <button type="button" class="admin-small-button" id="refreshOtpStatus">Verificar novamente</button>
+                <span>O status não confirma aprovação do modelo na Meta nem entrega de mensagens. Faça um teste com um cliente autorizado antes de liberar o acesso.</span>
+              </div>
+            </section>
+          </div>
+        </section>
+      </div>
+      <footer class="admin-workspace-footer"><span>© 2026 DUPLAR MÓVEIS</span><span>GESTÃO INTERNA</span></footer>
+    </div>
+  </section>
+</main>
+<footer class="portal-footer"><span>© 2026 DUPLAR MÓVEIS</span><span>Área restrita à equipe autorizada.</span></footer>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#101113">
+<title>Área do cliente — Duplar Móveis</title>
+<link rel="icon" href="../assets/img/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Work+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./styles.css">
+<script src="./app.js" defer></script>
+</head>
+<body>
+<a href="#portalMain" class="skip-link">Pular para o conteúdo</a>
+<div class="ambient-grain" aria-hidden="true"></div>
+<div id="entryScreen" class="entry-screen">
+<header class="entry-header"><a href="../" class="brand-lockup"><img src="../assets/img/logo-marca.png" alt="" width="45" height="45"><span class="brand-name">Duplar<small>MÓVEIS PROJETADOS</small></span></a><a class="quiet-link" href="../">Voltar ao site ↗</a></header>
+<main class="entry-layout">
+ <div class="entry-copy"><span class="eyebrow">DUPLAR / ÁREA DO CLIENTE</span><p class="entry-lead">Consulte seus contratos, notas fiscais, informações do projeto e converse diretamente com a Duplar.</p></div>
+ <div class="entry-card"><div class="card-kicker"><span>ACESSO SEGURO</span><span>✳</span></div><h2>Entre no seu <em>espaço.</em></h2>
+ 
+ <form id="phoneForm" class="portal-login-form"><label for="phone">WhatsApp com DDD</label><input id="phone" autocomplete="tel" type="tel" inputmode="tel" placeholder="(88) 99999-9999" required><button class="primary-action" type="submit" id="sendCode">Receber código no WhatsApp ↗</button></form>
+ <form id="codeForm" class="portal-login-form" hidden><label for="code">Código de seis dígitos</label><input id="code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="000000" required><button class="primary-action" type="submit" id="verifyCode">Confirmar meu acesso ↗</button><button class="quiet-link" type="button" id="backPhone">Usar outro número</button></form>
+ <p id="loginMessage" class="login-status" aria-live="polite" role="status"></p><p class="entry-disclaimer">Somente números previamente cadastrados pela Duplar recebem acesso. O código expira após cinco minutos.</p>
+ <a class="quiet-link demo-preview-link" href="?demo=1">Ver demonstração ilustrativa ↗</a></div>
+</main><footer class="entry-footer"><span>© DUPLAR MÓVEIS</span><span>UM ESPAÇO EXCLUSIVO PARA VOCÊ</span></footer></div>
+<div id="dashboard" class="portal-shell" hidden>
+ <div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
+ <aside class="sidebar" id="sidebar" aria-label="Menu da área do cliente">
+   <a class="brand-lockup sidebar-brand" href="../"><img src="../assets/img/logo-marca.png" alt="" width="41" height="41"><span class="brand-name">Duplar<small>MÓVEIS PROJETADOS</small></span></a>
+   <nav class="sidebar-nav" aria-label="Quatro áreas do cliente">
+     <span class="sidebar-label">SEU ESPAÇO</span>
+     <button type="button" data-view="contratos" class="side-link is-active"><span class="nav-symbol" aria-hidden="true">▤</span> Contratos <span class="side-arrow">↗</span></button>
+     <button type="button" data-view="notas" class="side-link"><span class="nav-symbol" aria-hidden="true">▥</span> Notas fiscais <span class="side-arrow">↗</span></button>
+     <button type="button" data-view="projeto" class="side-link"><span class="nav-symbol" aria-hidden="true">⌗</span> Meu projeto <span class="side-arrow">↗</span></button>
+     <button type="button" data-view="atendimento" class="side-link"><span class="nav-symbol" aria-hidden="true">◎</span> Atendimento <span class="side-arrow">↗</span></button>
+   </nav>
+   <div class="sidebar-client-profile" role="group" aria-label="Identificação do cliente">
+     <span class="sidebar-client-avatar" id="clientProfileInitials" aria-hidden="true">CL</span>
+     <div class="sidebar-client-details">
+       <strong id="clientProfileName" class="sidebar-client-name">Cliente Duplar</strong>
+       <span id="clientProfileLabel" class="sidebar-client-label">Área privada</span>
+     </div>
+   </div>
+ </aside>
+ <div class="portal-workspace">
+  <header class="portal-header"><button id="sidebarToggle" class="mobile-nav-toggle" aria-controls="sidebar" aria-expanded="false" type="button">☰ <span>Menu</span></button><div class="portal-breadcrumb"><span>ÁREA DO CLIENTE</span><span>/</span><strong id="currentSection">Contratos</strong></div><div class="portal-header-actions"><a href="../" class="top-home" aria-label="Voltar ao site da Duplar">Voltar ao site <span aria-hidden="true">↗</span></a><button class="top-exit" id="topExit" type="button">Sair ↗</button></div></header>
+  <main class="portal-content" id="portalMain">
+   <div id="projectSwitch" class="project-switcher" hidden><label for="projectSelect">Projeto selecionado</label><select id="projectSelect" aria-label="Escolher projeto"></select></div>
+   <section class="portal-view" data-panel="contratos" aria-labelledby="contratos-title">
+    <div class="client-page-heading">
+     <div><span class="client-eyebrow">DOCUMENTOS</span><h1 id="contratos-title">Contratos</h1><p>Seus contratos para consulta e download.</p></div>
+    </div>
+    <div class="client-files-panel">
+     <div class="client-files-heading">
+      <div><span class="client-panel-overline">ARQUIVOS DO PROJETO</span><h2>Contratos disponíveis</h2></div>
+      <span class="client-file-count" aria-live="polite"><strong id="contractsCount">0</strong> <span id="contractsCountLabel">arquivos</span></span>
+     </div>
+     <div id="contractsList" class="docs-list client-files-list" aria-live="polite"></div>
+    </div>
+   </section>
+   <section class="portal-view" data-panel="notas" aria-labelledby="notas-title" hidden>
+    <div class="client-page-heading">
+     <div><span class="client-eyebrow">DOCUMENTOS</span><h1 id="notas-title">Notas fiscais</h1><p>Encontre e baixe as notas do seu projeto.</p></div>
+    </div>
+    <div class="client-files-panel">
+     <div class="client-files-heading">
+      <div><span class="client-panel-overline">ARQUIVOS DO PROJETO</span><h2>Notas disponíveis</h2></div>
+      <span class="client-file-count" aria-live="polite"><strong id="invoicesCount">0</strong> <span id="invoicesCountLabel">arquivos</span></span>
+     </div>
+     <div id="invoicesList" class="docs-list client-files-list" aria-live="polite"></div>
+    </div>
+   </section>
+   <section class="portal-view" data-panel="projeto" aria-labelledby="projeto-title" hidden>
+    <div class="client-page-heading">
+     <div><span class="client-eyebrow">ACOMPANHAMENTO</span><h1 id="projeto-title">Meu projeto</h1><p>Veja o andamento, o orçamento e os serviços.</p></div>
+    </div>
+    <div class="client-project-overview">
+     <div class="client-project-overview-top"><span class="client-panel-overline">PROJETO SELECIONADO</span><span class="client-project-status" id="projectStatus">Aguardando cadastro</span></div>
+     <h2 id="projectName">Nenhum projeto cadastrado</h2>
+     <p id="projectDescription">As informações serão exibidas quando a Duplar cadastrar seu projeto.</p>
+    </div>
+    <div class="client-project-details">
+     <article class="client-project-detail client-budget-detail"><span class="client-panel-overline">ORÇAMENTO</span><strong id="projectBudget">Não informado</strong><small>Valor do projeto</small></article>
+     <article class="client-project-detail client-services-detail"><span class="client-panel-overline">SERVIÇOS CONTRATADOS</span><p id="projectServices" class="project-services">Aguardando informações da Duplar.</p></article>
+    </div>
+    <div class="client-shortcuts" aria-label="Acesso aos documentos deste projeto">
+     <span class="client-panel-overline">DOCUMENTOS DO PROJETO</span>
+     <div class="client-shortcut-links">
+      <button type="button" data-client-goto="contratos">Ver contratos <span aria-hidden="true">↗</span></button>
+      <button type="button" data-client-goto="notas">Ver notas fiscais <span aria-hidden="true">↗</span></button>
+     </div>
+    </div>
+   </section>
+   <section class="portal-view" data-panel="atendimento" aria-labelledby="atendimento-title" hidden>
+    <div class="client-page-heading">
+     <div><span class="client-eyebrow">CONTATO</span><h1 id="atendimento-title">Atendimento</h1><p>Precisa de ajuda? Estamos por aqui.</p></div>
+    </div>
+    <div class="client-contact-panel">
+     <span class="client-panel-overline">ATENDIMENTO PELO WHATSAPP</span>
+     <div class="client-contact-main">
+      <div><h2>Converse com a Duplar.</h2><p>Dúvidas sobre projetos, contratos ou documentos.</p></div>
+      <a id="supportLink" class="client-whatsapp-action" href="https://wa.me/558881734015" target="_blank" rel="noopener noreferrer">Abrir WhatsApp <span aria-hidden="true">↗</span></a>
+     </div>
+    </div>
+    <div class="client-contact-shortcuts">
+     <span class="client-panel-overline">ACESSO RÁPIDO</span>
+     <div class="client-shortcut-links">
+      <button type="button" data-client-goto="contratos">Contratos <span aria-hidden="true">↗</span></button>
+      <button type="button" data-client-goto="notas">Notas fiscais <span aria-hidden="true">↗</span></button>
+      <button type="button" data-client-goto="projeto">Meu projeto <span aria-hidden="true">↗</span></button>
+     </div>
+    </div>
+   </section>
+  <p id="dashboardMessage" class="login-status" role="status" aria-live="polite"></p>
+  </main><footer class="portal-footer"><span>© Duplar Móveis</span><span>PORTAL PRIVADO DO CLIENTE</span></footer>
+ </div>
+</div>
+</body></html>

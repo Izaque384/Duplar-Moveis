@@ -1,0 +1,102 @@
+name: Review Duplar client portal
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - cliente/**
+      - .github/workflows/client-portal-review.yml
+      - netlify/functions/duplar-portal.mjs
+  pull_request:
+    branches: [develop]
+    paths:
+      - cliente/**
+      - .github/workflows/client-portal-review.yml
+      - netlify/functions/duplar-portal.mjs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  portal:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify portal syntax and source
+        run: |
+          node --check cliente/app.js
+          node --check netlify/functions/duplar-portal.mjs
+          node --test tests/portal-static.test.mjs
+      - name: Install browser for smoke tests
+        run: |
+          npm install --no-save --silent playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Test the four client screens at common viewport sizes
+        run: |
+          python3 -m http.server 4173 > /tmp/duplar-client-http.log 2>&1 &
+          mkdir -p portal-review
+          node <<'NODE'
+          const { chromium } = require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const variants=[
+              {label:'desktop',width:1440,height:900},
+              {label:'laptop',width:1024,height:768},
+              {label:'tablet',width:768,height:1024},
+              {label:'phone',width:390,height:844},
+              {label:'compact',width:320,height:568},
+            ];
+            const views=['contratos','notas','projeto','atendimento'];
+            for(const size of variants){
+              const page=await browser.newPage({viewport:{width:size.width,height:size.height},deviceScaleFactor:1});
+              const errors=[];
+              page.on('pageerror',e=>errors.push(e.message));
+              await page.emulateMedia({reducedMotion:'reduce'});
+              await page.goto('http://127.0.0.1:4173/cliente/?demo=1',{waitUntil:'domcontentloaded'});
+              await page.locator('#dashboard').waitFor({state:'visible'});
+              if(await page.locator('#entryScreen').isVisible())throw Error(size.label+': demo entry still visible');
+              if((await page.locator('#clientProfileName').textContent()).trim()!=='Visitante')throw Error(size.label+': demo profile must be anonymous');
+              if(await page.locator('.portal-view').count()!==4)throw Error(size.label+': expected four areas');
+              for(const key of views){
+                if(size.width<=1080){
+                  await page.locator('#sidebarToggle').click();
+                  if(await page.locator('#sidebarToggle').getAttribute('aria-expanded')!=='true')throw Error(size.label+': mobile menu not expanded');
+                }
+                await page.locator('.side-link[data-view="'+key+'"]').click();
+                if(!await page.locator('.portal-view[data-panel="'+key+'"]').isVisible())throw Error(size.label+': hidden view '+key);
+                if(await page.locator('.portal-view:visible').count()!==1)throw Error(size.label+': more than one active view');
+                const dimensions=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,width:innerWidth}));
+                if(dimensions.scroll>dimensions.width+2){
+                  const offenders=await page.evaluate(()=>Array.from(document.querySelectorAll('#dashboard *')).map(el=>{
+                    const rect=el.getBoundingClientRect();
+                    return {element:el.tagName.toLowerCase(),className:String(el.className||'').slice(0,90),right:Math.round(rect.right),left:Math.round(rect.left),width:Math.round(rect.width)};
+                  }).filter(x=>x.right>innerWidth+2 && x.width>0).sort((a,b)=>b.right-a.right).slice(0,12));
+                  throw Error(size.label+': horizontal overflow in '+key+' '+JSON.stringify(dimensions)+' offenders='+JSON.stringify(offenders));
+                }
+                await page.screenshot({path:'portal-review/'+size.label+'-'+key+'.png',fullPage:true,animations:'disabled'});
+              }
+              if((await page.locator('#contractsCount').textContent()).trim()!=='0')throw Error(size.label+': demo should have no actual documents');
+              if(await page.locator('.client-download-action').count()!==0)throw Error(size.label+': demo exposed document download');
+              const destination=await page.locator('#supportLink').getAttribute('href');
+              if(!destination.startsWith('https://wa.me/'))throw Error(size.label+': support WhatsApp not configured as a link');
+              await page.locator('#topExit').click();
+              await page.locator('#entryScreen').waitFor({state:'visible'});
+              if(errors.length)throw Error(size.label+': JavaScript errors '+errors.join('; '));
+              console.log('PASS '+size.label+' four areas and logout');
+              await page.close();
+            }
+            await browser.close();
+          })().catch(err=>{console.error(err);process.exit(1);});
+          NODE
+          node scripts/review-portal-flows.mjs
+      - name: Upload portal visual review screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: duplar-client-portal-visual
+          path: portal-review/
+          if-no-files-found: ignore
