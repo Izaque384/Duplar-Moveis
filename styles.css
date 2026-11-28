@@ -419,45 +419,9 @@ p{ color: inherit; }
   object-fit: cover;
   transition: transform 0.7s var(--ease), filter 0.5s var(--ease);
 }
-.ambiente-card::after{
-  content: "";
-  position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(28,23,18,0.78) 0%, rgba(28,23,18,0.12) 45%, rgba(28,23,18,0) 70%);
-  transition: opacity 0.4s var(--ease);
-}
 .ambiente-card:hover img,
 .ambiente-card:focus-visible img{ transform: scale(1.06); }
 
-.ambiente-legenda{
-  position: absolute; left: 0; right: 0; bottom: 0;
-  z-index: 2;
-  display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem;
-  padding: 1.1rem 1.25rem;
-}
-.ambiente-nome{
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--cream-text);
-}
-.ambiente-ver{
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--brass-light);
-  opacity: 0;
-  transform: translateY(4px);
-  transition: opacity 0.35s var(--ease), transform 0.35s var(--ease);
-}
-.ambiente-card:hover .ambiente-ver,
-.ambiente-card:focus-visible .ambiente-ver{ opacity: 1; transform: translateY(0); }
-
-/* em telas de toque não há hover: o rótulo fica sempre visível */
-@media (hover: none){
-  .ambiente-ver{ opacity: 0.85; transform: none; }
-}
 
 .galeria-nota{
   font-family: var(--font-mono);
@@ -740,12 +704,8 @@ section[id]{scroll-margin-top:90px}
 .ambiente-card{aspect-ratio:4/5;border-radius:2px;isolation:isolate}
 .ambiente-card picture{display:block;width:100%;height:100%}
 .ambiente-card:first-child{grid-column:span 2;aspect-ratio:8/5}
-.ambiente-card::after{background:linear-gradient(to top,rgba(28,23,18,.83) 0%,rgba(28,23,18,.06) 56%,transparent 74%)}
 .ambiente-card img{transition:transform .95s var(--ease),filter .5s var(--ease)}
 .ambiente-card:hover img,.ambiente-card:focus-visible img{transform:scale(1.035)}
-.ambiente-legenda{padding:1.55rem;align-items:flex-end}
-.ambiente-nome{font-family:var(--font-display);font-size:clamp(1.2rem,2vw,1.65rem);letter-spacing:0;text-transform:none;font-weight:450}
-.ambiente-ver{color:var(--brass-light);font-size:.64rem}
 .gallery-cta-card{
   grid-column:span 2;min-width:0;padding:clamp(2.5rem,5vw,5.5rem);
   display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
@@ -828,8 +788,6 @@ section[id]{scroll-margin-top:90px}
   .scroll-cue{display:none}
   .ambientes-grid{grid-template-columns:1fr;gap:.85rem}
   .ambiente-card,.ambiente-card:first-child{grid-column:span 1;aspect-ratio:4/3}
-  .ambiente-legenda{padding:1.2rem}
-  .ambiente-nome{font-size:1.3rem}
   .gallery-cta-card{min-height:310px;padding:2.25rem;grid-column:span 1}
   .gallery-cta-card h3{font-size:2rem}
   .section-heading-row h2{font-size:clamp(2rem,8vw,2.8rem)}
