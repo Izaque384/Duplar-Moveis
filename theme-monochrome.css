@@ -247,31 +247,6 @@ h3 { font-size: clamp(1.2rem, 1.8vw, 1.5rem); }
   filter: saturate(.95) brightness(1.02);
   transform: scale(1.055);
 }
-.ambiente-card::after {
-  background: linear-gradient(0deg, rgba(8,9,11,.91), rgba(8,9,11,.22) 30%, transparent 60%);
-}
-.ambiente-legenda { align-items: end; padding: clamp(1.25rem,2.4vw,2rem); gap: .8rem; }
-.ambiente-nome {
-  font-size: clamp(1.3rem,2.2vw,1.95rem);
-  font-weight: 400;
-  color: #fff;
-}
-.ambiente-ver {
-  color: var(--cream-text);
-  font-size: .6rem;
-  letter-spacing: .2em;
-  opacity: .9;
-  transform: none;
-}
-.card-index {
-  position: absolute; z-index: 4;
-  top: clamp(1rem,2vw,1.75rem); left: clamp(1rem,2vw,1.75rem);
-  color: rgba(255,255,255,.85);
-  font-family: var(--font-mono);
-  font-size: .6rem;
-  letter-spacing: .18em;
-  pointer-events: none;
-}
 .gallery-cta-card {
   position: relative;
   isolation: isolate;
@@ -499,10 +474,6 @@ h3 { font-size: clamp(1.2rem, 1.8vw, 1.5rem); }
   .section-intro { font-size: .9rem; }
   .ambientes-grid { gap: .7rem; }
   .ambiente-card, .ambiente-card:first-child { aspect-ratio: 4/3; }
-  .ambiente-legenda { padding: 1.1rem; }
-  .ambiente-nome { font-size: 1.35rem; }
-  .ambiente-ver { font-size: .56rem; letter-spacing: .11em; }
-  .card-index { top: 1rem; left: 1rem; }
   .gallery-cta-card { min-height: 310px; padding: 2.25rem; }
   .gallery-cta-card h3 { font-size: clamp(2.1rem,8vw,2.75rem); }
   .dif-grid { grid-template-columns: 1fr; }
