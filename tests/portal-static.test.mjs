@@ -341,3 +341,20 @@ test('todos os formulários assíncronos guardam a referência antes de await',(
  assert.ok(admin.includes('form.reset()'));
  assert.ok(admin.includes('buttonBusy(form,false)'));
 });
+
+test('portfólio exibe apenas fotografias, sem nomes, numeração ou degradês sobre as imagens',()=>{
+ const html=readFileSync('index.html','utf8');
+ const base=readFileSync('styles.css','utf8');
+ const theme=readFileSync('theme-monochrome.css','utf8');
+ const section=html.slice(html.indexOf('<div class="ambientes-grid" id="galeria">'),html.indexOf('<div class="gallery-cta-card">'));
+ const cards=[...section.matchAll(/<button class="ambiente-card" type="button" aria-label="Ampliar foto: [^"]+"/g)];
+ assert.equal(cards.length,6,'Seis fotos preservadas e com nomes acessíveis');
+ assert.equal((section.match(/<picture>/g)||[]).length,6,'Fotos e formatos responsivos preservados');
+ assert.equal((section.match(/data-full=/g)||[]).length,6,'Abertura em tela cheia preservada');
+ assert.equal((section.match(/data-legenda=/g)||[]).length,6,'Descrição mantida apenas para o lightbox');
+ for(const overlay of ['ambiente-legenda','ambiente-nome','ambiente-ver','card-index']){
+   assert.ok(!section.includes(overlay),'Texto sobre a foto não pode aparecer: '+overlay);
+ }
+ assert.ok(!base.includes('.ambiente-card::after'),'Base não deve escurecer as fotos com degradê');
+ assert.ok(!theme.includes('.ambiente-card::after'),'Tema não deve escurecer as fotos com degradê');
+});
